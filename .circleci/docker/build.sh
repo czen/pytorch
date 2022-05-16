@@ -250,6 +250,17 @@ case "$image" in
     VISION=yes
     ROCM_VERSION=5.1.1
     ;;
+  pytorch-linux-focal-cuda11.6-cudnn8-glibc2.34-py3.8-gcc11-clang12)
+    ANACONDA_PYTHON_VERSION=3.8
+    CUDA_VERSION=11.6.0
+    CUDNN_VERSION=8
+    GLIBC_VERSION=2.34
+    GCC_VERSION=11
+    CLANG_VERSION=12
+    PROTOBUF=yes
+    DB=yes
+    VISION=yes
+    ;;
   *)
     # Catch-all for builds that are not hardcoded.
     PROTOBUF=yes

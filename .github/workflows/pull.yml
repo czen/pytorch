@@ -219,6 +219,13 @@ jobs:
       docker-image-name: pytorch-linux-xenial-py3-clang5-asan
       build-generates-artifacts: false
 
+  linux-focal-cuda11_6-cudnn8-glibc2_34-py3_8-gcc11-clang12-build:
+    name: linux-focal-cuda11.6-cudnn8-glibc2.34-py3.8-gcc11-clang12
+    uses: ./.github/workflows/_linux-build.yml
+    with:
+      build-environment: linux-focal-cuda11.6-cudnn8-glibc2.34-py3.8-gcc11-clang12
+      docker-image-name: pytorch-linux-focal-cuda11.6-cudnn8-glibc2.34-py3.8-gcc11-clang12
+
   linux-xenial-py3-clang5-mobile-custom-build-static:
     name: linux-xenial-py3-clang5-mobile-custom-build-static
     uses: ./.github/workflows/_linux-build.yml
