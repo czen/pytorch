@@ -66,6 +66,7 @@ template <> struct AccumulateType<int16_t, true> { using type = int64_t; };
 template <> struct AccumulateType<int32_t, true> { using type = int64_t; };
 template <> struct AccumulateType<int64_t, true> { using type = int64_t; };
 template <> struct AccumulateType<bool, true> {using type = bool; };
+template <> struct AccumulateType<c10::CFloatWithSubnormals, true> { using type = CFloatWithSubnormals; };
 template <> struct AccumulateType<Half, false> { using type = float; };
 template <> struct AccumulateType<BFloat16, false> { using type = float; };
 template <> struct AccumulateType<c10::complex<float>, false> { using type = c10::complex<double>; };
@@ -81,6 +82,7 @@ template <> struct AccumulateType<int16_t, false> { using type = int64_t; };
 template <> struct AccumulateType<int32_t, false> { using type = int64_t; };
 template <> struct AccumulateType<int64_t, false> { using type = int64_t; };
 template <> struct AccumulateType<bool, false> {using type = bool; };
+template <> struct AccumulateType<c10::CFloatWithSubnormals, false> { using type = double; };
 
 template<typename T, bool is_cuda>
 using acc_type = typename AccumulateType<T, is_cuda>::type;
