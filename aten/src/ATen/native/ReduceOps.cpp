@@ -619,6 +619,10 @@ inline bool isnan_(T x) {
   return std::isnan(x);
 }
 #endif
+template<>
+inline bool isnan_(CFloatWithSubnormals x) {
+  return sw::universal::isnan(x);
+}
 }
 
 template<typename T1, typename T2, typename Operation>

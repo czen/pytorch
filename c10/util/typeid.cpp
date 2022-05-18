@@ -90,4 +90,6 @@ CAFFE_KNOWN_TYPE(detail::_guard_long_unique<std::vector<long>>)
 CAFFE_KNOWN_TYPE(float*)
 CAFFE_KNOWN_TYPE(at::Half*)
 
+CAFFE_KNOWN_TYPE(c10::CFloatWithSubnormals*)
+
 } // namespace caffe2

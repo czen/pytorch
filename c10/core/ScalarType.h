@@ -133,7 +133,8 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(int, Int)                     \
   _(int64_t, Long)                \
   _(float, Float)                 \
-  _(double, Double)
+  _(double, Double)               \
+  _(c10::CFloatWithSubnormals, CFloatWithSubnormals)
 
 #define AT_FORALL_SCALAR_TYPES_AND(SCALARTYPE, _) \
   _(uint8_t, Byte)                                \
