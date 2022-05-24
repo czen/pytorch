@@ -45,19 +45,35 @@ public:
       return sw::universal::operator<(              \
         *this,                                      \
         static_cast<CFloatWithSubnormals>(right));  \
+    }                                               \
+    inline bool operator<=(T right)                 \
+    {                                               \
+      return sw::universal::operator<=(             \
+        *this,                                      \
+        static_cast<CFloatWithSubnormals>(right));  \
     }
   FORALL_SUPPORTED_TYPES(OP)
   #undef OP
   #define OP(T) \
-    inline friend bool operator<(T left, CFloatWithSubnormals right) \
-    {                                                                \
-      return left < static_cast<T>(right);                           \
+    inline friend bool operator<(T left, CFloatWithSubnormals right)  \
+    {                                                                 \
+      return left < static_cast<T>(right);                            \
+    }                                                                 \
+    inline friend bool operator<=(T left, CFloatWithSubnormals right) \
+    {                                                                 \
+      return left <= static_cast<T>(right);                           \
     }
   FORALL_SUPPORTED_TYPES(OP)
   #undef OP
   inline friend bool operator<(uint64_t left, CFloatWithSubnormals right)
   {
     return sw::universal::operator<(
+      static_cast<CFloatWithSubnormals>(left),
+      static_cast<CFloatWithSubnormals>(right));
+  }
+  inline friend bool operator<=(uint64_t left, CFloatWithSubnormals right)
+  {
+    return sw::universal::operator<=(
       static_cast<CFloatWithSubnormals>(left),
       static_cast<CFloatWithSubnormals>(right));
   }
@@ -69,19 +85,35 @@ public:
       return sw::universal::operator>(              \
         *this,                                      \
         static_cast<CFloatWithSubnormals>(right));  \
+    }                                               \
+    inline bool operator>=(T right)                 \
+    {                                               \
+      return sw::universal::operator>=(             \
+        *this,                                      \
+        static_cast<CFloatWithSubnormals>(right));  \
     }
   FORALL_SUPPORTED_TYPES(OP)
   #undef OP
   #define OP(T) \
-    inline friend bool operator>(T left, CFloatWithSubnormals right) \
-    {                                                                \
-      return left > static_cast<T>(right);                           \
+    inline friend bool operator>(T left, CFloatWithSubnormals right)  \
+    {                                                                 \
+      return left > static_cast<T>(right);                            \
+    }                                                                 \
+    inline friend bool operator>=(T left, CFloatWithSubnormals right) \
+    {                                                                 \
+      return left >= static_cast<T>(right);                           \
     }
   FORALL_SUPPORTED_TYPES(OP)
   #undef OP
   inline friend bool operator>(uint64_t left, CFloatWithSubnormals right)
   {
     return sw::universal::operator>(
+      static_cast<CFloatWithSubnormals>(left),
+      static_cast<CFloatWithSubnormals>(right));
+  }
+  inline friend bool operator>=(uint64_t left, CFloatWithSubnormals right)
+  {
+    return sw::universal::operator>=(
       static_cast<CFloatWithSubnormals>(left),
       static_cast<CFloatWithSubnormals>(right));
   }
@@ -159,6 +191,7 @@ inline CFloatWithSubnormals operator/(CFloatWithSubnormals left, CFloatWithSubno
 }
 
 #define FORALL_SUPPORTED_TYPES_IN_OPERATORS(_) \
+  _(int)                                       \
   _(float)                                     \
   _(double)
 
@@ -269,5 +302,16 @@ inline CFloatWithSubnormals operator/(int64_t left, CFloatWithSubnormals right)
 
 #undef FORALL_SUPPORTED_TYPES
 #undef FORALL_SUPPORTED_TYPES_IN_OPERATORS
+
+}
+
+namespace std {
+
+template<>
+struct hash<c10::CFloatWithSubnormals> {
+  size_t operator()(const c10::CFloatWithSubnormals& value) const noexcept {
+    return hash<uint32_t>()(value.block(0));
+  }
+};
 
 }

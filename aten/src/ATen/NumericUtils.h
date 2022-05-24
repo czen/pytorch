@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <complex>
+#include <functional>
 #include <type_traits>
 #include <c10/util/BFloat16.h>
 #include <c10/util/Half.h>
@@ -56,6 +57,16 @@ inline C10_HOST_DEVICE bool _isnan(at::BFloat16 val) {
   return at::_isnan(static_cast<float>(val));
 }
 
+template <typename T,
+         typename std::enable_if<std::is_same<T, at::CFloatWithSubnormals>::value, int>::type = 0>
+inline C10_HOST_DEVICE bool _isnan(at::CFloatWithSubnormals val) {
+  return sw::universal::isnan(val);
+}
+
+inline C10_HOST_DEVICE bool _isnan(at::CFloatWithSubnormals val) {
+  return sw::universal::isnan(val);
+}
+
 
 // std::isinf isn't performant to use on integral types; it will
 // (uselessly) convert to floating point and then do the test.
@@ -84,6 +95,11 @@ inline C10_HOST_DEVICE bool _isinf(at::Half val) {
 
 inline C10_HOST_DEVICE bool _isinf(at::BFloat16 val) {
   return at::_isinf(static_cast<float>(val));
+}
+
+
+inline C10_HOST_DEVICE bool _isinf(at::CFloatWithSubnormals val) {
+  return sw::universal::isinf(val);
 }
 
 template <typename T>
