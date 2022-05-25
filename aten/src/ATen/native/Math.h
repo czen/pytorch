@@ -1149,6 +1149,11 @@ C10_UNUSED uint8_t abs_impl(uint8_t v) {
   return v;
 }
 
+template <>
+c10::CFloatWithSubnormals abs_impl(c10::CFloatWithSubnormals v) {
+  return sw::universal::abs(v);
+}
+
 template <typename T>
 static inline typename std::enable_if<std::is_integral<T>::value, T>::type
 calc_gcd(T a, T b) {

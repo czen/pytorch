@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <c10/util/string_utils.h>
+#include <c10/util/UniversalTypes.h>
 #include <torch/csrc/jit/tensorexpr/exceptions.h>
 #include <torch/csrc/jit/tensorexpr/expr.h>
 #include <torch/csrc/jit/tensorexpr/fwd_decls.h>
@@ -331,6 +332,25 @@ ExprPtr getImmediateByType(ScalarType immType, T initialVal) {
     // NOLINTNEXTLINE(bugprone-branch-clone)
     AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, TYPE_CASE);
 #undef TYPE_CASE
+    default:
+      throw unsupported_dtype();
+  }
+  return nullptr;
+}
+
+template <>
+ExprPtr getImmediateByType(ScalarType immType, c10::CFloatWithSubnormals initialVal) {
+  switch (immType) {
+#define TYPE_CASE(Type, Name) \
+  case ScalarType::Name:      \
+    return alloc<Name##Imm>(Type(initialVal));
+    // NOLINTNEXTLINE(bugprone-branch-clone)
+    AT_FORALL_SCALAR_TYPES_AND(Bool, TYPE_CASE);
+#undef TYPE_CASE
+  case ScalarType::Half:
+    return alloc<HalfImm>(initialVal.operator c10::Half());
+  case ScalarType::BFloat16:
+    return alloc<BFloat16Imm>(initialVal.operator c10::BFloat16());
     default:
       throw unsupported_dtype();
   }

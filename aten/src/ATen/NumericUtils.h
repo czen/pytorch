@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <c10/util/BFloat16.h>
 #include <c10/util/Half.h>
+#include <c10/util/UniversalTypes.h>
 #include <c10/macros/Macros.h>
 
 namespace at {
@@ -58,12 +59,12 @@ inline C10_HOST_DEVICE bool _isnan(at::BFloat16 val) {
 }
 
 template <typename T,
-         typename std::enable_if<std::is_same<T, at::CFloatWithSubnormals>::value, int>::type = 0>
-inline C10_HOST_DEVICE bool _isnan(at::CFloatWithSubnormals val) {
+         typename std::enable_if<std::is_same<T, c10::CFloatWithSubnormals>::value, int>::type = 0>
+inline C10_HOST_DEVICE bool _isnan(c10::CFloatWithSubnormals val) {
   return sw::universal::isnan(val);
 }
 
-inline C10_HOST_DEVICE bool _isnan(at::CFloatWithSubnormals val) {
+inline C10_HOST_DEVICE bool _isnan(c10::CFloatWithSubnormals val) {
   return sw::universal::isnan(val);
 }
 
@@ -98,7 +99,7 @@ inline C10_HOST_DEVICE bool _isinf(at::BFloat16 val) {
 }
 
 
-inline C10_HOST_DEVICE bool _isinf(at::CFloatWithSubnormals val) {
+inline C10_HOST_DEVICE bool _isinf(c10::CFloatWithSubnormals val) {
   return sw::universal::isinf(val);
 }
 

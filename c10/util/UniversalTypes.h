@@ -32,11 +32,13 @@ public:
     inline operator T() const noexcept { return Base::operator T(); }
   FORALL_SUPPORTED_TYPES(OP)
   #undef OP
+  inline operator bool() const noexcept { return *this != 0; }
   inline operator signed char() const noexcept { return to_native<signed char>(); }
   inline operator unsigned char() const noexcept { return to_native<unsigned char>(); }
   inline operator short() const noexcept { return to_native<short>(); }
-  inline operator c10::BFloat16() const noexcept { return c10::BFloat16(Base::operator float()); }
-  inline operator c10::Half() const noexcept { return c10::Half(Base::operator float()); }
+  inline operator uint64_t() const noexcept { return to_native<uint64_t>(); }
+  inline operator c10::BFloat16() const noexcept { return c10::BFloat16(*this); }
+  inline operator c10::Half() const noexcept { return c10::Half(*this); }
   
   // Define operator < to avoid ambiguity
   #define OP(T) \
@@ -310,7 +312,7 @@ namespace std {
 template<>
 struct hash<c10::CFloatWithSubnormals> {
   size_t operator()(const c10::CFloatWithSubnormals& value) const noexcept {
-    return hash<uint32_t>()(value.block(0));
+    return hash<uint32_t>()(reinterpret_cast<uint32_t>(value.block(0)));
   }
 };
 

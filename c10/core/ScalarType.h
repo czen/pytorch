@@ -133,8 +133,7 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(int, Int)                     \
   _(int64_t, Long)                \
   _(float, Float)                 \
-  _(double, Double)               \
-  _(c10::CFloatWithSubnormals, CFloatWithSubnormals)
+  _(double, Double)
 
 #define AT_FORALL_SCALAR_TYPES_AND(SCALARTYPE, _) \
   _(uint8_t, Byte)                                \
@@ -144,7 +143,6 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(int64_t, Long)                                \
   _(float, Float)                                 \
   _(double, Double)                               \
-  _(c10::CFloatWithSubnormals, CFloatWithSubnormals) \
   _(decltype(::c10::impl::ScalarTypeToCPPType<    \
              ::c10::ScalarType::SCALARTYPE>::t),  \
     SCALARTYPE)
@@ -157,7 +155,6 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(int64_t, Long)                                               \
   _(float, Float)                                                \
   _(double, Double)                                              \
-  _(c10::CFloatWithSubnormals, CFloatWithSubnormals)             \
   _(decltype(::c10::impl::ScalarTypeToCPPType<                   \
              ::c10::ScalarType::SCALARTYPE1>::t),                \
     SCALARTYPE1)                                                 \
@@ -173,7 +170,6 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(int64_t, Long)                                                            \
   _(float, Float)                                                             \
   _(double, Double)                                                           \
-  _(c10::CFloatWithSubnormals, CFloatWithSubnormals)                          \
   _(decltype(::c10::impl::ScalarTypeToCPPType<                                \
              ::c10::ScalarType::SCALARTYPE1>::t),                             \
     SCALARTYPE1)                                                              \
@@ -183,6 +179,27 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(decltype(::c10::impl::ScalarTypeToCPPType<                                \
              ::c10::ScalarType::SCALARTYPE3>::t),                             \
     SCALARTYPE3)
+
+#define AT_FORALL_SCALAR_TYPES_AND4(SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, _) \
+  _(uint8_t, Byte)                                                                         \
+  _(int8_t, Char)                                                                          \
+  _(int16_t, Short)                                                                        \
+  _(int, Int)                                                                              \
+  _(int64_t, Long)                                                                         \
+  _(float, Float)                                                                          \
+  _(double, Double)                                                                        \
+  _(decltype(::c10::impl::ScalarTypeToCPPType<                                             \
+             ::c10::ScalarType::SCALARTYPE1>::t),                                          \
+    SCALARTYPE1)                                                                           \
+  _(decltype(::c10::impl::ScalarTypeToCPPType<                                             \
+             ::c10::ScalarType::SCALARTYPE2>::t),                                          \
+    SCALARTYPE2)                                                                           \
+  _(decltype(::c10::impl::ScalarTypeToCPPType<                                             \
+             ::c10::ScalarType::SCALARTYPE3>::t),                                          \
+    SCALARTYPE3)                                                                           \
+  _(decltype(::c10::impl::ScalarTypeToCPPType<                                             \
+             ::c10::ScalarType::SCALARTYPE4>::t),                                          \
+    SCALARTYPE4)
 
 #define AT_FORALL_QINT_TYPES(_) \
   _(c10::qint8, QInt8)          \

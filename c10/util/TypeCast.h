@@ -68,6 +68,22 @@ struct static_cast_with_inter_type<uint8_t, src_t> {
   }
 };
 
+// Specializations for CFloatWithSubnormals to resolve ambiguity.
+template <>
+struct static_cast_with_inter_type<Half, CFloatWithSubnormals> {
+  C10_HOST_DEVICE __ubsan_ignore_undefined__ static inline Half apply(
+      CFloatWithSubnormals src) {
+    return src.operator Half();
+  }
+};
+template <>
+struct static_cast_with_inter_type<BFloat16, CFloatWithSubnormals> {
+  C10_HOST_DEVICE __ubsan_ignore_undefined__ static inline BFloat16 apply(
+      CFloatWithSubnormals src) {
+    return src.operator BFloat16();
+  }
+};
+
 // Dynamic type casting utils:
 // - fetch_and_cast
 // - cast_and_store
