@@ -233,7 +233,7 @@ Tensor& empty_out(IntArrayRef size,
     return self.to(ScalarType::n, non_blocking);                 \
   }
 
-AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, DEFINE_CAST_OP)
+AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, DEFINE_CAST_OP)
 
 #undef DEFINE_CAST_OP
 

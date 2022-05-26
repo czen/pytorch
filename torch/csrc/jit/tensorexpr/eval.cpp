@@ -381,7 +381,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
   case ScalarType::Name:                                                    \
     value = compare_select_op<T, Type>(lhs, rhs, retval1, retval2, cmp_op); \
     break;
-      AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, TYPE_CASE);
+      AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
 #undef TYPE_CASE
       default:
         throw unsupported_dtype();
@@ -413,7 +413,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
     value_ = compare_select_op_helper<Type>(           \
         lhs_v, rhs_v, ret_val1_v, ret_val2_v, cmp_op); \
     break;
-      AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, TYPE_CASE);
+      AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
 #undef TYPE_CASE
       default:
         throw unsupported_dtype();
@@ -424,7 +424,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
   TORCH_API void visit(Name##ImmPtr v) override { \
     value_ = InterpValue(v->value());             \
   }
-  AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, IMM_VISIT);
+  AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, IMM_VISIT);
 #undef IMM_VISIT
 
   TORCH_API void visit(BlockPtr v) override {
@@ -477,7 +477,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
   case ScalarType::Name:                                                 \
     this->value_ = InterpValue(castValues<SrcType, Type>(src_dtype, v)); \
     break;
-      AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, DST_TYPE_CASE);
+      AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, DST_TYPE_CASE);
 #undef DST_TYPE_CASE
 #define DST_TYPE_CASE_QUANT(Type, Name, CppType)                           \
   case ScalarType::Name: {                                                 \
@@ -512,7 +512,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
   case ScalarType::Name:                               \
     doCastFromSrc<Type>(src_dtype, dst_dtype, value_); \
     break;
-        AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, SRC_TYPE_CASE);
+        AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, SRC_TYPE_CASE);
         SRC_TYPE_CASE(c10::quint8, QUInt8);
         SRC_TYPE_CASE(c10::qint8, QInt8);
 #undef SRC_TYPE_CASE
@@ -620,7 +620,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
     std::vector<Type> v(lanes, value.as<Type>()); \
     value_ = InterpValue(v);                      \
   } break;
-      AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, TYPE_CASE);
+      AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
 #undef TYPE_CASE
       default:
         throw unsupported_dtype();
@@ -764,7 +764,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
     }                                                \
     value_ = InterpValue(val);                       \
   } break;
-      AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, TYPE_CASE);
+      AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
       // NOLINTNEXTLINE(facebook-hte-LocalUncheckedArrayBounds)
       TYPE_CASE(c10::quint8, QUInt8);
       // NOLINTNEXTLINE(facebook-hte-LocalUncheckedArrayBounds)
@@ -813,7 +813,7 @@ class SimpleIREvaluatorImpl : public IRVisitor {
       ptr##Name[index[i]] = value[i];                           \
     }                                                           \
   } break;
-      AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, TYPE_CASE);
+      AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
       // NOLINTNEXTLINE(facebook-hte-LocalUncheckedArrayBounds)
       TYPE_CASE(c10::quint8, QUInt8);
       // NOLINTNEXTLINE(facebook-hte-LocalUncheckedArrayBounds)
@@ -1189,7 +1189,7 @@ void SimpleIREvaluator::bindArg(const BufferArg& bufArg, void* data) {
     impl_->bindVar(bufArg.var(), typed_data); \
     break;                                    \
   }
-    AT_FORALL_SCALAR_TYPES_AND3(Bool, Half, BFloat16, TYPE_CASE);
+    AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
 #undef TYPE_CASE
     default:
       throw unsupported_dtype();

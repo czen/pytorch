@@ -1,6 +1,10 @@
 #pragma once
 
+#pragma push_macro("setbit")
+#undef setbit
 #include <universal/number/cfloat/cfloat.hpp>
+#pragma pop_macro("setbit")
+
 #include <c10/util/BFloat16.h>
 #include <c10/util/Half.h>
 
@@ -19,26 +23,16 @@ class CFloatWithSubnormals : public sw::universal::cfloat<32, 8, uint32_t, true,
 {
 public:
   using Base = sw::universal::cfloat<32, 8, uint32_t, true, false, false>;
-  // Use all base constuctors
-  using Base::Base;
+  
+  CFloatWithSubnormals() : Base() {}
+  CFloatWithSubnormals(float value) : Base(value) {}
   
   CFloatWithSubnormals(sw::universal::cfloat<32, 8, uint32_t, true, false, false> value)
   {
       *this = value;
   }
   
-  // Implicit conversion operators
-  #define OP(T) \
-    inline operator T() const noexcept { return Base::operator T(); }
-  FORALL_SUPPORTED_TYPES(OP)
-  #undef OP
-  inline operator bool() const noexcept { return *this != 0; }
-  inline operator signed char() const noexcept { return to_native<signed char>(); }
-  inline operator unsigned char() const noexcept { return to_native<unsigned char>(); }
-  inline operator short() const noexcept { return to_native<short>(); }
-  inline operator uint64_t() const noexcept { return to_native<uint64_t>(); }
-  inline operator c10::BFloat16() const noexcept { return c10::BFloat16(*this); }
-  inline operator c10::Half() const noexcept { return c10::Half(*this); }
+  inline operator float() const noexcept { return Base::operator float(); }
   
   // Define operator < to avoid ambiguity
   #define OP(T) \
