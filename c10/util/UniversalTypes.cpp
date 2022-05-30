@@ -19,9 +19,3 @@ template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32,
 
 }
 }
-
-namespace std {
-
-template class numeric_limits<c10::CFloatWithSubnormals>;
-
-};

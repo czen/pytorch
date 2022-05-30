@@ -34,8 +34,8 @@ void direct_copy_kernel(TensorIteratorBase &iter) {
   } else if (dtype == ScalarType::ComplexHalf) {
     cpu_kernel(iter, [=](c10::complex<at::Half> a) -> c10::complex<at::Half> { return a; });
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
-        kBool, kHalf, kBFloat16, dtype, "copy_kernel", [&] {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(
+        kBool, kHalf, kBFloat16, kCFloatWithSubnormals, dtype, "copy_kernel", [&] {
       cpu_kernel_vec(
           iter,
           [=](scalar_t a) -> scalar_t { return a; },
@@ -81,9 +81,9 @@ void copy_kernel(TensorIterator& iter, bool non_blocking) {
   if (dtype == iter.dtype(1)) {
     copy_same_dtype(iter, requires_conj, requires_neg);
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(ScalarType::Half, ScalarType::Bool, ScalarType::BFloat16, dtype, "copy_", [&] {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(ScalarType::Half, ScalarType::Bool, ScalarType::BFloat16, ScalarType::CFloatWithSubnormals, dtype, "copy_", [&] {
       using dest_t = scalar_t;
-      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(ScalarType::Half, ScalarType::Bool, ScalarType::BFloat16, iter.dtype(1), "copy_", [&] {
+      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(ScalarType::Half, ScalarType::Bool, ScalarType::BFloat16, ScalarType::CFloatWithSubnormals, iter.dtype(1), "copy_", [&] {
         // Note (@zasdfgbnm):
         //
         // The code below can not be simplified as

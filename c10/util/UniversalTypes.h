@@ -127,13 +127,13 @@ class CFloatWithSubnormals : public sw::universal::cfloat<32, 8, uint32_t, true,
 public:
   using Base = sw::universal::cfloat<32, 8, uint32_t, true, false, false>;
   
-  inline C10_HOST_DEVICE CFloatWithSubnormals() : Base() {}
+  constexpr inline C10_HOST_DEVICE CFloatWithSubnormals() : Base() {}
   inline C10_HOST_DEVICE CFloatWithSubnormals(float value) : Base()
   {
     convert_ieee754<float>(value);
   }
   
-  inline C10_HOST_DEVICE CFloatWithSubnormals(sw::universal::cfloat<32, 8, uint32_t, true, false, false> value) : Base(value) {}
+  constexpr inline C10_HOST_DEVICE CFloatWithSubnormals(sw::universal::cfloat<32, 8, uint32_t, true, false, false> value) : Base(value) {}
   
   inline C10_HOST_DEVICE operator float() const noexcept { return Base::operator float(); }
   
@@ -157,11 +157,15 @@ public:
   #define OP(T) \
     inline C10_HOST_DEVICE friend bool operator<(T left, const CFloatWithSubnormals& right)  \
     {                                                                                        \
-      return left < static_cast<T>(right);                                                   \
+      return sw::universal::operator<(                                                       \
+        static_cast<Base>(left),                                                             \
+        static_cast<Base>(right));                                                           \
     }                                                                                        \
     inline C10_HOST_DEVICE friend bool operator<=(T left, const CFloatWithSubnormals& right) \
     {                                                                                        \
-      return left <= static_cast<T>(right);                                                  \
+      return sw::universal::operator<=(                                                      \
+        static_cast<Base>(left),                                                             \
+        static_cast<Base>(right));                                                           \
     }
   FORALL_SUPPORTED_TYPES(OP)
   FORALL_ADDITIONAL_TYPES(OP)
@@ -187,11 +191,15 @@ public:
   #define OP(T) \
     inline C10_HOST_DEVICE friend bool operator>(T left, const CFloatWithSubnormals& right)  \
     {                                                                                        \
-      return left > static_cast<T>(right);                                                   \
+      return sw::universal::operator>(                                                       \
+        static_cast<Base>(left),                                                             \
+        static_cast<Base>(right));                                                           \
     }                                                                                        \
     inline C10_HOST_DEVICE friend bool operator>=(T left, const CFloatWithSubnormals& right) \
     {                                                                                        \
-      return left >= static_cast<T>(right);                                                  \
+      return sw::universal::operator>=(                                                      \
+        static_cast<Base>(left),                                                             \
+        static_cast<Base>(right));                                                           \
     }
   FORALL_SUPPORTED_TYPES(OP)
   FORALL_ADDITIONAL_TYPES(OP)
@@ -395,6 +403,64 @@ struct hash<c10::CFloatWithSubnormals> {
   size_t operator()(const c10::CFloatWithSubnormals& value) const noexcept {
     return hash<uint32_t>()(reinterpret_cast<uint32_t>(value.block(0)));
   }
+};
+
+template<> class numeric_limits<c10::CFloatWithSubnormals>
+{
+public:
+  static constexpr bool is_specialized = true;
+  static constexpr c10::CFloatWithSubnormals min() { // return minimum value
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::min());
+  } 
+  static constexpr c10::CFloatWithSubnormals max() { // return maximum value
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::max());
+  } 
+  static constexpr c10::CFloatWithSubnormals lowest() { // return most negative value
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::lowest());
+  } 
+  static constexpr c10::CFloatWithSubnormals epsilon() { // return smallest effective increment from 1.0
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::epsilon());
+  }
+  static constexpr c10::CFloatWithSubnormals round_error() { // return largest rounding error
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::round_error());
+  }
+  static constexpr c10::CFloatWithSubnormals denorm_min() {  // return minimum denormalized value
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::denorm_min());
+  }
+  static constexpr c10::CFloatWithSubnormals infinity() { // return positive infinity
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::infinity());
+  }
+  static constexpr c10::CFloatWithSubnormals quiet_NaN() { // return non-signaling NaN
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::quiet_NaN());
+  }
+  static constexpr c10::CFloatWithSubnormals signaling_NaN() { // return signaling NaN
+    return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::signaling_NaN());
+  }
+
+  static constexpr int digits       = numeric_limits<c10::CFloatWithSubnormals::Base>::digits;
+  static constexpr int digits10     = numeric_limits<c10::CFloatWithSubnormals::Base>::digits10;
+  static constexpr int max_digits10 = numeric_limits<c10::CFloatWithSubnormals::Base>::max_digits10;
+  static constexpr bool is_signed   = numeric_limits<c10::CFloatWithSubnormals::Base>::is_signed;
+  static constexpr bool is_integer  = numeric_limits<c10::CFloatWithSubnormals::Base>::is_integer;
+  static constexpr bool is_exact    = numeric_limits<c10::CFloatWithSubnormals::Base>::is_exact;
+  static constexpr int radix        = numeric_limits<c10::CFloatWithSubnormals::Base>::radix;
+
+  static constexpr int min_exponent   = numeric_limits<c10::CFloatWithSubnormals::Base>::min_exponent;
+  static constexpr int min_exponent10 = numeric_limits<c10::CFloatWithSubnormals::Base>::min_exponent10;
+  static constexpr int max_exponent   = numeric_limits<c10::CFloatWithSubnormals::Base>::max_exponent;
+  static constexpr int max_exponent10 = numeric_limits<c10::CFloatWithSubnormals::Base>::max_exponent10;
+  static constexpr bool has_infinity  = numeric_limits<c10::CFloatWithSubnormals::Base>::has_infinity;
+  static constexpr bool has_quiet_NaN = numeric_limits<c10::CFloatWithSubnormals::Base>::has_quiet_NaN;
+  static constexpr bool has_signaling_NaN = numeric_limits<c10::CFloatWithSubnormals::Base>::has_signaling_NaN;
+  static constexpr float_denorm_style has_denorm = numeric_limits<c10::CFloatWithSubnormals::Base>::has_denorm;
+  static constexpr bool has_denorm_loss = numeric_limits<c10::CFloatWithSubnormals::Base>::has_denorm_loss;
+
+  static constexpr bool is_iec559 = numeric_limits<c10::CFloatWithSubnormals::Base>::is_iec559;
+  static constexpr bool is_bounded = numeric_limits<c10::CFloatWithSubnormals::Base>::is_bounded;
+  static constexpr bool is_modulo = numeric_limits<c10::CFloatWithSubnormals::Base>::is_modulo;
+  static constexpr bool traps = numeric_limits<c10::CFloatWithSubnormals::Base>::traps;
+  static constexpr bool tinyness_before = numeric_limits<c10::CFloatWithSubnormals::Base>::tinyness_before;
+  static constexpr float_round_style round_style = numeric_limits<c10::CFloatWithSubnormals::Base>::round_style;
 };
 
 }
