@@ -116,7 +116,7 @@ struct TensorDataContainer {
       type_(TensorDataContainerType::Scalar), \
       scalar_(value) {}
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TENSOR)
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, TENSOR)
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 AT_FORALL_COMPLEX_TYPES(TENSOR)
 #undef TENSOR
@@ -160,7 +160,7 @@ AT_FORALL_COMPLEX_TYPES(TENSOR)
     } \
   }
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TENSOR)
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, TENSOR)
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 AT_FORALL_COMPLEX_TYPES(TENSOR)
 #undef TENSOR

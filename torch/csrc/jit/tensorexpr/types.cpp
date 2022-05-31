@@ -16,7 +16,7 @@ Dtype Dtype::scalar_dtype() const {
 // NOLINTNEXTLINE
 #define DTYPE_DEFINE(_1, n) TORCH_API Dtype k##n(ScalarType::n, 1);
 
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, DTYPE_DEFINE)
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, DTYPE_DEFINE)
 DTYPE_DEFINE(c10::quint8, QUInt8);
 DTYPE_DEFINE(c10::qint8, QInt8);
 
@@ -30,7 +30,7 @@ Dtype ToDtype(ScalarType type) {
 #define TYPE_CASE(_1, n) \
   case ScalarType::n:    \
     return k##n;
-    AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE)
+    AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, TYPE_CASE)
     TYPE_CASE(c10::quint8, QUInt8);
     TYPE_CASE(c10::qint8, QInt8);
 #undef TYPE_CASE
@@ -60,7 +60,7 @@ int Dtype::byte_size() const {
     scalar_size = sizeof(Type); \
     break;
 
-    AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
+    AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, TYPE_CASE);
     TYPE_CASE(c10::quint8, QUInt8);
     TYPE_CASE(c10::qint8, QInt8);
 #undef TYPE_CASE

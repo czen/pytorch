@@ -7,7 +7,7 @@
 
 #include <c10/util/BFloat16.h>
 #include <c10/util/Half.h>
-    
+
 #define FORALL_SUPPORTED_TYPES(_) \
   _(int)                          \
   _(long)                         \
@@ -19,7 +19,7 @@
   _(int)                                       \
   _(float)                                     \
   _(double)
-  
+
 #define FORALL_ADDITIONAL_TYPES(_) \
   _(unsigned char)                 \
   _(uint64_t)
@@ -120,145 +120,178 @@ extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfl
 }
 
 namespace c10 {
-    
+
 
 class CFloatWithSubnormals : public sw::universal::cfloat<32, 8, uint32_t, true, false, false>
 {
 public:
   using Base = sw::universal::cfloat<32, 8, uint32_t, true, false, false>;
-  
-  constexpr inline C10_HOST_DEVICE CFloatWithSubnormals() : Base() {}
-  inline C10_HOST_DEVICE CFloatWithSubnormals(float value) : Base()
+
+  constexpr C10_HOST_DEVICE CFloatWithSubnormals() : Base() {}
+  C10_HOST_DEVICE CFloatWithSubnormals(float value) : Base()
   {
     convert_ieee754<float>(value);
   }
-  
-  constexpr inline C10_HOST_DEVICE CFloatWithSubnormals(sw::universal::cfloat<32, 8, uint32_t, true, false, false> value) : Base(value) {}
-  
-  inline C10_HOST_DEVICE operator float() const noexcept { return Base::operator float(); }
-  
+
+  constexpr C10_HOST_DEVICE CFloatWithSubnormals(Base value) : Base(value) {}
+
+  C10_HOST_DEVICE operator float() const noexcept
+  {
+    return Base::operator float();
+  }
+
   // Define operator < to avoid ambiguity
-  #define OP(T)                                     \
-    inline C10_HOST_DEVICE bool operator<(T right)  \
-    {                                               \
-      return sw::universal::operator<(              \
-        static_cast<Base>(*this),                   \
-        static_cast<Base>(right));                  \
-    }                                               \
-    inline C10_HOST_DEVICE bool operator<=(T right) \
-    {                                               \
-      return sw::universal::operator<=(             \
-        static_cast<Base>(*this),                   \
-        static_cast<Base>(right));                  \
+  C10_HOST_DEVICE bool operator<(const CFloatWithSubnormals& right)
+  {
+    return sw::universal::operator<(
+      static_cast<Base>(*this),
+      static_cast<Base>(right));
+  }
+  C10_HOST_DEVICE bool operator<=(const CFloatWithSubnormals& right)
+  {
+    return sw::universal::operator<=(
+      static_cast<Base>(*this),
+      static_cast<Base>(right));
+  }
+  #define OP(T)                              \
+    C10_HOST_DEVICE bool operator<(T right)  \
+    {                                        \
+      return sw::universal::operator<(       \
+        static_cast<Base>(*this),            \
+        static_cast<Base>(right));           \
+    }                                        \
+    C10_HOST_DEVICE bool operator<=(T right) \
+    {                                        \
+      return sw::universal::operator<=(      \
+        static_cast<Base>(*this),            \
+        static_cast<Base>(right));           \
     }
   FORALL_SUPPORTED_TYPES(OP)
   FORALL_ADDITIONAL_TYPES(OP)
   #undef OP
-  #define OP(T) \
-    inline C10_HOST_DEVICE friend bool operator<(T left, const CFloatWithSubnormals& right)  \
-    {                                                                                        \
-      return sw::universal::operator<(                                                       \
-        static_cast<Base>(left),                                                             \
-        static_cast<Base>(right));                                                           \
-    }                                                                                        \
-    inline C10_HOST_DEVICE friend bool operator<=(T left, const CFloatWithSubnormals& right) \
-    {                                                                                        \
-      return sw::universal::operator<=(                                                      \
-        static_cast<Base>(left),                                                             \
-        static_cast<Base>(right));                                                           \
-    }
-  FORALL_SUPPORTED_TYPES(OP)
-  FORALL_ADDITIONAL_TYPES(OP)
-  #undef OP
-  
+
   // Define operator > to avoid ambiguity
-  #define OP(T) \
-    inline C10_HOST_DEVICE bool operator>(T right)  \
-    {                                               \
-      return sw::universal::operator>(              \
-        static_cast<Base>(*this),                   \
-        static_cast<Base>(right));                  \
-    }                                               \
-    inline C10_HOST_DEVICE bool operator>=(T right) \
-    {                                               \
-      return sw::universal::operator>=(             \
-        static_cast<Base>(*this),                   \
-        static_cast<Base>(right));                  \
+  C10_HOST_DEVICE bool operator>(const CFloatWithSubnormals& right)
+  {
+    return sw::universal::operator>(
+      static_cast<Base>(*this),
+      static_cast<Base>(right));
+  }
+  C10_HOST_DEVICE bool operator>=(const CFloatWithSubnormals& right)
+  {
+    return sw::universal::operator>=(
+      static_cast<Base>(*this),
+      static_cast<Base>(right));
+  }
+  #define OP(T)                              \
+    C10_HOST_DEVICE bool operator>(T right)  \
+    {                                        \
+      return sw::universal::operator>(       \
+        static_cast<Base>(*this),            \
+        static_cast<Base>(right));           \
+    }                                        \
+    C10_HOST_DEVICE bool operator>=(T right) \
+    {                                        \
+      return sw::universal::operator>=(      \
+        static_cast<Base>(*this),            \
+        static_cast<Base>(right));           \
     }
   FORALL_SUPPORTED_TYPES(OP)
   FORALL_ADDITIONAL_TYPES(OP)
   #undef OP
-  #define OP(T) \
-    inline C10_HOST_DEVICE friend bool operator>(T left, const CFloatWithSubnormals& right)  \
-    {                                                                                        \
-      return sw::universal::operator>(                                                       \
-        static_cast<Base>(left),                                                             \
-        static_cast<Base>(right));                                                           \
-    }                                                                                        \
-    inline C10_HOST_DEVICE friend bool operator>=(T left, const CFloatWithSubnormals& right) \
-    {                                                                                        \
-      return sw::universal::operator>=(                                                      \
-        static_cast<Base>(left),                                                             \
-        static_cast<Base>(right));                                                           \
-    }
-  FORALL_SUPPORTED_TYPES(OP)
-  FORALL_ADDITIONAL_TYPES(OP)
-  #undef OP
-  
+
   // Assignment operators
-  #define OP(T) \
-    inline C10_HOST_DEVICE CFloatWithSubnormals& operator=(T value){ Base::operator=(value); return *this; }
+  #define OP(T)                                              \
+    C10_HOST_DEVICE CFloatWithSubnormals& operator=(T value) \
+    {                                                        \
+      CFloatWithSubnormals::Base::operator=(value);          \
+      return *this;                                          \
+    }
   FORALL_SUPPORTED_TYPES(OP)
   #undef OP
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator=(signed char value)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator=(signed char value)
   {
     convert_signed_integer(value);
     return *this;
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator=(unsigned char value)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator=(unsigned char value)
   {
     convert_unsigned_integer(value);
     return *this;
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator=(short value)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator=(short value)
   {
     convert_signed_integer(value);
     return *this;
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator=(bool value)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator=(bool value)
   {
     convert_signed_integer(value);
     return *this;
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator=(c10::BFloat16 value)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator=(c10::BFloat16 value)
   {
     Base::operator=(static_cast<float>(value));
     return *this;
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator=(c10::Half value)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator=(c10::Half value)
   {
     Base::operator=(static_cast<float>(value));
     return *this;
   }
-  
+
   // Arithmetic operators
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator+=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator+=(const CFloatWithSubnormals& right)
   {
     return static_cast<CFloatWithSubnormals&>(Base::operator+=(right));
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator-=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator-=(const CFloatWithSubnormals& right)
   {
     return static_cast<CFloatWithSubnormals&>(Base::operator-=(right));
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator*=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator*=(const CFloatWithSubnormals& right)
   {
     return static_cast<CFloatWithSubnormals&>(Base::operator*=(right));
   }
-  inline C10_HOST_DEVICE CFloatWithSubnormals& operator/=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator/=(const CFloatWithSubnormals& right)
   {
     return static_cast<CFloatWithSubnormals&>(Base::operator/=(right));
   }
 };
+
+#define OP(T)                                                                       \
+  inline C10_HOST_DEVICE bool operator<(T left, const CFloatWithSubnormals& right)  \
+  {                                                                                 \
+    return sw::universal::operator<(                                                \
+      static_cast<CFloatWithSubnormals::Base>(left),                                \
+      static_cast<CFloatWithSubnormals::Base>(right));                              \
+  }                                                                                 \
+  inline C10_HOST_DEVICE bool operator<=(T left, const CFloatWithSubnormals& right) \
+  {                                                                                 \
+    return sw::universal::operator<=(                                               \
+      static_cast<CFloatWithSubnormals::Base>(left),                                \
+      static_cast<CFloatWithSubnormals::Base>(right));                              \
+  }
+FORALL_SUPPORTED_TYPES(OP)
+FORALL_ADDITIONAL_TYPES(OP)
+#undef OP
+
+#define OP(T)                                                                       \
+  inline C10_HOST_DEVICE bool operator>(T left, const CFloatWithSubnormals& right)  \
+  {                                                                                 \
+    return sw::universal::operator>(                                                \
+      static_cast<CFloatWithSubnormals::Base>(left),                                \
+      static_cast<CFloatWithSubnormals::Base>(right));                              \
+  }                                                                                 \
+  inline C10_HOST_DEVICE bool operator>=(T left, const CFloatWithSubnormals& right) \
+  {                                                                                 \
+    return sw::universal::operator>=(                                               \
+      static_cast<CFloatWithSubnormals::Base>(left),                                \
+      static_cast<CFloatWithSubnormals::Base>(right));                              \
+  }
+FORALL_SUPPORTED_TYPES(OP)
+FORALL_ADDITIONAL_TYPES(OP)
+#undef OP
 
 inline C10_HOST_DEVICE CFloatWithSubnormals operator+(const CFloatWithSubnormals& left, const CFloatWithSubnormals& right)
 {
@@ -411,13 +444,13 @@ public:
   static constexpr bool is_specialized = true;
   static constexpr c10::CFloatWithSubnormals min() { // return minimum value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::min());
-  } 
+  }
   static constexpr c10::CFloatWithSubnormals max() { // return maximum value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::max());
-  } 
+  }
   static constexpr c10::CFloatWithSubnormals lowest() { // return most negative value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::lowest());
-  } 
+  }
   static constexpr c10::CFloatWithSubnormals epsilon() { // return smallest effective increment from 1.0
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::epsilon());
   }

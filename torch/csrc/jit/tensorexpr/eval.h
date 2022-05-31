@@ -36,7 +36,7 @@ class InterpValue {
     Name##values.push_back(v); \
     return;                    \
   }
-    AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
+    AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, TYPE_CASE);
 #undef TYPE_CASE
     throw unsupported_dtype();
   }
@@ -46,7 +46,7 @@ class InterpValue {
     Name##values.push_back(v);            \
   }
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-  AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, VALUE_CTOR);
+  AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, VALUE_CTOR);
 #undef VALUE_CTOR
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
@@ -63,7 +63,7 @@ class InterpValue {
   InterpValue(const std::vector<Type>& v) \
       : dtype_(Dtype(k##Name, v.size())), Name##values(v) {}
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-  AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, VALUE_VEC_CTOR);
+  AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, VALUE_VEC_CTOR);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   VALUE_VEC_CTOR(c10::quint8, QUInt8)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
@@ -86,7 +86,7 @@ class InterpValue {
   Dtype dtype_;
 
 #define VALUE_STORAGE(Type, Name) std::vector<Type> Name##values;
-  AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, VALUE_STORAGE);
+  AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, VALUE_STORAGE);
   VALUE_STORAGE(c10::qint8, QInt8);
   VALUE_STORAGE(c10::quint8, QUInt8);
 #undef VALUE_STORAGE
@@ -101,7 +101,7 @@ class InterpValue {
     }                                         \
     return Name##values[0];                   \
   }
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, VALUE_AS_DISPATCH);
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, VALUE_AS_DISPATCH);
 VALUE_AS_DISPATCH(c10::quint8, QUInt8);
 VALUE_AS_DISPATCH(c10::qint8, QInt8);
 #undef VALUE_AS_DISPATCH
@@ -114,7 +114,7 @@ VALUE_AS_DISPATCH(c10::qint8, QInt8);
     }                                                                 \
     return Name##values;                                              \
   }
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, VALUE_AS_VEC_DISPATCH);
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, VALUE_AS_VEC_DISPATCH);
 VALUE_AS_VEC_DISPATCH(c10::quint8, QUInt8);
 VALUE_AS_VEC_DISPATCH(c10::qint8, QInt8);
 #undef VALUE_AS_VEC_DISPATCH

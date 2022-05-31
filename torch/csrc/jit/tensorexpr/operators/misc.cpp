@@ -35,7 +35,7 @@ ExprHandle promoteToDtype(ExprHandle e, ScalarType dt) {
   case ScalarType::Name:      \
     e = cast<Type>(e);        \
     break;
-    AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TYPE_CASE);
+    AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, TYPE_CASE);
 #undef TYPE_CASE
     case ScalarType::QUInt8:
       e = cast<c10::quint8>(e);

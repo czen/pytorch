@@ -92,7 +92,7 @@ class TORCH_API HashProvider : public IRVisitor {
     CACHE_GUARD();                               \
     putHash(v, hash_combine(#Name, v->value())); \
   }
-  AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, IMM_VISIT);
+  AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, IMM_VISIT);
 #undef IMM_VISIT
 
   void visit(CastPtr v) override;

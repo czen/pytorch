@@ -68,7 +68,7 @@ Tensor tensor_complex_backend(
       return at::detail::tensor_cpu(values, options);               \
     }                                                               \
   }
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, TENSOR)
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, TENSOR)
 #undef TENSOR
 
 #define TENSOR(T, _1)                                               \

@@ -276,7 +276,7 @@ class LLVMCodeGenImpl : public IRVisitor {
   void visit(CompareSelectPtr v) override;
 
 #define IMM_VISIT_DECLARE(_1, Name) void visit(Name##ImmPtr v) override;
-  AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, IMM_VISIT_DECLARE);
+  AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, IMM_VISIT_DECLARE);
 #undef IMM_VISIT_DECLARE
 
   void visit(CastPtr v) override;

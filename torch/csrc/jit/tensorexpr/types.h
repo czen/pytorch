@@ -85,7 +85,7 @@ extern TORCH_API Dtype kHandle;
 
 #define NNC_DTYPE_DECLARATION(ctype, name) extern TORCH_API Dtype k##name;
 
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, NNC_DTYPE_DECLARATION)
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, NNC_DTYPE_DECLARATION)
 NNC_DTYPE_DECLARATION(c10::quint8, QUInt8);
 NNC_DTYPE_DECLARATION(c10::qint8, QInt8);
 #undef NNC_DTYPE_DECLARATION
@@ -98,7 +98,7 @@ TORCH_API Dtype ToDtype();
   inline Dtype ToDtype<ctype>() {            \
     return k##name;                          \
   }
-AT_FORALL_SCALAR_TYPES_AND4(Bool, Half, BFloat16, CFloatWithSubnormals, NNC_TODTYPE_DECLARATION)
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND3(Bool, Half, BFloat16, NNC_TODTYPE_DECLARATION)
 NNC_TODTYPE_DECLARATION(c10::quint8, QUInt8);
 NNC_TODTYPE_DECLARATION(c10::qint8, QInt8);
 #undef NNC_TODTYPE_DECLARATION

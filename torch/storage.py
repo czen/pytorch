@@ -205,6 +205,7 @@ def _dtype_to_storage_type_map():
         torch.quint8: 'QUInt8Storage',
         torch.quint4x2: 'QUInt4x2Storage',
         torch.quint2x4: 'QUInt2x4Storage',
+        torch.cfloatwithsubnormals: 'CFloatWithSubnormalsStorage',
     }
 
 @lru_cache(maxsize=None)

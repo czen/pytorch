@@ -174,7 +174,7 @@ void logit_kernel(TensorIteratorBase& iter, const Scalar& eps_scalar) {
 }
 
 static void abs_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.dtype(), "abs_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.dtype(), "abs_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a) -> scalar_t { return abs_impl(a); },
@@ -183,7 +183,7 @@ static void abs_kernel(TensorIteratorBase& iter) {
 }
 
 static void angle_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.common_dtype(), "angle_cpu", [&]() {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.common_dtype(), "angle_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a) -> scalar_t { return angle_impl(a); },
@@ -192,7 +192,7 @@ static void angle_kernel(TensorIteratorBase& iter) {
 }
 
 static void real_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.dtype(), "real_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.dtype(), "real_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a) -> scalar_t { return real_impl(a); },
@@ -201,7 +201,7 @@ static void real_kernel(TensorIteratorBase& iter) {
 }
 
 static void imag_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.dtype(), "imag_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.dtype(), "imag_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a) -> scalar_t { return imag_impl(a); },
@@ -211,8 +211,8 @@ static void imag_kernel(TensorIteratorBase& iter) {
 
 // NB: Ignores the negative bit on tensors
 void conj_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(
-      kBool, kBFloat16, kHalf, kCFloatWithSubnormals, iter.common_dtype(), "conj_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
+      kBool, kBFloat16, kHalf, iter.common_dtype(), "conj_cpu", [&]() {
         cpu_kernel_vec(
             iter,
             [=](scalar_t a) -> scalar_t { return conj_impl(a); },
@@ -244,7 +244,7 @@ static void bitwise_not_kernel(TensorIteratorBase& iter) {
 }
 
 void frac_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.dtype(), "frac_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.dtype(), "frac_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a) -> scalar_t { return a - std::trunc(a); },
@@ -256,16 +256,16 @@ void logical_not_kernel(TensorIteratorBase& iter) {
   // NOTE: this implementation differs from the CUDA implementation which only does single dispatch
   // (to avoid expensive compilation) because CPU kernels don't handle dynamic_casting
   // (see needs_dynamic_casting).
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(kBool, kHalf, kBFloat16, kCFloatWithSubnormals, iter.dtype(1), "logical_not_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(kBool, kHalf, kBFloat16, iter.dtype(1), "logical_not_cpu", [&]() {
     using self_t = scalar_t;
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(kBool, kHalf, kBFloat16, kCFloatWithSubnormals, iter.dtype(0), "logical_not_cpu", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(kBool, kHalf, kBFloat16, iter.dtype(0), "logical_not_cpu", [&]() {
       cpu_kernel(iter, [](self_t a) -> scalar_t { return static_cast<scalar_t>(!a); });
     });
   });
 }
 
 void reciprocal_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.common_dtype(), "reciprocal_cpu", [&]() {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.common_dtype(), "reciprocal_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a) __ubsan_ignore_float_divide_by_zero__ -> scalar_t { return static_cast<scalar_t>(1.0) / a; },
@@ -275,7 +275,7 @@ void reciprocal_kernel(TensorIteratorBase& iter) {
 
 // NB: Ignores the negative bit on tensors
 void neg_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.dtype(), "neg_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.dtype(), "neg_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a) -> scalar_t { return -a; },
@@ -287,7 +287,7 @@ void sign_kernel(TensorIteratorBase& iter){
   if(iter.dtype() == ScalarType::Bool){
       cpu_kernel(iter, [=](bool x) -> bool { return x; });
   } else {
-    AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, ScalarType::Half, kCFloatWithSubnormals, iter.dtype(), "sign_cpu", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kBFloat16, ScalarType::Half, iter.dtype(), "sign_cpu", [&]() {
         auto zero_vec = Vectorized<scalar_t>(static_cast<scalar_t>(0));
         auto one_vec = Vectorized<scalar_t>(static_cast<scalar_t>(1));
 
@@ -307,7 +307,7 @@ void sign_kernel(TensorIteratorBase& iter){
 }
 
 static void signbit_kernel(TensorIteratorBase& iter){
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, ScalarType::Half, kCFloatWithSubnormals, iter.input_dtype(), "signbit_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kBFloat16, ScalarType::Half, iter.input_dtype(), "signbit_cpu", [&]() {
     cpu_kernel(iter, [](scalar_t a) -> bool { return a < 0; });
   });
 }
@@ -397,7 +397,7 @@ static void trigamma_kernel(TensorIteratorBase& iter) {
 static void exp2_kernel(TensorIteratorBase& iter) {
   // Supports only floating types as std::exp2 doesn't have
   // complex overloads.
-  AT_DISPATCH_FLOATING_TYPES_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.dtype(), "exp2", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.dtype(), "exp2", [&]() {
     cpu_kernel(
         iter,
         [=](scalar_t a) -> scalar_t { return std::exp2(a); });
@@ -422,7 +422,7 @@ static void nan_to_num_kernel(
     c10::optional<double> nan,
     c10::optional<double> pos_inf,
     c10::optional<double> neg_inf) {
-  AT_DISPATCH_FLOATING_TYPES_AND3(kBFloat16, kHalf, kCFloatWithSubnormals, iter.dtype(), "nan_to_num", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.dtype(), "nan_to_num", [&]() {
     scalar_t nan_replacement = static_cast<scalar_t>(nan.value_or(0.));
     scalar_t pos_inf_replacement = pos_inf.has_value()
         ? static_cast<scalar_t>(pos_inf.value())
@@ -481,7 +481,7 @@ static void entr_kernel(TensorIteratorBase& iter) {
 }
 
 static void frexp_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND3(kBFloat16, kHalf, kCFloatWithSubnormals,
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf,
     // The iter.dtype() here is the dtype of mantissa output.
     // It's a floating point type and must be the same as the input's dtype.
     iter.dtype(),
