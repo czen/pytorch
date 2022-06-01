@@ -440,14 +440,14 @@ struct vec_host_softmax_backward_lastdim {
 static void softmax_lastdim_kernel_impl(
     const Tensor& result,
     const Tensor& self) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       at::ScalarType::BFloat16, self.scalar_type(),
       "softmax_lastdim_kernel_impl",
       [&] { vec_host_softmax_lastdim<scalar_t, false>::apply(result, self); });
 }
 
 static void softmax_kernel_impl(const Tensor& result, const Tensor& self, int64_t dim) {
-  AT_DISPATCH_FLOATING_TYPES_AND(at::ScalarType::BFloat16, self.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(at::ScalarType::BFloat16, self.scalar_type(),
     "softmax_kernel_impl",
     [&] { vec_softmax<scalar_t, false>::apply(result, self, dim); });
 }
@@ -455,7 +455,7 @@ static void softmax_kernel_impl(const Tensor& result, const Tensor& self, int64_
 static void log_softmax_lastdim_kernel_impl(
     const Tensor& result,
     const Tensor& self) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       at::ScalarType::BFloat16, self.scalar_type(),
       "log_softmax_lastdim_kernel_impl",
       [&] { vec_host_softmax_lastdim<scalar_t, true>::apply(result, self); });
@@ -465,7 +465,7 @@ static void softmax_backward_lastdim_kernel_impl(
     const Tensor& grad_input,
     const Tensor& grad,
     const Tensor& output) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       at::ScalarType::BFloat16, grad.scalar_type(),
       "softmax_backward_lastdim_kernel_impl", [&] {
         vec_host_softmax_backward_lastdim<scalar_t, false>::apply(
@@ -477,7 +477,7 @@ static void log_softmax_backward_lastdim_kernel_impl(
     const Tensor& grad_input,
     const Tensor& grad,
     const Tensor& output) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       at::ScalarType::BFloat16, grad.scalar_type(),
       "log_softmax_backward_lastdim_kernel_impl", [&] {
         vec_host_softmax_backward_lastdim<scalar_t, true>::apply(

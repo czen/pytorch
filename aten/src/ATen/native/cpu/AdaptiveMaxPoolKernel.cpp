@@ -436,7 +436,7 @@ void adaptive_max_pool2d_kernel_impl(
     IntArrayRef output_size) {
   switch (input.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, input.scalar_type(), "adaptive_max_pool2d", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, input.scalar_type(), "adaptive_max_pool2d", [&] {
         if (input.scalar_type() == ScalarType::BFloat16) {
           cpu_adaptive_max_pool<BFloat16, /*accscalar_t*/float>(output, indices, input, output_size);
         } else {
@@ -446,7 +446,7 @@ void adaptive_max_pool2d_kernel_impl(
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, input.scalar_type(), "adaptive_max_pool2d_channels_last", [&]{
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, input.scalar_type(), "adaptive_max_pool2d_channels_last", [&]{
         cpu_adaptive_max_pool_channels_last<scalar_t>(output, indices, input, output_size);
       });
       break;
@@ -463,13 +463,13 @@ void adaptive_max_pool2d_backward_kernel_impl(
   // can't use grad_output memory format to switch here since grad_output might be NC11
   switch (grad_input.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, grad_output.scalar_type(), "adaptive_max_pool2d_backward", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, grad_output.scalar_type(), "adaptive_max_pool2d_backward", [&] {
         cpu_adaptive_max_pool_backward<scalar_t>(grad_input, grad_output, indices);
       });
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, grad_output.scalar_type(), "adaptive_max_pool2d_backward_channels_last", [&]{
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, grad_output.scalar_type(), "adaptive_max_pool2d_backward_channels_last", [&]{
         cpu_adaptive_max_pool_backward_channels_last<scalar_t>(grad_input, grad_output, indices);
       });
       break;

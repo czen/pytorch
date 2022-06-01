@@ -134,7 +134,7 @@ void LogitMKLKernel(T eps, TensorIteratorBase* it) {
 #endif // AT_MKL_ENABLED
 
 void logit_kernel(TensorIteratorBase& iter, const Scalar& eps_scalar) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       kBFloat16, iter.common_dtype(), "logit_cpu", [&]() {
         const scalar_t eps = eps_scalar.to<scalar_t>();
         if (at::hasMKL() && iter.is_contiguous()) {
@@ -379,7 +379,7 @@ static void atanh_kernel(TensorIteratorBase& iter) {
 }
 
 static void digamma_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND(kBFloat16, iter.common_dtype(), "digamma", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kBFloat16, iter.common_dtype(), "digamma", [&]() {
     cpu_kernel(
         iter,
         [=](scalar_t a) -> scalar_t { return calc_digamma(a); });
@@ -387,7 +387,7 @@ static void digamma_kernel(TensorIteratorBase& iter) {
 }
 
 static void trigamma_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND(kBFloat16, iter.dtype(), "trigamma", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kBFloat16, iter.dtype(), "trigamma", [&]() {
     cpu_kernel(
         iter,
         [=](scalar_t a) -> scalar_t { return trigamma(a); });
@@ -410,7 +410,7 @@ static void polygamma_kernel(TensorIteratorBase& iter, int64_t n) {
   } else if (n == 1) {
     trigamma_kernel(iter);
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND(kBFloat16, iter.dtype(), "polygamma", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kBFloat16, iter.dtype(), "polygamma", [&]() {
       cpu_kernel(
           iter, [=](scalar_t a) -> scalar_t { return calc_polygamma(a, n); });
     });
@@ -445,7 +445,7 @@ static void nan_to_num_kernel(
 }
 
 static void kaiser_window_kernel(TensorIteratorBase& iter, int64_t window_length, double beta){
-  AT_DISPATCH_FLOATING_TYPES_AND(kBFloat16, iter.dtype(), "kaiser_window_cpu", [&](){
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kBFloat16, iter.dtype(), "kaiser_window_cpu", [&](){
     const scalar_t alpha = static_cast<scalar_t>((window_length - 1) / 2.0);
     cpu_kernel(iter, [=](scalar_t a){
         return calc_i0(static_cast<scalar_t>(beta) * std::sqrt(1 - std::pow((a - alpha) / alpha, static_cast<scalar_t>(2.0)))) / calc_i0(static_cast<scalar_t>(beta));
@@ -465,7 +465,7 @@ void rsqrt_kernel(TensorIteratorBase& iter) {
 }
 
 static void entr_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       kBFloat16, iter.common_dtype(), "entr_cpu", [&] {
         cpu_kernel(iter, [](scalar_t x) -> scalar_t {
           if (at::_isnan(x)) {
@@ -506,7 +506,7 @@ static void ndtri_kernel(TensorIteratorBase& iter) {
 
 static void i0e_kernel(TensorIteratorBase& iter) {
   TORCH_INTERNAL_ASSERT(iter.ntensors() == 2);
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       kBFloat16, iter.common_dtype(), "i0e_cpu", [&]() {
         cpu_kernel_vec(
             iter,
@@ -538,7 +538,7 @@ static void erfcx_kernel(TensorIteratorBase& iter){
 }
 
 void round_decimals_kernel(TensorIteratorBase& iter, int64_t decimals) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       ScalarType::BFloat16, iter.dtype(), "round_cpu", [&]() {
         bool neg_flag = false;
         scalar_t ten_pow_decimals;
@@ -579,6 +579,7 @@ void round_decimals_kernel(TensorIteratorBase& iter, int64_t decimals) {
             }                                                                 \
           }
 
+// FIXME Add Universal types here
 #define IMPLEMENT_FLOAT_KERNEL(op)                                                  \
   inline namespace CPU_CAPABILITY {                                                 \
   void op##_kernel(TensorIteratorBase& iter) {                                      \

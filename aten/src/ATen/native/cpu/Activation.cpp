@@ -84,7 +84,7 @@ static void threshold_kernel(
     TensorIteratorBase& iter,
     const Scalar& threshold_scalar,
     const Scalar& value_scalar) {
-  AT_DISPATCH_ALL_TYPES_AND(kBFloat16, iter.dtype(), "threshold_cpu", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND(kBFloat16, iter.dtype(), "threshold_cpu", [&] {
     using Vec = Vectorized<scalar_t>;
     scalar_t threshold = threshold_scalar.to<scalar_t>();
     Vec threshold_v = Vec(threshold);
@@ -187,7 +187,7 @@ void GeluKernelImpl(TensorIteratorBase& it) {
   if (it.numel() > GELU_MIN_ELEMENTS_FOR_MULTI_THREADING) {
     grain_size = it.numel() / at::get_num_threads();
   }
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       ScalarType::BFloat16, it.dtype(), "GeluKernelImpl", [&]() {
     using Vec = vec::Vectorized<scalar_t>;
     const Vec kAlphaVec(scalar_t(M_SQRT1_2));
@@ -208,7 +208,7 @@ void GeluKernelImpl(TensorIteratorBase& it) {
 }
 
 void GeluBackwardKernelImpl(TensorIteratorBase& it) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       ScalarType::BFloat16, it.dtype(), "GeluBackwardKernelImpl", [&]() {
     using Vec = vec::Vectorized<scalar_t>;
     const Vec kAlphaVec(scalar_t(M_SQRT1_2));

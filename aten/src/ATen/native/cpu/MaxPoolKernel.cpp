@@ -459,7 +459,7 @@ void max_pool2d_kernel_impl(
     int dilationW, int dilationH) {
   switch (input.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, input.scalar_type(), "max_pool2d", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, input.scalar_type(), "max_pool2d", [&] {
         if (input.scalar_type() == ScalarType::BFloat16) {
           cpu_max_pool<BFloat16, /*accscalar_t*/float>(output, indices, input, kW, kH, dW, dH, padW, padH, dilationW, dilationH);
         } else {
@@ -469,7 +469,7 @@ void max_pool2d_kernel_impl(
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, input.scalar_type(), "max_pool2d_channels_last", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, input.scalar_type(), "max_pool2d_channels_last", [&] {
         cpu_max_pool_channels_last<scalar_t>(output, indices, input, kW, kH, dW, dH, padW, padH, dilationW, dilationH);
       });
       break;
@@ -485,13 +485,13 @@ void max_pool2d_backward_kernel_impl(
     const Tensor& indices) {
   switch (grad_output.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, grad_output.scalar_type(), "max_pool2d_backward", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, grad_output.scalar_type(), "max_pool2d_backward", [&] {
         cpu_max_pool_backward<scalar_t>(grad_input, grad_output, indices);
       });
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, grad_output.scalar_type(), "max_pool2d_backward_channels_last", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, grad_output.scalar_type(), "max_pool2d_backward_channels_last", [&] {
         cpu_max_pool_backward_channels_last<scalar_t>(grad_input, grad_output, indices);
       });
       break;

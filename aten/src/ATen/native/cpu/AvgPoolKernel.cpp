@@ -498,7 +498,7 @@ void avg_pool2d_kernel_impl(
     c10::optional<int64_t> divisor_override) {
   switch (input.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES_AND2(ScalarType::Long, ScalarType::BFloat16, input.scalar_type(), "avg_pool2d", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(ScalarType::Long, ScalarType::BFloat16, input.scalar_type(), "avg_pool2d", [&] {
         if (input.scalar_type() == ScalarType::BFloat16) {
           cpu_avg_pool<BFloat16, /*accscalar_t*/float>(output, input, kW, kH, dW, dH, padW, padH, count_include_pad, divisor_override);
         } else {
@@ -508,7 +508,7 @@ void avg_pool2d_kernel_impl(
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES_AND2(ScalarType::Long, ScalarType::BFloat16, input.scalar_type(), "avg_pool2d_channels_last", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(ScalarType::Long, ScalarType::BFloat16, input.scalar_type(), "avg_pool2d_channels_last", [&] {
         cpu_avg_pool_channels_last<scalar_t>(output, input, kW, kH, dW, dH, padW, padH, count_include_pad, divisor_override);
       });
       break;
@@ -528,13 +528,13 @@ void avg_pool2d_backward_kernel_impl(
     c10::optional<int64_t> divisor_override) {
   switch (grad_output.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES_AND2(ScalarType::Long, ScalarType::BFloat16, grad_output.scalar_type(), "avg_pool2d_backward", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(ScalarType::Long, ScalarType::BFloat16, grad_output.scalar_type(), "avg_pool2d_backward", [&] {
         cpu_avg_pool_backward<scalar_t>(grad_input, grad_output, kW, kH, dW, dH, padW, padH, count_include_pad, divisor_override);
       });
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES_AND2(ScalarType::Long, ScalarType::BFloat16, grad_output.scalar_type(), "avg_pool2d_backward_channels_last", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(ScalarType::Long, ScalarType::BFloat16, grad_output.scalar_type(), "avg_pool2d_backward_channels_last", [&] {
         cpu_avg_pool_backward_channels_last<scalar_t>(grad_input, grad_output, kW, kH, dW, dH, padW, padH, count_include_pad, divisor_override);
       });
       break;

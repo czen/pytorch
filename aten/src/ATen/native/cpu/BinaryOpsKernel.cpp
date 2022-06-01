@@ -212,6 +212,7 @@ void div_floor_kernel(TensorIteratorBase& iter) {
   }
 }
 
+// FIXME Implement for Universal types
 void remainder_kernel(TensorIteratorBase& iter) {
   if (isIntegralType(iter.common_dtype(), /*includeBool*/ false)) {
     AT_DISPATCH_INTEGRAL_TYPES(iter.common_dtype(), "remainder_cpu", [&]() {
@@ -249,7 +250,7 @@ void remainder_kernel(TensorIteratorBase& iter) {
         return convert_float_bfloat16(a0, a1);
       });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(iter.common_dtype(), "remainder_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND(kHalf, iter.common_dtype(), "remainder_cpu", [&]() {
       cpu_kernel_vec(iter,
         [=](scalar_t a, scalar_t b) __ubsan_ignore_float_divide_by_zero__ -> scalar_t {
           scalar_t mod = std::fmod(a, b);
@@ -743,7 +744,7 @@ void sigmoid_backward_kernel(TensorIteratorBase& iter) {
 }
 
 void logit_backward_kernel(TensorIteratorBase& iter, const Scalar& eps_scalar) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       kBFloat16, iter.dtype(), "logit_backward_cpu", [&]() {
         const scalar_t eps = eps_scalar.to<scalar_t>();
         const Vectorized<scalar_t> kZeroVec(scalar_t(0));
@@ -837,13 +838,14 @@ void tanh_backward_kernel(TensorIteratorBase& iter) {
   }
 }
 
+// FIXME Implement for Universal types
 void mse_kernel(TensorIterator& iter) {
   if (iter.dtype() == ScalarType::Half) {
     TORCH_WARN_ONCE("Applying the CPU mse kernel on half-type tensors. "
                     "This may be slower than using float or double-type tensors.");
   }
 
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(iter.dtype(), "mse_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf, iter.dtype(), "mse_cpu", [&]() {
     cpu_kernel_vec(iter,
       [=](scalar_t a, scalar_t b) -> scalar_t {
         auto diff = a - b;
@@ -1016,7 +1018,7 @@ void lcm_kernel(TensorIteratorBase& iter) {
 }
 
 void hypot_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND(kBFloat16, iter.dtype(), "hypot_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kBFloat16, iter.dtype(), "hypot_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a, scalar_t b) -> scalar_t {
@@ -1029,7 +1031,7 @@ void hypot_kernel(TensorIteratorBase& iter) {
 }
 
 void igamma_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "igamma_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.dtype(), "igamma_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a, scalar_t b) -> scalar_t {
@@ -1042,7 +1044,7 @@ void igamma_kernel(TensorIteratorBase& iter) {
 }
 
 void igammac_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "igammac_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.dtype(), "igammac_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a, scalar_t b) -> scalar_t {
@@ -1084,6 +1086,7 @@ void heaviside_kernel(TensorIteratorBase& iter) {
   });
 }
 
+// FIXME Implement for Universal types
 void copysign_kernel(TensorIteratorBase& iter) {
   AT_DISPATCH_FLOATING_TYPES_AND2(kBFloat16, kHalf, iter.common_dtype(), "copysign_cpu", [&]() {
     cpu_kernel_vec(iter,
@@ -1097,7 +1100,7 @@ void copysign_kernel(TensorIteratorBase& iter) {
 }
 
 void xlogy_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(kBFloat16, kHalf, iter.common_dtype(), "xlogy_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.common_dtype(), "xlogy_cpu", [&]() {
     cpu_kernel(iter, [](scalar_t x, scalar_t y) -> scalar_t {
       if (at::_isnan(y)){
         return NAN;
@@ -1111,7 +1114,7 @@ void xlogy_kernel(TensorIteratorBase& iter) {
 }
 
 void xlog1py_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(kBFloat16, kHalf, iter.common_dtype(), "xlog1py_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.common_dtype(), "xlog1py_cpu", [&]() {
     cpu_kernel(iter, [](scalar_t x, scalar_t y) -> scalar_t {
       if (at::_isnan(y)){
         return NAN;

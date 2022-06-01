@@ -1389,6 +1389,8 @@ calc_i0(T _x) {
 
 // Upcast bfloat16 input to float for numerical accuracy purposes
 static inline c10::BFloat16 calc_i0(c10::BFloat16 a) { return calc_i0(static_cast<float>(a)); }
+// FIXME Implement this using universal/applications/chebyshev/chebpts.hpp
+static inline c10::CFloatWithSubnormals calc_i0(c10::CFloatWithSubnormals a) { return calc_i0(static_cast<float>(a)); }
 
 /*
  * This function is derived from the implementation of the i0e function in the Cephes Math Library.
@@ -1420,6 +1422,8 @@ calc_i0e(T _x) {
 
 // Upcast bfloat16 input to float for numerical accuracy purposes
 static inline c10::BFloat16 calc_i0e(c10::BFloat16 a) { return calc_i0e(static_cast<float>(a)); }
+// FIXME Implement this using universal/applications/chebyshev/chebpts.hpp
+static inline c10::CFloatWithSubnormals calc_i0e(c10::CFloatWithSubnormals a) { return calc_i0e(static_cast<float>(a)); }
 
 /*
  * This function is derived from the implementation of the i1 function in the Cephes Math Library.

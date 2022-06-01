@@ -311,3 +311,6 @@ pr.diff
 
 # coverage files
 */**/.coverage.*
+
+# precompiled headers
+*.gch

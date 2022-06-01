@@ -22,6 +22,7 @@ template <> struct DistAccumType<half> { using type = float; };
 #endif
 template <> struct DistAccumType<BFloat16> { using type = float; };
 template <> struct DistAccumType<Half> { using type = float; };
+template <> struct DistAccumType<CFloatWithSubnormals> { using type = float; };
 template <> struct DistAccumType<float> { using type = float; };
 template <> struct DistAccumType<double> { using type = double; };
 

@@ -137,7 +137,7 @@ void unfolded2d_acc_kernel(
   // output_height*dH does not overflow a int64_t
   // output_width*dW does not overflow a int64_t
 
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       at::ScalarType::BFloat16, dtype, "unfolded2d_acc", [&] {
         unfolded2d_acc(
             static_cast<scalar_t*>(finput_data),
@@ -284,7 +284,7 @@ void unfolded2d_copy_kernel(
   // output_height*dH does not overflow a int64_t
   // output_width*dW does not overflow a int64_t
 
-  AT_DISPATCH_ALL_TYPES_AND(
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND(
       at::ScalarType::BFloat16, dtype, "unfolded2d_copy", [&] {
         unfolded2d_copy(
             static_cast<scalar_t*>(input_data),
