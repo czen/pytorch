@@ -117,7 +117,7 @@ void multi_margin_loss_out_cpu_template(
   auto input_contiguous = input.contiguous();
   auto target_contiguous = target.contiguous();
 
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "multi_margin_loss_cpu_kernel", [&] {
         auto input_data = input_contiguous.data_ptr<scalar_t>();
         auto target_data = target_contiguous.data_ptr<int64_t>();
@@ -222,7 +222,7 @@ void multi_margin_loss_backward_out_cpu_template(
   auto input_contiguous = input.contiguous();
   auto target_contiguous = target.contiguous();
   auto weight_contiguous = weight.contiguous();
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "multi_margin_loss_backward_cpu_kernel", [&] {
         auto grad_input_data = grad_input.data_ptr<scalar_t>();
         auto input_data = input_contiguous.data_ptr<scalar_t>();

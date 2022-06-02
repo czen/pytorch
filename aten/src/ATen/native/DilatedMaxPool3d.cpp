@@ -206,7 +206,7 @@ void max_pool3d_with_indices_out_cpu_template(
     /* indices will contain ti,i,j locations for each output point */
     indices.resize_({nslices, otime, oheight, owidth});
 
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(),
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(),
       "max_pool3d_with_indices_cpu",
       [&] {
         scalar_t *input_data = input.data_ptr<scalar_t>();
@@ -236,7 +236,7 @@ void max_pool3d_with_indices_out_cpu_template(
     /* indices will contain ti,i,j locations for each output point */
     indices.resize_({nbatch, nslices, otime, oheight, owidth});
 
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(),
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(),
       "max_pool3d_with_indices_cpu",
       [&] {
         scalar_t *input_data = input.data_ptr<scalar_t>();
@@ -417,7 +417,7 @@ Tensor& max_pool3d_with_indices_backward_out_cpu_template(
   /* backprop */
   if (input.ndimension() == 4) /* non-batch mode*/
   {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(),
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(),
       "max_pool3d_with_indices_backward",
       [&] {
         /* get raw pointers */
@@ -443,7 +443,7 @@ Tensor& max_pool3d_with_indices_backward_out_cpu_template(
     const int64_t istride = nslices * itime * iwidth * iheight;
     const int64_t ostride = nslices * otime * owidth * oheight;
 
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(),
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(),
       "max_pool3d_with_indices_backward",
       [&] {
         scalar_t *gradInput_data = gradInput.data_ptr<scalar_t>();

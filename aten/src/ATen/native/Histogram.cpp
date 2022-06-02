@@ -173,7 +173,7 @@ select_outer_bin_edges(const Tensor& input, c10::optional<c10::ArrayRef<double>>
         }
     } else if (input.numel() > 0) {
         // non-empty input
-        AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "histogramdd", [&]() {
+        AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "histogramdd", [&]() {
             infer_bin_edges_from_input<scalar_t>(input, N, leftmost_edges, rightmost_edges);
         });
     }

@@ -301,13 +301,13 @@ void max_unpool2d_kernel_impl(
     const Tensor& indices) {
   switch(input.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "max_unpool2d", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "max_unpool2d", [&] {
         cpu_max_unpool<scalar_t, /*is_3d*/false>(output, input, indices);
       });
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "max_unpool2d_channels_last", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "max_unpool2d_channels_last", [&] {
         cpu_max_unpool_channels_last<scalar_t>(output, input, indices);
       });
       break;
@@ -321,7 +321,7 @@ void max_unpool3d_kernel_impl(
     Tensor& output,
     const Tensor& input,
     const Tensor& indices) {
-  AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "max_unpool3d", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "max_unpool3d", [&] {
     cpu_max_unpool<scalar_t, /*is_3d*/true>(output, input, indices);
   });
 }
@@ -332,13 +332,13 @@ void max_unpool2d_backward_kernel_impl(
     const Tensor& indices) {
   switch(grad_output.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "max_unpool2d_backward", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "max_unpool2d_backward", [&] {
         cpu_max_unpool_backward<scalar_t, /*is_3d*/false>(grad_input, grad_output, indices);
       });
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "max_unpool2d_backward_channels_last", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "max_unpool2d_backward_channels_last", [&] {
         cpu_max_unpool_backward_channels_last<scalar_t>(grad_input, grad_output, indices);
       });
       break;
@@ -352,7 +352,7 @@ void max_unpool3d_backward_kernel_impl(
     Tensor& grad_input,
     const Tensor& grad_output,
     const Tensor& indices) {
-  AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "max_unpool3d_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "max_unpool3d_backward", [&] {
     cpu_max_unpool_backward<scalar_t, /*is_3d*/true>(grad_input, grad_output, indices);
   });
 }

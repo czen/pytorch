@@ -219,14 +219,14 @@ void GroupNormKernelImpl(
     Tensor& rstd) {
   switch (X.suggest_memory_format()) {
     case at::MemoryFormat::Contiguous: {
-      AT_DISPATCH_FLOATING_TYPES(X.scalar_type(), "GroupNormKernelImpl", [&]() {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(X.scalar_type(), "GroupNormKernelImpl", [&]() {
         GroupNormKernelImplInternal<scalar_t>(
             X, gamma, beta, N, C, HxW, group, static_cast<scalar_t>(eps), Y, mean, rstd);
       });
       break;
     }
     case at::MemoryFormat::ChannelsLast: {
-      AT_DISPATCH_FLOATING_TYPES(X.scalar_type(), "GroupNormKernelImpl", [&]() {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(X.scalar_type(), "GroupNormKernelImpl", [&]() {
         GroupNormKernelImplChannelsLastInternal<scalar_t>(
             X, gamma, beta, N, C, HxW, group, static_cast<scalar_t>(eps), Y, mean, rstd);
       });
@@ -457,7 +457,7 @@ void GroupNormBackwardKernelImpl(
     Tensor& dX,
     Tensor& dgamma,
     Tensor& dbeta) {
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       X.scalar_type(), "GroupNormBackwardKernelImpl", [&]() {
         GroupNormBackwardKernelImplInternal<scalar_t>(
             dY, X, mean, rstd, gamma, N, C, HxW, group, dX, dgamma, dbeta);

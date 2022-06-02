@@ -8,6 +8,8 @@
 #include <c10/util/BFloat16.h>
 #include <c10/util/Half.h>
 
+#include <type_traits>
+
 #define FORALL_SUPPORTED_TYPES(_) \
   _(int)                          \
   _(long)                         \
@@ -15,10 +17,11 @@
   _(float)                        \
   _(double)
 
+// (argument type, return type)
 #define FORALL_SUPPORTED_TYPES_IN_OPERATORS(_) \
-  _(int)                                       \
-  _(float)                                     \
-  _(double)
+  _(int, CFloatWithSubnormals)                 \
+  _(float, CFloatWithSubnormals)               \
+  _(double, double) // ATen requires returning double if the argument type is double
 
 #define FORALL_ADDITIONAL_TYPES(_) \
   _(unsigned char)                 \
@@ -66,7 +69,7 @@ inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isS
   const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& rhs);
 
 
-#define OP(T)                                                                                                 \
+#define OP(T, _)                                                                                                 \
   template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating> \
   inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> operator+(       \
     T lhs,                                                                                                    \
@@ -134,6 +137,18 @@ public:
   }
 
   constexpr C10_HOST_DEVICE CFloatWithSubnormals(Base value) : Base(value) {}
+
+  // A way to construct CFloatWithSubnormals from bits similar to Half and BFloat16
+  struct from_bits_t {};
+  static constexpr C10_HOST_DEVICE from_bits_t from_bits()
+  {
+    return from_bits_t();
+  }
+
+  constexpr C10_HOST_DEVICE CFloatWithSubnormals(uint32_t bits, from_bits_t)
+  {
+    setblock(0, bits);
+  }
 
   C10_HOST_DEVICE operator float() const noexcept
   {
@@ -241,9 +256,12 @@ public:
   }
 
   // Arithmetic operators
-  C10_HOST_DEVICE CFloatWithSubnormals operator-() const
+  // ATen requires unary minus to be constexpr
+  constexpr C10_HOST_DEVICE CFloatWithSubnormals operator-() const
   {
-    return static_cast<CFloatWithSubnormals>(Base::operator-());
+    cfloat tmp(*this);
+    tmp.setblock(Base::MSU, tmp.block(Base::MSU) ^ Base::SIGN_BIT_MASK);
+    return static_cast<CFloatWithSubnormals>(tmp);
   }
   C10_HOST_DEVICE CFloatWithSubnormals& operator+=(const CFloatWithSubnormals& right)
   {
@@ -324,38 +342,38 @@ inline C10_HOST_DEVICE CFloatWithSubnormals operator/(const CFloatWithSubnormals
     static_cast<CFloatWithSubnormals::Base>(right)));
 }
 
-#define OP(T)                                                                                                                 \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator+(const CFloatWithSubnormals& left, T right)                            \
+#define OP(T, R)                                                                                                                 \
+  inline C10_HOST_DEVICE R operator+(const CFloatWithSubnormals& left, T right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator+(static_cast<CFloatWithSubnormals::Base>(left), right)); \
+    return static_cast<R>(sw::universal::operator+(static_cast<CFloatWithSubnormals::Base>(left), right)); \
   }                                                                                                                           \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator-(const CFloatWithSubnormals& left, T right)                            \
+  inline C10_HOST_DEVICE R operator-(const CFloatWithSubnormals& left, T right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator-(static_cast<CFloatWithSubnormals::Base>(left), right)); \
+    return static_cast<R>(sw::universal::operator-(static_cast<CFloatWithSubnormals::Base>(left), right)); \
   }                                                                                                                           \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator*(const CFloatWithSubnormals& left, T right)                            \
+  inline C10_HOST_DEVICE R operator*(const CFloatWithSubnormals& left, T right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator*(static_cast<CFloatWithSubnormals::Base>(left), right)); \
+    return static_cast<R>(sw::universal::operator*(static_cast<CFloatWithSubnormals::Base>(left), right)); \
   }                                                                                                                           \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator/(const CFloatWithSubnormals& left, T right)                            \
+  inline C10_HOST_DEVICE R operator/(const CFloatWithSubnormals& left, T right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator/(static_cast<CFloatWithSubnormals::Base>(left), right)); \
+    return static_cast<R>(sw::universal::operator/(static_cast<CFloatWithSubnormals::Base>(left), right)); \
   }                                                                                                                           \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator+(T left, const CFloatWithSubnormals& right)                            \
+  inline C10_HOST_DEVICE R operator+(T left, const CFloatWithSubnormals& right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator+(left, static_cast<CFloatWithSubnormals::Base>(right))); \
+    return static_cast<R>(sw::universal::operator+(left, static_cast<CFloatWithSubnormals::Base>(right))); \
   }                                                                                                                           \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator-(T left, const CFloatWithSubnormals& right)                            \
+  inline C10_HOST_DEVICE R operator-(T left, const CFloatWithSubnormals& right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator-(left, static_cast<CFloatWithSubnormals::Base>(right))); \
+    return static_cast<R>(sw::universal::operator-(left, static_cast<CFloatWithSubnormals::Base>(right))); \
   }                                                                                                                           \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator*(T left, const CFloatWithSubnormals& right)                            \
+  inline C10_HOST_DEVICE R operator*(T left, const CFloatWithSubnormals& right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator*(left, static_cast<CFloatWithSubnormals::Base>(right))); \
+    return static_cast<R>(sw::universal::operator*(left, static_cast<CFloatWithSubnormals::Base>(right))); \
   }                                                                                                                           \
-  inline C10_HOST_DEVICE CFloatWithSubnormals operator/(T left, const CFloatWithSubnormals& right)                            \
+  inline C10_HOST_DEVICE R operator/(T left, const CFloatWithSubnormals& right)                            \
   {                                                                                                                           \
-    return static_cast<CFloatWithSubnormals>(sw::universal::operator/(left, static_cast<CFloatWithSubnormals::Base>(right))); \
+    return static_cast<R>(sw::universal::operator/(left, static_cast<CFloatWithSubnormals::Base>(right))); \
   }
 FORALL_SUPPORTED_TYPES_IN_OPERATORS(OP)
 #undef OP

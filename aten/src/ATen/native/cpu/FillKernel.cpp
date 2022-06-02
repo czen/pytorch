@@ -57,6 +57,7 @@ void fill_kernel(TensorIterator& iter, const Scalar& value_scalar) {
   } else if (iter.dtype() == ScalarType::CFloatWithSubnormals) {
     fill_non_native_type<c10::CFloatWithSubnormals>(iter, value_scalar);
   } else {
+    // Universal types are handled above. Do not add AND_UNIVERSAL to this macro.
     AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND(at::ScalarType::Bool, iter.dtype(), "fill_cpu", [&]() {
       scalar_t value = value_scalar.to<scalar_t>();
       cpu_kernel_vec(

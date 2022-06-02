@@ -513,7 +513,7 @@ Tensor& replication_pad2d_backward_out_cpu_template(
   /* backprop */
   if (input.dim() == 3)
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "replication_pad2d_backward_cpu", [&] {
       replication_pad2d_backward_out_frame<scalar_t>(
         gradInput.data_ptr<scalar_t>(),
@@ -528,7 +528,7 @@ Tensor& replication_pad2d_backward_out_cpu_template(
   }
   else
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "replication_pad2d_backward_cpu", [&] {
       replication_pad2d_backward_out_batch<scalar_t>(
         gradInput.data_ptr<scalar_t>(),
@@ -769,7 +769,7 @@ Tensor& replication_pad3d_backward_out_cpu_template(
   /* backprop */
   if (input.dim() == 4)
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "replication_pad3d_backward_cpu", [&] {
       replication_pad3d_backward_out_frame<scalar_t> (
         gradInput.data_ptr<scalar_t>(),
@@ -785,7 +785,7 @@ Tensor& replication_pad3d_backward_out_cpu_template(
   }
   else
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "replication_pad3d_backward_cpu", [&] {
       replication_pad3d_backward_out_batch<scalar_t> (
         gradInput.data_ptr<scalar_t>(),
@@ -828,7 +828,7 @@ TORCH_IMPL_FUNC(replication_pad1d_out_cpu) (
 
   if (input.ndimension() == 2)
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "replication_pad1d_cpu", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "replication_pad1d_cpu", [&] {
       auto input_data = input.data_ptr<scalar_t>();
       auto output_data = output.data_ptr<scalar_t>();
       replication_pad1d_out_frame<scalar_t>(
@@ -843,7 +843,7 @@ TORCH_IMPL_FUNC(replication_pad1d_out_cpu) (
   }
   else
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "replication_pad1d_cpu", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "replication_pad1d_cpu", [&] {
       auto input_data = input.data_ptr<scalar_t>();
       auto output_data = output.data_ptr<scalar_t>();
       replication_pad1d_out_batch<scalar_t>(
@@ -896,7 +896,7 @@ TORCH_IMPL_FUNC(replication_pad1d_backward_out_cpu) (
   /* backprop */
   if (input.ndimension() == 2)
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "replication_pad1d_backward_cpu", [&] {
       scalar_t *gradInput_data = gradInput.data_ptr<scalar_t>();
       scalar_t *gradOutput_data = gradOutput.data_ptr<scalar_t>();
@@ -913,7 +913,7 @@ TORCH_IMPL_FUNC(replication_pad1d_backward_out_cpu) (
   }
   else
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "replication_pad1d_backward_cpu", [&] {
       scalar_t *gradInput_data = gradInput.data_ptr<scalar_t>();
       scalar_t *gradOutput_data = gradOutput.data_ptr<scalar_t>();
@@ -961,7 +961,7 @@ TORCH_IMPL_FUNC(replication_pad2d_out_cpu) (
   /* resize output */
   if (input.dim() == 3)
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "replication_pad2d_cpu", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "replication_pad2d_cpu", [&] {
       auto input_data = input.data_ptr<scalar_t>();
       auto output_data = output.data_ptr<scalar_t>();
       replication_pad2d_out_frame<scalar_t> (input_data, output_data,
@@ -975,7 +975,7 @@ TORCH_IMPL_FUNC(replication_pad2d_out_cpu) (
   }
   else
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "replication_pad2d_cpu", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "replication_pad2d_cpu", [&] {
       auto input_data = input.data_ptr<scalar_t>();
       auto output_data = output.data_ptr<scalar_t>();
       replication_pad2d_out_batch<scalar_t> (input_data, output_data,
@@ -1048,7 +1048,7 @@ TORCH_IMPL_FUNC(replication_pad3d_out_cpu) (
 
   /* resize output */
   if (input.dim() == 4) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "replication_pad3d_cpu", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "replication_pad3d_cpu", [&] {
       auto input_data = input.data_ptr<scalar_t>();
       auto output_data = output.data_ptr<scalar_t>();
       replication_pad3d_out_frame<scalar_t>(
@@ -1060,7 +1060,7 @@ TORCH_IMPL_FUNC(replication_pad3d_out_cpu) (
   }
   else
   {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "replication_pad3d_cpu", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "replication_pad3d_cpu", [&] {
       auto input_data = input.data_ptr<scalar_t>();
       auto output_data = output.data_ptr<scalar_t>();
       replication_pad3d_out_batch<scalar_t>(

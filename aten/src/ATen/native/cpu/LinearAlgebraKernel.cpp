@@ -38,7 +38,7 @@ void addr_kernel(TensorIterator &iter,
     return;
   }
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND2(kBFloat16, kHalf,
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(kBFloat16, kHalf,
     iter.dtype(), "addr_cpu", [&]() {
       using Vec = Vectorized<scalar_t>;
 
@@ -119,7 +119,7 @@ void linalg_vector_norm_kernel_cpu_impl(TensorIterator& iter, Scalar ord) {
 }
 
 static void linalg_vector_norm_kernel_cpu(TensorIterator& iter, Scalar ord) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(kHalf, kBFloat16, iter.input_dtype(), "linalg_vector_norm_cpu", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.input_dtype(), "linalg_vector_norm_cpu", [&] {
     linalg_vector_norm_kernel_cpu_impl<scalar_t>(iter, ord);
   });
 }

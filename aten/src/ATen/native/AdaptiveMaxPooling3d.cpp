@@ -296,7 +296,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool3d_out_cpu)
   int64_t osizeW = output_size[2];
 
   if (input.ndimension() == 4) {
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
         input.scalar_type(), "adaptive_max_pool3d_cpu", [&] {
           auto input_data = input.data_ptr<scalar_t>();
           auto output_data = output.data_ptr<scalar_t>();
@@ -319,7 +319,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool3d_out_cpu)
               istrideW);
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
         input.scalar_type(), "adaptive_max_pool3d_cpu", [&] {
           auto input_data = input.data_ptr<scalar_t>();
           auto output_data = output.data_ptr<scalar_t>();
@@ -389,7 +389,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool3d_backward_out_cpu)
 
   /* backprop */
   if (input.ndimension() == 4) {
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
         input.scalar_type(), "adaptive_max_pool3d_backward", [&] {
           /* get raw pointers */
           scalar_t* gradInput_data = gradInput.data_ptr<scalar_t>();
@@ -409,7 +409,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool3d_backward_out_cpu)
               osizeW);
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
         input.scalar_type(), "adaptive_max_pool3d_backward", [&] {
           /* get raw pointers */
           scalar_t* gradInput_data = gradInput.data_ptr<scalar_t>();

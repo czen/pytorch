@@ -522,7 +522,7 @@ Tensor& rrelu_with_noise_out_cpu(const Tensor& self,
     c10::optional<Generator> generator,
     Tensor& output) {
   if (training) {
-    AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::BFloat16, self.scalar_type(), "rrelu_with_noise_out_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, self.scalar_type(), "rrelu_with_noise_out_cpu", [&] {
       _rrelu_with_noise_train<scalar_t>(output, self.contiguous(), noise, lower, upper, generator);
     });
     return output;
@@ -667,7 +667,7 @@ Tensor prelu_cpu(const Tensor& self, const Tensor& weight_) {
 
   // case1: shared weight for all channels
   if (weight_num == 1) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "prelu_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "prelu_cpu", [&] {
       prelu_cpu_kernel_share_weights<scalar_t>(result, input, weight);
     });
   }
@@ -688,7 +688,7 @@ Tensor prelu_cpu(const Tensor& self, const Tensor& weight_) {
       "Mismatch of parameter numbers and input channel size. Found parameter numbers = ", weight_num,
       " and channel size = ", channel_size, ".");
 
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "prelu_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "prelu_cpu", [&] {
       prelu_cpu_kernel_multi_weights<scalar_t>(
         result,
         input,
@@ -800,7 +800,7 @@ std::tuple<Tensor, Tensor> prelu_backward_cpu(const Tensor& grad_out_, const Ten
 
   // case1: shared parameter for all channels
   if (weight_num == 1) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "prelu_backward_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "prelu_backward_cpu", [&] {
       prelu_cpu_backward_kernel_share_weights<scalar_t>(input, weight, grad_out, input_grad, weight_grad);
     });
   }
@@ -821,7 +821,7 @@ std::tuple<Tensor, Tensor> prelu_backward_cpu(const Tensor& grad_out_, const Ten
       "Mismatch of parameter numbers and input channel size. Found parameter numbers = ", weight_num,
       " and channel size = ", channel_size, ".");
 
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "prelu_backward_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "prelu_backward_cpu", [&] {
       prelu_cpu_backward_kernel_multi_weights<scalar_t>(
         input,
         weight,

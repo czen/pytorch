@@ -37,7 +37,7 @@ void _segment_reduce_cpu_kernel1(
     Tensor& output,
     int64_t segment_count) {
   int64_t stride_count = data.numel() / data.size(axis);
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       kBFloat16, kHalf, data.scalar_type(), "_segment_reduce_cpu", [&]() {
         auto* output_data = output.data_ptr<scalar_t>();
         const auto* values_data = data.data_ptr<scalar_t>();
@@ -130,7 +130,7 @@ void _segment_reduce_cpu_backward_kernel1(
   int64_t stride_count = data_contig.numel() / data_contig.size(axis);
   // TODO: Swtich to TensorIterator for better maintainablility and
   // readability
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       kBFloat16,
       kHalf,
       data_contig.scalar_type(),

@@ -786,7 +786,7 @@ struct HelperInterpNearest : public HelperInterpBase {
     HelperInterpNearest::init_indices_weights(
       scalar_type, output, output_size, ndims, reshape_dim, HelperInterpNearest::interp_size);
 
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       scalar_type, "compute_indices_weights_nearest", [&] {
 
         scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
@@ -837,7 +837,7 @@ struct HelperInterpNearestExact : public HelperInterpNearest {
     HelperInterpNearest::init_indices_weights(
       scalar_type, output, output_size, ndims, reshape_dim, HelperInterpNearest::interp_size);
 
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       scalar_type, "compute_indices_weights_nearest", [&] {
 
         scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
@@ -887,7 +887,7 @@ struct HelperInterpLinear : public HelperInterpBase {
     HelperInterpLinear::init_indices_weights(
       scalar_type, output, output_size, ndims, reshape_dim, HelperInterpLinear::interp_size);
 
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       scalar_type, "compute_indices_weights_linear", [&] {
 
         scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
@@ -942,7 +942,7 @@ struct HelperInterpLinear : public HelperInterpBase {
   ) {
 
     std::vector<Tensor> indices_weights;
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       scalar_type, "compute_indices_weights_aa", [&] {
 
         scalar_t scale = area_pixel_compute_scale<scalar_t>(
@@ -990,7 +990,7 @@ struct HelperInterpCubic : public HelperInterpBase {
     HelperInterpCubic::init_indices_weights(
       scalar_type, output, output_size, ndims, reshape_dim, HelperInterpCubic::interp_size);
 
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       scalar_type, "compute_indices_weights_cubic", [&] {
 
         scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
@@ -1054,7 +1054,7 @@ struct HelperInterpCubic : public HelperInterpBase {
   ) {
 
     std::vector<Tensor> indices_weights;
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       scalar_type, "compute_indices_weights_aa", [&] {
 
         scalar_t scale = area_pixel_compute_scale<scalar_t>(
@@ -1147,7 +1147,7 @@ void upsample_generic_Nd_kernel_impl(
 
   if (interp_size > 1) {
     // Nearest also supports uint8 tensor, so need to handle it separately
-    AT_DISPATCH_FLOATING_TYPES(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
         iter.dtype(), "upsample_generic_Nd", [&] {
         // MSVC can not catch constexpr int interp_size here
         constexpr int mode = F::interp_size;
@@ -1236,7 +1236,7 @@ void _separable_upsample_generic_Nd_kernel_impl_single_dim(
 
   if (interp_size > 1) {
     // Nearest also supports uint8 tensor, so need to handle it separately
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "upsample_generic_Nd_aa", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "upsample_generic_Nd_aa", [&] {
       cpu_upsample_generic_aa<scalar_t>(iter);
     });
   } else {
@@ -1369,7 +1369,7 @@ void upsample_bilinear2d_kernel_impl(
 
   // Temporarily dispatch to original channels last implementation
   if (input.is_contiguous(at::MemoryFormat::ChannelsLast)) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "upsample_bilinear2d_channels_last", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "upsample_bilinear2d_channels_last", [&] {
       cpu_upsample_linear_channels_last<scalar_t, scale_t>(output, input, align_corners, {scales_h, scales_w});
     });
   } else {
@@ -1397,7 +1397,7 @@ void upsample_trilinear3d_kernel_impl(
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
   if (input.is_contiguous(at::MemoryFormat::ChannelsLast3d)) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "upsample_trilinear3d_channels_last", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "upsample_trilinear3d_channels_last", [&] {
       cpu_upsample_linear_channels_last<scalar_t, scale_t>(output, input, align_corners, {scales_d, scales_h, scales_w});
     });
   } else {
@@ -1521,7 +1521,7 @@ void upsample_nearest1d_backward_kernel_impl(
     const Tensor& grad_input,
     const Tensor& grad_output,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "upsample_nearest1d_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "upsample_nearest1d_backward", [&] {
     cpu_upsample_nearest_backward<scalar_t, scale_t, nearest_idx>(grad_input, grad_output, {scales_w});
   });
 }
@@ -1530,7 +1530,7 @@ void _upsample_nearest_exact1d_backward_kernel_impl(
     const Tensor& grad_input,
     const Tensor& grad_output,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "_upsample_nearest_exact1d_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "_upsample_nearest_exact1d_backward", [&] {
     cpu_upsample_nearest_backward<scalar_t, scale_t, nearest_exact_idx>(grad_input, grad_output, {scales_w});
   });
 }
@@ -1540,7 +1540,7 @@ void upsample_nearest2d_backward_kernel_impl(
     const Tensor& grad_output,
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "upsample_nearest2d_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "upsample_nearest2d_backward", [&] {
     cpu_upsample_nearest_backward<scalar_t, scale_t, nearest_idx>(grad_input, grad_output, {scales_h, scales_w});
   });
 }
@@ -1550,7 +1550,7 @@ void _upsample_nearest_exact2d_backward_kernel_impl(
     const Tensor& grad_output,
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "_upsample_nearest_exact2d_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "_upsample_nearest_exact2d_backward", [&] {
     cpu_upsample_nearest_backward<scalar_t, scale_t, nearest_exact_idx>(grad_input, grad_output, {scales_h, scales_w});
   });
 }
@@ -1561,7 +1561,7 @@ void upsample_nearest3d_backward_kernel_impl(
     c10::optional<double> scales_d,
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "upsample_nearest3d_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "upsample_nearest3d_backward", [&] {
     cpu_upsample_nearest_backward<scalar_t, scale_t, nearest_idx>(grad_input, grad_output, {scales_d, scales_h, scales_w});
   });
 }
@@ -1572,7 +1572,7 @@ void _upsample_nearest_exact3d_backward_kernel_impl(
     c10::optional<double> scales_d,
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(grad_output.scalar_type(), "_upsample_nearest_exact3d_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_output.scalar_type(), "_upsample_nearest_exact3d_backward", [&] {
     cpu_upsample_nearest_backward<scalar_t, scale_t, nearest_exact_idx>(grad_input, grad_output, {scales_d, scales_h, scales_w});
   });
 }
@@ -1698,7 +1698,7 @@ void upsample_bilinear2d_aa_backward_kernel_impl(
     bool align_corners,
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       grad_output.scalar_type(), "upsample_bilinear2d_aa_backward_cpu", [&] {
         cpu_upsample_genNd_backward_aa<scalar_t, scale_t, HelperInterpLinear>(
             grad_input, grad_output, align_corners, {scales_h, scales_w});
@@ -1711,7 +1711,7 @@ void upsample_bicubic2d_aa_backward_kernel_impl(
     bool align_corners,
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       grad_output.scalar_type(), "upsample_bicubic2d_aa_backward_cpu", [&] {
         cpu_upsample_genNd_backward_aa<scalar_t, scale_t, HelperInterpCubic>(
             grad_input, grad_output, align_corners, {scales_h, scales_w});

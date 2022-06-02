@@ -352,7 +352,7 @@ Tensor _standard_gamma_grad_cpu(const Tensor& self, const Tensor& output) {
     .add_input(self)
     .add_input(output)
     .build();
-  AT_DISPATCH_FLOATING_TYPES(self.scalar_type(), "_standard_gamma_grad_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(self.scalar_type(), "_standard_gamma_grad_cpu", [&] {
     cpu_serial_kernel(iter, [](scalar_t self_val, scalar_t output_val) -> scalar_t{
       return standard_gamma_grad_one<scalar_t, double>(self_val, output_val);
     });
@@ -368,7 +368,7 @@ Tensor _dirichlet_grad_cpu(const Tensor& x, const Tensor& alpha, const Tensor& t
     .add_input(alpha)
     .add_input(total)
     .build();
-  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "_dirichlet_grad_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(x.scalar_type(), "_dirichlet_grad_cpu", [&] {
     cpu_serial_kernel(iter, [](scalar_t x_val, scalar_t alpha_val, scalar_t total_val) -> scalar_t{
       return dirichlet_grad_one<scalar_t, double>(x_val, alpha_val, total_val);
     });
@@ -387,7 +387,7 @@ Tensor _s_binomial_cpu(const Tensor& count, const Tensor& prob, c10::optional<Ge
     .add_input(count)
     .add_input(prob)
     .build();
-  AT_DISPATCH_FLOATING_TYPES(ret.scalar_type(), "binomial_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(ret.scalar_type(), "binomial_cpu", [&] {
     CPUGeneratorImpl* generator = get_generator_or_default<CPUGeneratorImpl>(gen, detail::getDefaultCPUGenerator());
     // See Note [Acquire lock when using random generators]
     std::lock_guard<std::mutex> lock(generator->mutex_);
@@ -411,7 +411,7 @@ Tensor _s_poisson_cpu(const Tensor& lambda, c10::optional<Generator> gen) {
     .add_output(ret)
     .add_input(lambda)
     .build();
-  AT_DISPATCH_FLOATING_TYPES(ret.scalar_type(), "poisson_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(ret.scalar_type(), "poisson_cpu", [&] {
     CPUGeneratorImpl* generator = get_generator_or_default<CPUGeneratorImpl>(gen, detail::getDefaultCPUGenerator());
     // See Note [Acquire lock when using random generators]
     std::lock_guard<std::mutex> lock(generator->mutex_);
@@ -428,7 +428,7 @@ Tensor _s_gamma_cpu(const Tensor& alpha, c10::optional<Generator> gen) {
     .add_output(ret)
     .add_input(alpha)
     .build();
-  AT_DISPATCH_FLOATING_TYPES(ret.scalar_type(), "gamma_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(ret.scalar_type(), "gamma_cpu", [&] {
     CPUGeneratorImpl* generator = get_generator_or_default<CPUGeneratorImpl>(gen, detail::getDefaultCPUGenerator());
     // See Note [Acquire lock when using random generators]
     std::lock_guard<std::mutex> lock(generator->mutex_);
@@ -454,7 +454,7 @@ Tensor _s_gamma_cpu(const Tensor& alpha, c10::optional<Generator> gen) {
 
 Tensor _s_dirichlet_cpu(const Tensor& alpha, c10::optional<Generator> gen) {
   Tensor ret = at::zeros(alpha.sizes(), alpha.options());
-  AT_DISPATCH_FLOATING_TYPES(ret.scalar_type(), "dirichlet", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(ret.scalar_type(), "dirichlet", [&] {
     Tensor gamma = at::zeros(alpha.sizes(), alpha.options().dtype(ScalarType::Double));
     CPUGeneratorImpl* generator = get_generator_or_default<CPUGeneratorImpl>(gen, detail::getDefaultCPUGenerator());
     // See Note [Acquire lock when using random generators]

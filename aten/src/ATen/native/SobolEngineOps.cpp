@@ -28,7 +28,7 @@ std::tuple<Tensor, Tensor> _sobol_engine_draw(const Tensor& quasi, int64_t n, co
   auto result_dtype = dtype.has_value() ? dtype.value() : at::kFloat;
   Tensor result = at::empty({n, dimension}, sobolstate.options().dtype(result_dtype));
 
-  AT_DISPATCH_FLOATING_TYPES(result_dtype, "_sobol_engine_draw", [&]() -> void {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(result_dtype, "_sobol_engine_draw", [&]() -> void {
     // We deal with `data` and `strides` due to performance issues.
     int64_t l;
     int64_t* wquasi_data = wquasi.data_ptr<int64_t>();

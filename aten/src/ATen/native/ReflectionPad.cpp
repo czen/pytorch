@@ -311,7 +311,7 @@ void reflection_pad1d_out_template(
           pad_l);
       });
     } else {
-      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "reflection_pad1d", [&] {
+      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "reflection_pad1d", [&] {
         reflection_pad1d_out_frame<scalar_t>(
           input.data_ptr<scalar_t>(), output.data_ptr<scalar_t>(),
           nplane,
@@ -330,7 +330,7 @@ void reflection_pad1d_out_template(
           pad_l);
       });
     } else {
-      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "reflection_pad1d", [&] {
+      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "reflection_pad1d", [&] {
         reflection_pad1d_out_loop<scalar_t>(
           input.data_ptr<scalar_t>(), output.data_ptr<scalar_t>(),
           nbatch, nplane,
@@ -515,7 +515,7 @@ void reflection_pad2d_out_template(
           pad_l, pad_t);
       });
     } else {
-      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "reflection_pad2d", [&] {
+      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "reflection_pad2d", [&] {
         reflection_pad2d_out_frame(
           input.data_ptr<scalar_t>(), output.data_ptr<scalar_t>(),
           nplane,
@@ -535,7 +535,7 @@ void reflection_pad2d_out_template(
           pad_l, pad_t);
       });
     } else {
-      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "reflection_pad2d", [&] {
+      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "reflection_pad2d", [&] {
         reflection_pad2d_out_loop(
           input.data_ptr<scalar_t>(), output.data_ptr<scalar_t>(),
           nbatch, nplane,
@@ -652,7 +652,7 @@ void reflection_pad2d_backward_out_template(
 
   /* backprop */
   if (input.ndimension() == 3) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       grad_output.scalar_type(), "reflection_pad2d_backward", [&] {
         reflection_pad2d_backward_out_frame(
           grad_input.data_ptr<scalar_t>(), grad_output.data_ptr<scalar_t>(),
@@ -662,7 +662,7 @@ void reflection_pad2d_backward_out_template(
       }
     );
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       grad_output.scalar_type(), "reflection_pad2d_backward", [&] {
         reflection_pad2d_backward_out_loop(
           grad_input.data_ptr<scalar_t>(), grad_output.data_ptr<scalar_t>(),
@@ -910,7 +910,7 @@ TORCH_IMPL_FUNC(reflection_pad1d_backward_out_cpu)(const Tensor& grad_output_,
 
   /* backprop */
   if (input.ndimension() == 2) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       grad_input.scalar_type(), "reflection_pad1d_backward_cpu", [&] {
         reflection_pad1d_backward_out_frame(
           grad_input.data_ptr<scalar_t>(), grad_output.data_ptr<scalar_t>(),
@@ -920,7 +920,7 @@ TORCH_IMPL_FUNC(reflection_pad1d_backward_out_cpu)(const Tensor& grad_output_,
         }
     );
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       grad_input.scalar_type(), "reflection_pad1d_backward_cpu", [&] {
         reflection_pad1d_backward_out_loop(
           grad_input.data_ptr<scalar_t>(),
@@ -1006,7 +1006,7 @@ TORCH_IMPL_FUNC(reflection_pad3d_out_cpu)
   auto input = input_.contiguous();
 
   if (batch_mode) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(
         kHalf, input.scalar_type(), "replication_pad3d_cpu", [&] {
           auto input_data = input.data_ptr<scalar_t>();
           auto output_data = output.data_ptr<scalar_t>();
@@ -1027,7 +1027,7 @@ TORCH_IMPL_FUNC(reflection_pad3d_out_cpu)
               pad_front);
         });
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(
         kHalf, input.scalar_type(), "replication_pad3d_cpu", [&] {
           auto input_data = input.data_ptr<scalar_t>();
           auto output_data = output.data_ptr<scalar_t>();
@@ -1084,7 +1084,7 @@ TORCH_IMPL_FUNC(reflection_pad3d_backward_out_cpu)(const Tensor& grad_output,
   grad_input.zero_();
 
   if (batch_mode) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(
         kHalf, input.scalar_type(), "replication_pad3d_backward_cpu", [&] {
           reflection_pad3d_backward_out_loop<scalar_t>(
               grad_input.data_ptr<scalar_t>(),
@@ -1102,7 +1102,7 @@ TORCH_IMPL_FUNC(reflection_pad3d_backward_out_cpu)(const Tensor& grad_output,
               pad_front);
         });
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(
         kHalf, input.scalar_type(), "replication_pad3d_backward_cpu", [&] {
           reflection_pad3d_backward_out_frame<scalar_t>(
               grad_input.data_ptr<scalar_t>(),

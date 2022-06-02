@@ -323,7 +323,7 @@ TORCH_IMPL_FUNC(log_softmax_cpu_out)
   if (input_.ndimension() > 0 && dim_ == input_.ndimension() - 1) {
     log_softmax_lastdim_kernel(kCPU, output, input_);
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
         at::ScalarType::BFloat16, input_.scalar_type(), "log_softmax", [&] {
           host_softmax<
               scalar_t,
@@ -358,7 +358,7 @@ TORCH_IMPL_FUNC(softmax_backward_cpu_out)
   if (grad_.ndimension() > 0 && dim_ == grad_.ndimension() - 1) {
     softmax_backward_lastdim_kernel(kCPU, grad_input, grad_, output);
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
         at::ScalarType::BFloat16, grad.scalar_type(), "softmax_backward", [&] {
           host_softmax_backward<scalar_t, false>(grad_input, grad_, output, dim_);
         });
@@ -384,7 +384,7 @@ TORCH_IMPL_FUNC(log_softmax_backward_cpu_out) (
     if (grad_.ndimension() > 0 && dim_ == grad_.ndimension() - 1) {
       log_softmax_backward_lastdim_kernel(kCPU, grad_input, grad_, output_);
     } else {
-      AT_DISPATCH_FLOATING_TYPES_AND(
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
           at::ScalarType::BFloat16,
           grad.scalar_type(),
           "log_softmax_backward",
@@ -473,7 +473,7 @@ Tensor masked_softmax_cpu(const Tensor& input, const Tensor& mask) {
   TORCH_CHECK(
       mask.scalar_type() == ScalarType::Bool,
       "Mask should be a boolean tensor");
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       at::ScalarType::BFloat16, input.scalar_type(), "log_softmax", [&] {
         host_softmax<
             scalar_t,

@@ -64,7 +64,7 @@ void add_clamp_kernel(TensorIterator& iter, const Scalar& alpha_scalar, const Sc
 }
 
 void atan2_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "atan2_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "atan2_cpu", [&]() {
     cpu_kernel_vec(iter, [=](scalar_t a, scalar_t b) -> scalar_t {
     return std::atan2(a, b);
   },
@@ -139,8 +139,6 @@ void div_trunc_kernel(TensorIteratorBase& iter) {
 //
 // For reference, see CPython's implementation:
 // https://github.com/python/cpython/blob/ace008c531dd685a30c1dd68f9b5ba35f20171cf/Objects/floatobject.c#L636
-
-// FIXME Implement for CFloatWithSubnormals
 void div_floor_kernel(TensorIteratorBase& iter) {
   const auto dtype = iter.common_dtype();
   if (dtype == kByte) {
@@ -167,7 +165,7 @@ void div_floor_kernel(TensorIteratorBase& iter) {
     });
   } else {
     // See NOTE: [Floor Division in Python]
-    AT_DISPATCH_FLOATING_TYPES_AND2(kBFloat16, kHalf, dtype, "div_floor_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, dtype, "div_floor_cpu", [&]() {
       using vec_t = Vectorized<scalar_t>;
       cpu_kernel_vec(iter,
           [](scalar_t a, scalar_t b) __ubsan_ignore_float_divide_by_zero__ -> scalar_t {
@@ -212,7 +210,6 @@ void div_floor_kernel(TensorIteratorBase& iter) {
   }
 }
 
-// FIXME Implement for Universal types
 void remainder_kernel(TensorIteratorBase& iter) {
   if (isIntegralType(iter.common_dtype(), /*includeBool*/ false)) {
     AT_DISPATCH_INTEGRAL_TYPES(iter.common_dtype(), "remainder_cpu", [&]() {
@@ -250,7 +247,7 @@ void remainder_kernel(TensorIteratorBase& iter) {
         return convert_float_bfloat16(a0, a1);
       });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND(kHalf, iter.common_dtype(), "remainder_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf, iter.common_dtype(), "remainder_cpu", [&]() {
       cpu_kernel_vec(iter,
         [=](scalar_t a, scalar_t b) __ubsan_ignore_float_divide_by_zero__ -> scalar_t {
           scalar_t mod = std::fmod(a, b);
@@ -334,7 +331,7 @@ void bitwise_xor_kernel(TensorIteratorBase& iter) {
 
 void lshift_kernel(TensorIteratorBase& iter) {
   if (iter.dtype() == ScalarType::Float || iter.dtype() == ScalarType::Double) {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "lshift_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "lshift_cpu", [&]() {
       auto base_vec = Vectorized<scalar_t>((scalar_t)(2));
       cpu_kernel_vec(
         iter,
@@ -414,7 +411,7 @@ void logical_xor_kernel(TensorIterator& iter) {
 
 void rshift_kernel(TensorIteratorBase& iter) {
   if (iter.dtype() == ScalarType::Float || iter.dtype() == ScalarType::Double) {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "rshift_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "rshift_cpu", [&]() {
       auto base_vec = Vectorized<scalar_t>((scalar_t)(2));
       cpu_kernel_vec(
         iter,
@@ -824,7 +821,7 @@ void tanh_backward_kernel(TensorIteratorBase& iter) {
         return convert_float_bfloat16(a0, a1);
       });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "tanh_backward_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "tanh_backward_cpu", [&]() {
       auto one_vec = Vectorized<scalar_t>(scalar_t{1});
       cpu_kernel_vec(
         iter,
@@ -838,7 +835,6 @@ void tanh_backward_kernel(TensorIteratorBase& iter) {
   }
 }
 
-// FIXME Implement for Universal types
 void mse_kernel(TensorIterator& iter) {
   if (iter.dtype() == ScalarType::Half) {
     TORCH_WARN_ONCE("Applying the CPU mse kernel on half-type tensors. "
@@ -867,7 +863,7 @@ void fmod_kernel(TensorIteratorBase& iter) {
       });
     });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND(kHalf, iter.common_dtype(), "fmod_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf, iter.common_dtype(), "fmod_cpu", [&]() {
       cpu_kernel_vec(
         iter,
         [](scalar_t x, scalar_t d) -> scalar_t {
@@ -913,7 +909,7 @@ void logaddexp_kernel(TensorIteratorBase& iter) {
           return convert_float_bfloat16(a0, a1);
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "logaddexp_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "logaddexp_cpu", [&]() {
       cpu_kernel_vec(
           iter,
           [=](scalar_t a, scalar_t b) -> scalar_t {
@@ -971,7 +967,7 @@ void logaddexp2_kernel(TensorIteratorBase& iter) {
           return convert_float_bfloat16(a0, a1);
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "logaddexp2_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "logaddexp2_cpu", [&]() {
       cpu_kernel_vec(
           iter,
           [=](scalar_t a, scalar_t b) -> scalar_t {
@@ -1065,7 +1061,7 @@ void nextafter_kernel(TensorIteratorBase& iter) {
             return std::nextafter(a, b);
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "nextafter_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "nextafter_cpu", [&]() {
     cpu_kernel_vec(
         iter,
         [=](scalar_t a, scalar_t b) -> scalar_t {
@@ -1079,16 +1075,15 @@ void nextafter_kernel(TensorIteratorBase& iter) {
 }
 
 void heaviside_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kHalf, kBool, kBFloat16, iter.dtype(), "heaviside_cpu", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kHalf, kBool, kBFloat16, iter.dtype(), "heaviside_cpu", [&]() {
     cpu_kernel(iter, [](scalar_t a, scalar_t b) -> scalar_t {
         return a == 0 ? b : static_cast<scalar_t>(a > 0);
     });
   });
 }
 
-// FIXME Implement for Universal types
 void copysign_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(kBFloat16, kHalf, iter.common_dtype(), "copysign_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kBFloat16, kHalf, iter.common_dtype(), "copysign_cpu", [&]() {
     cpu_kernel_vec(iter,
       [](scalar_t a, scalar_t b) -> scalar_t {
         return c10::copysign(a, b);
@@ -1128,7 +1123,7 @@ void xlog1py_kernel(TensorIteratorBase& iter) {
 }
 
 void zeta_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "zeta_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "zeta_cpu", [&]() {
     cpu_kernel(iter, [](scalar_t x, scalar_t q) -> scalar_t {
       return zeta(x, q);
     });

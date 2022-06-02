@@ -52,8 +52,8 @@ void batch_norm_cpu_collect_linear_and_constant_terms(
       mean = running_mean_a[c];
       invstd = 1 / std::sqrt(running_var_a[c] + static_cast<scalar_t>(eps));
     }
-    scalar_t weight_v = weight_data ? weight_data[c] : 1;
-    scalar_t bias_v = bias_data ? bias_data[c] : 0;
+    scalar_t weight_v = weight_data ? weight_data[c] : static_cast<scalar_t>(1);
+    scalar_t bias_v = bias_data ? bias_data[c] : static_cast<scalar_t>(0);
     alpha[c] = invstd * weight_v;
     beta[c] = bias_v - mean * alpha[c];
   }
@@ -343,7 +343,7 @@ void batch_norm_cpu_backward_contiguous_impl(Tensor& grad_input, Tensor& grad_we
   // parallel dim reduce on 'channel'
   at::parallel_for(0, n_channel, 1, [&](int64_t begin, int64_t end) {
     for (const auto c : c10::irange(begin, end)) {
-      scalar_t w = weight.defined() ? weight_a[c] : 1;
+      scalar_t w = weight.defined() ? weight_a[c] : static_cast<scalar_t>(1);
 
       scalar_t mean, invstd;
       if (train) {
@@ -613,12 +613,12 @@ void batch_norm_cpu_kernel(Tensor& output, const Tensor& input,
     const Tensor& weight, const Tensor& bias, const Tensor& save_mean,  const Tensor& save_invstd,
     const Tensor& running_mean, const Tensor& running_var, bool train, double eps) {
   if (input.is_contiguous()) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "batch_norm_cpu_contiguous", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "batch_norm_cpu_contiguous", [&] {
       batch_norm_cpu_contiguous_impl<scalar_t>(output, input, weight, bias,
           save_mean, save_invstd, running_mean, running_var, train, eps);
     });
   } else if (input.is_contiguous(at::MemoryFormat::ChannelsLast)) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "batch_norm_cpu_channels_last", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "batch_norm_cpu_channels_last", [&] {
       batch_norm_cpu_channels_last_impl<scalar_t>(output, input, weight, bias,
           save_mean, save_invstd, running_mean, running_var, train, eps);
     });
@@ -631,7 +631,7 @@ void batch_norm_cpu_collect_stats_kernel(
     Tensor& mean, Tensor& var_sum, const Tensor& input) {
   int64_t image_size = input.numel() / input.size(0) / input.size(1);
   if (input.is_contiguous()) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "batch_norm_cpu_collect_stats_contiguous", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "batch_norm_cpu_collect_stats_contiguous", [&] {
       if (image_size == 1) { // NC11 is also channels last
         batch_norm_cpu_collect_stats_channels_last_impl<scalar_t>(mean, var_sum, input);
       } else {
@@ -639,7 +639,7 @@ void batch_norm_cpu_collect_stats_kernel(
       }
     });
   } else if (input.is_contiguous(at::MemoryFormat::ChannelsLast)) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "batch_norm_cpu_collect_stats_channels_last", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "batch_norm_cpu_collect_stats_channels_last", [&] {
       batch_norm_cpu_collect_stats_channels_last_impl<scalar_t>(mean, var_sum, input);
     });
   } else {
@@ -653,7 +653,7 @@ void batch_norm_cpu_backward_kernel(Tensor& grad_input, Tensor& grad_weight, Ten
     bool train, double eps) {
   int64_t image_size = input.numel() / input.size(0) / input.size(1);
   if (input.is_contiguous()) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "batch_norm_cpu_backward_contiguous", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "batch_norm_cpu_backward_contiguous", [&] {
       if (image_size == 1) { // NC11 is also channels last
         batch_norm_cpu_backward_channels_last_impl<scalar_t>(grad_input, grad_weight, grad_bias,
             grad_output, input, weight, running_mean, running_var, save_mean, save_invstd, train, eps);
@@ -663,7 +663,7 @@ void batch_norm_cpu_backward_kernel(Tensor& grad_input, Tensor& grad_weight, Ten
       }
     });
   } else if (input.is_contiguous(at::MemoryFormat::ChannelsLast)) {
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "batch_norm_cpu_backward_channels_last", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "batch_norm_cpu_backward_channels_last", [&] {
       batch_norm_cpu_backward_channels_last_impl<scalar_t>(grad_input, grad_weight, grad_bias,
           grad_output, input, weight, running_mean, running_var, save_mean, save_invstd, train, eps);
     });

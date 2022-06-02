@@ -49,7 +49,7 @@ void _dim_apply(
   auto indices_dim_stride = indices.stride(dim);
   auto dim_size = values.size(dim);
 
-  AT_DISPATCH_ALL_TYPES_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(
     ScalarType::Bool, ScalarType::Half, ScalarType::BFloat16, iter.dtype(),
     "sorting_kernel_method_name", [&] {
       auto loop = [&](char** data, const int64_t* strides, int64_t n) {
@@ -164,7 +164,7 @@ static void topk_kernel(
   auto mode_indices_stride = indices.strides()[dim];
   auto tmp_values_stride = self.strides()[dim];
 
-  AT_DISPATCH_ALL_TYPES_AND(ScalarType::BFloat16, self.scalar_type(), "topk_cpu", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND(ScalarType::BFloat16, self.scalar_type(), "topk_cpu", [&] {
     auto loop = [&](char** data, const int64_t* strides, int64_t n) {
       if (self.scalar_type() == ScalarType::BFloat16) {
         return topk_impl_loop<scalar_t, float>(

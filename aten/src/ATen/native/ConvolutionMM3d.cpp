@@ -60,7 +60,7 @@ static Tensor compute_columns3d(
                         output_depth * output_height * output_width},
                         input.options());
 
-    AT_DISPATCH_ALL_TYPES_AND(kBFloat16, input.scalar_type(), "compute_columns3d", [&] {
+    AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND(kBFloat16, input.scalar_type(), "compute_columns3d", [&] {
       auto input_a = input.accessor<scalar_t, 5>();
       auto columns_a = columns.accessor<scalar_t, 3>();
 
@@ -417,7 +417,7 @@ void slow_conv3d_backward_out_cpu_template(
       n_input_plane * kernel_depth * kernel_height * kernel_width,
       output_depth * output_height * output_width}, input.options());
 
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       kBFloat16, input.scalar_type(), "slow_conv3d_cpu_grad_input", [&] {
     at::parallel_for(0, batch_size, CONV3D_GRAIN_SALT,
                     [&](int64_t start, int64_t end) {
@@ -524,7 +524,7 @@ static void slow_conv3d_backward_parameters_out_cpu_template(
   const int64_t batch_size = input.size(0);
   Tensor finput = compute_columns3d(input, stride, padding, kernel_size, groups);
 
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       kBFloat16, input.scalar_type(), "slow_conv3d_cpu_grad_weight", [&] {
     auto grad_weight_2d_a = grad_weight_2d.accessor<scalar_t, 2>();
     auto grad_output_a = grad_output_contiguous.accessor<scalar_t, 5>();
@@ -611,7 +611,7 @@ Tensor& slow_conv3d_forward_out_cpu(const Tensor& self,
 
   TORCH_CHECK(output.is_contiguous(), "slow_conv3d output must be contiguous");
 
-  AT_DISPATCH_ALL_TYPES_AND(kBFloat16, input.scalar_type(), "slow_conv3d_cpu", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND(kBFloat16, input.scalar_type(), "slow_conv3d_cpu", [&] {
     auto input_a = input.accessor<scalar_t, 5>();
     auto output_a = output.accessor<scalar_t, 5>();
     auto finput_a = finput.accessor<scalar_t, 3>();

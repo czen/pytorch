@@ -711,7 +711,7 @@ void _embedding_bag_cpu_impl_out(Tensor& output, Tensor& offset2bag,
                             const c10::optional<Tensor>& per_sample_weights,
                             bool include_last_offset, int64_t padding_idx) {
   if (mode == MODE_MEAN || mode == MODE_SUM) {
-    AT_DISPATCH_FLOATING_TYPES(weight.scalar_type(), "embedding_bag_no_grad_cpu_out",
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(weight.scalar_type(), "embedding_bag_no_grad_cpu_out",
       [&indices, &offset2bag, &per_sample_weights, &weight, &output, &offsets, &include_last_offset, &mode, &bag_size, &padding_idx]() {
       AT_DISPATCH_INDEX_TYPES(indices.scalar_type(), "embedding_bag_no_grad_cpu_out",
         [&indices, &offset2bag, &per_sample_weights, &weight, &output, &offsets, &include_last_offset, &mode, &bag_size, &padding_idx]() {
@@ -731,7 +731,7 @@ void _embedding_bag_cpu_impl_out(Tensor& output, Tensor& offset2bag,
     }
      max_indices.copy_(bag_size);
   } else { // MODE_MAX
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf, 
       weight.scalar_type(), "embedding_bag_cpu_max_out", [&]() {
         embedding_bag_cpu_max_out<scalar_t>(
           max_indices, weight, indices, offset2bag, output, include_last_offset, bag_size, padding_idx);
@@ -1092,7 +1092,7 @@ Tensor _embedding_bag_dense_backward_cpu(const Tensor &grad_, const Tensor &indi
   auto index_grad_weight =
       at::zeros({num_weights, grad.sizes()[1]}, grad.options());
 
-  AT_DISPATCH_FLOATING_TYPES(grad.scalar_type(), "embedding_bag_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad.scalar_type(), "embedding_bag_backward", [&] {
       _embedding_bag_dense_backward_cpu_sum_mean<scalar_t>(
           grad, indices_, offset2bag__, bag_size_, num_weights,
           scale_grad_by_freq, mode, per_sample_weights_, index_grad_weight,
@@ -1194,7 +1194,7 @@ Tensor _embedding_bag_per_sample_weights_backward_cpu(
     const Tensor& offset2bag,
     int64_t mode,
     int64_t padding_idx) {
-  return AT_DISPATCH_FLOATING_TYPES(
+  return AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
     grad.scalar_type(), "_embedding_bag_per_sample_weights_backward_cpu", [&]() {
       return _embedding_bag_per_sample_weights_backward_cpu_template<scalar_t>(
           grad, weight, indices, offsets, offset2bag, mode, padding_idx);

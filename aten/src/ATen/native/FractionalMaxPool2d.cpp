@@ -324,7 +324,7 @@ TORCH_IMPL_FUNC(fractional_max_pool2d_out_cpu) (
   int64_t inputH = input.size(heightDim);
   int64_t inputW = input.size(widthDim);
 
-  AT_DISPATCH_FLOATING_TYPES(input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(),
   "fractional_max_pool2d_out_frame", [&] {
     auto input_data = input.data_ptr<scalar_t>();
     auto output_data = output.data_ptr<scalar_t>();
@@ -378,7 +378,7 @@ TORCH_IMPL_FUNC(fractional_max_pool2d_backward_cpu) (
   auto gradOutput = gradOutput_.contiguous();
 
   /* backprop */
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
     input.scalar_type(), "fractional_max_pool2d_backward_out_frame", [&] {
       auto gradInput_data = gradInput.data_ptr<scalar_t>();
       auto gradOutput_data = gradOutput.data_ptr<scalar_t>();

@@ -142,7 +142,7 @@ void compute_triu_tril(const Tensor& self, int64_t k, const Tensor &result) {
     result_c = result;
   }
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       ScalarType::BFloat16,
       ScalarType::Half,
       ScalarType::Bool,

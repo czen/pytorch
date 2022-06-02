@@ -88,6 +88,9 @@ inline c10::CFloatWithSubnormals rsqrt(c10::CFloatWithSubnormals a) {
 inline c10::CFloatWithSubnormals abs(c10::CFloatWithSubnormals a) {
   return sw::universal::abs(a);
 }
+inline c10::CFloatWithSubnormals pow(double a, c10::CFloatWithSubnormals b) {
+  return sw::universal::pow(static_cast<c10::CFloatWithSubnormals>(a), b);
+}
 inline c10::CFloatWithSubnormals pow(c10::CFloatWithSubnormals a, double b) {
   return sw::universal::pow(a, b);
 }
@@ -102,6 +105,13 @@ C10_HOST_DEVICE inline c10::CFloatWithSubnormals nextafter(
     c10::CFloatWithSubnormals from,
     c10::CFloatWithSubnormals to) {
   return sw::universal::nextafter(from, to);
+}
+
+C10_HOST_DEVICE inline c10::CFloatWithSubnormals nexttoward(
+    c10::CFloatWithSubnormals from,
+    long double to) {
+  // FIXME Universal does not have nexttoward yet
+  return std::nexttoward(static_cast<float>(from), to);
 }
 
 } // namespace std

@@ -24,10 +24,10 @@ std::tuple<Tensor, Tensor> _rowwise_prune_helper(
       weights.options());
   auto compressed_indices_mapping = at::empty({mask.numel()},
       compressed_indices_dtype);
-  AT_DISPATCH_ALL_TYPES_AND2(at::ScalarType::Half,
-                             at::ScalarType::BFloat16,
-                             weights.scalar_type(),
-                            "rowwise_prune_helper", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half,
+                                           at::ScalarType::BFloat16,
+                                           weights.scalar_type(),
+                                           "rowwise_prune_helper", [&]() {
     auto* pruned_2d_tensor_data = pruned_2d_tensor.data_ptr<scalar_t>();
     auto compressed_indices_mapping_data =
         compressed_indices_mapping.data_ptr<input_t>();

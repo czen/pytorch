@@ -121,7 +121,7 @@ void adaptive_avg_pool3d_out_cpu_template(
   if (input.ndimension() == 4) {
     output.resize_({sizeD, osizeT, osizeH, osizeW});
 
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
         input.scalar_type(), "adaptive_avg_pool3d_cpu", [&] {
           auto input_data = input.data_ptr<scalar_t>();
           auto output_data = output.data_ptr<scalar_t>();
@@ -144,7 +144,7 @@ void adaptive_avg_pool3d_out_cpu_template(
     output.resize_({input.size(-5), sizeD, osizeT, osizeH, osizeW});
     int64_t n = input.size(0);
 
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
         input.scalar_type(), "adaptive_avg_pool3d_cpu", [&] {
           auto input_data = input.data_ptr<scalar_t>();
           auto output_data = output.data_ptr<scalar_t>();
@@ -240,7 +240,7 @@ Tensor& adaptive_avg_pool3d_backward_out_cpu_template(
 
   /* backprop */
   if (input.ndimension() == 4) {
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
         input.scalar_type(), "adaptive_avg_pool3d_backward_cpu", [&] {
           /* get raw pointers */
           scalar_t* gradInput_data = gradInput.data_ptr<scalar_t>();
@@ -260,7 +260,7 @@ Tensor& adaptive_avg_pool3d_backward_out_cpu_template(
   } else {
     int64_t n = input.size(0);
 
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
         input.scalar_type(), "adaptive_avg_pool3d_backward_cpu", [&] {
           /* get raw pointers */
           scalar_t* gradInput_data = gradInput.data_ptr<scalar_t>();

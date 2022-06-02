@@ -643,7 +643,7 @@ void cummax_cummin_helper(const T1* self_data, T1* values_data, T2* indices_data
 }
 
 void cummax_helper_cpu(const Tensor& self, Tensor& values, Tensor& indices, int64_t dim) {
-  AT_DISPATCH_ALL_TYPES_AND2(kBool, kBFloat16,
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kBool, kBFloat16,
     self.scalar_type(), "cummax_cpu",
     [&] {
       at::native::tensor_dim_apply3<scalar_t, int64_t>(self, values, indices, dim, cummax_cummin_helper<scalar_t, int64_t, std::greater_equal<scalar_t>>);
@@ -678,7 +678,7 @@ std::tuple<Tensor, Tensor> cummax(const Tensor& self, int64_t dim) {
 }
 
 void cummin_helper_cpu(const Tensor& self, Tensor& values, Tensor& indices, int64_t dim) {
-  AT_DISPATCH_ALL_TYPES_AND2(kBool, kBFloat16,
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kBool, kBFloat16,
     self.scalar_type(), "cummin_cpu",
     [&] {
       at::native::tensor_dim_apply3<scalar_t, int64_t>(self, values, indices, dim, cummax_cummin_helper<scalar_t, int64_t, std::less_equal<scalar_t>>);
@@ -1519,7 +1519,7 @@ static double std_var_all_cpu(const Tensor& self, int64_t correction, bool take_
       .build();
 
   auto reduction = [&](int64_t begin, int64_t end, double thread_sum) {
-    AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "std_var_all_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "std_var_all_cpu", [&] {
       iter.serial_for_each([&] (char** data, const int64_t* strides, int64_t size0, int64_t size1) {
         const double local_mean = mean;
         const int64_t inner_stride = strides[0];
@@ -1949,7 +1949,7 @@ bool cpu_equal(const Tensor& self, const Tensor& other) {
     .promote_inputs_to_common_dtype(true)
     .build();
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(kBool, kBFloat16, kHalf, iter.input_dtype(), "equal_cpu", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(kBool, kBFloat16, kHalf, iter.input_dtype(), "equal_cpu", [&] {
     iter.for_each([&](char** data, const int64_t *strides, int64_t dim_size) {
       if (!result) {
           return;

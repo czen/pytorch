@@ -109,6 +109,7 @@ void pow_tensor_scalar_kernel(
   }
 
   if (dtype == ScalarType::Float || dtype == ScalarType::Double) {
+    // Do not add AND_UNIVERSAL to this macro. See the "else if" below.
     AT_DISPATCH_FLOATING_TYPES(dtype, "pow", [&]() {
       pow_tensor_scalar_optimized_kernel<scalar_t, double>(
           iter, exp_scalar.to<double>());
@@ -132,10 +133,23 @@ void pow_tensor_scalar_kernel(
       );
     }();
   } else if (dtype == ScalarType::BFloat16) {
-      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kBFloat16, dtype, "pow", [&]() {
+      AT_DISPATCH_FLOATING_TYPES_AND(kBFloat16, dtype, "pow", [&]() {
         pow_tensor_scalar_optimized_kernel<scalar_t, scalar_t>(
             iter, exp_scalar.to<scalar_t>());
       });
+  } else if (dtype == ScalarType::CFloatWithSubnormals) {
+    [&]() {
+      using scalar_t =
+          decltype(c10::impl::ScalarTypeToCPPType<ScalarType::CFloatWithSubnormals>::t);
+      const auto exp = exp_scalar.to<scalar_t>();
+      using Vec = Vectorized<scalar_t>;
+      cpu_kernel_vec(iter,
+          [=](scalar_t base) -> scalar_t {
+            return std::pow(base, exp);
+          },
+          [=](Vec base) -> Vec { return base.pow(exp); }
+      );
+    }();
   } else {
     AT_DISPATCH_INTEGRAL_TYPES(dtype, "pow", [&]() {
       const scalar_t exp = exp_scalar.to<scalar_t>();

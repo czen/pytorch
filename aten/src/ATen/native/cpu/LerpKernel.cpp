@@ -9,7 +9,7 @@ namespace native {
 namespace {
 
 void lerp_scalar_kernel(at::TensorIteratorBase& iter, const Scalar& weight) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(iter.common_dtype(), "lerp_kernel_scalar", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(iter.common_dtype(), "lerp_kernel_scalar", [&] {
     using value_t = typename c10::scalar_value_type<scalar_t>::type;
     scalar_t weight_val = weight.to<scalar_t>();
     at::native::cpu_kernel(
@@ -23,7 +23,7 @@ void lerp_scalar_kernel(at::TensorIteratorBase& iter, const Scalar& weight) {
 }
 
 void lerp_tensor_kernel(at::TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(iter.common_dtype(), "lerp_kernel_tensor", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(iter.common_dtype(), "lerp_kernel_tensor", [&] {
     using value_t = typename c10::scalar_value_type<scalar_t>::type;
     at::native::cpu_kernel(
         iter,

@@ -209,7 +209,7 @@ void gemv(char trans, int64_t m, int64_t n, scalar_t alpha, scalar_t *a, int64_t
 
 #define INSTANTIATE(scalar_t, _) \
 template void gemv<scalar_t>(char trans, int64_t m, int64_t n, scalar_t alpha, scalar_t *a, int64_t lda, scalar_t *x, int64_t incx, scalar_t beta, scalar_t *y, int64_t incy);
-AT_FORALL_SCALAR_TYPES_AND(BFloat16, INSTANTIATE);
+AT_FORALL_SCALAR_TYPES_AND_UNIVERSAL_AND(BFloat16, INSTANTIATE);
 AT_FORALL_COMPLEX_TYPES(INSTANTIATE);
 #undef INSTANTIATE
 
@@ -352,6 +352,7 @@ INSTANTIATE_DOT_IMPL(int);
 INSTANTIATE_DOT_IMPL(int64_t);
 INSTANTIATE_DOT_IMPL(c10::Half);
 INSTANTIATE_DOT_IMPL(c10::BFloat16);
+INSTANTIATE_DOT_IMPL(c10::CFloatWithSubnormals);
 
 #define INSTANTIATE_VDOT_IMPL(scalar_t)  \
   template scalar_t vdot_impl<scalar_t>( \

@@ -257,7 +257,7 @@ TORCH_IMPL_FUNC(fractional_max_pool3d_out_cpu)(
   /* get contiguous input */
   auto input = input_.contiguous();
 
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
     input.scalar_type(),
     "fractional_max_pool3d_out_frame",
     [&] {
@@ -391,7 +391,7 @@ void fractional_max_pool3d_backward_out_cpu_template(
   gradInput.zero_();
 
   /* backprop */
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
     input.scalar_type(),
     "fractional_max_pool3d_backward_out_frame",
     [&]{

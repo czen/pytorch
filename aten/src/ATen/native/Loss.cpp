@@ -173,9 +173,9 @@ Tensor kl_div_backward_cpu(const Tensor& grad, const Tensor& input, const Tensor
       .add_input(target)
       .add_input(grad_expand)
       .build();
-    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "kl_div_backward_cpu", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "kl_div_backward_cpu", [&]() {
       cpu_serial_kernel(iter, [](scalar_t target_val, scalar_t grad_val) -> scalar_t{
-        return target_val > 0 ? -target_val * grad_val : 0;
+        return target_val > 0 ? -target_val * grad_val : static_cast<scalar_t>(0);
       });
     });
   }
@@ -212,7 +212,7 @@ Tensor& binary_cross_entropy_out_cpu(const Tensor& input, const Tensor& target, 
       .add_owned_input(at::squeeze(target))
       .build();
 
-    AT_DISPATCH_FLOATING_TYPES(loss.scalar_type(), "binary_cross_entropy", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(loss.scalar_type(), "binary_cross_entropy", [&] {
         at::native::cpu_kernel(
             iter,
             [] (scalar_t input_val, scalar_t target_val) {
@@ -263,7 +263,7 @@ Tensor& binary_cross_entropy_backward_out_cpu(const Tensor& grad, const Tensor& 
       .add_owned_input(at::squeeze(target))
       .build();
 
-    AT_DISPATCH_FLOATING_TYPES(grad_input.scalar_type(), "binary_cross_entropy_backward", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(grad_input.scalar_type(), "binary_cross_entropy_backward", [&] {
         at::native::cpu_kernel(
             iter,
             [] (scalar_t grad_val, scalar_t input_val, scalar_t target_val) {

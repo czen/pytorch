@@ -30,7 +30,7 @@ void max_pool1d_impl(
     Tensor& output,
     const Tensor& input,
     const PoolingParams1D& p) {
-  AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "max_pool1d_impl", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "max_pool1d_impl", [&] {
     const Tensor in = input.contiguous();
     scalar_t* const OP = output.data_ptr<scalar_t>();
     const scalar_t* const IP = in.data_ptr<scalar_t>();

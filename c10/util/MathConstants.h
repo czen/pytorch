@@ -3,6 +3,7 @@
 #include <c10/macros/Macros.h>
 #include <c10/util/BFloat16.h>
 #include <c10/util/Half.h>
+#include <c10/util/UniversalTypes.h>
 
 C10_CLANG_DIAGNOSTIC_PUSH()
 #if C10_CLANG_HAS_WARNING("-Wimplicit-float-conversion")
@@ -27,6 +28,10 @@ C10_HOST_DEVICE inline constexpr BFloat16 pi<BFloat16>() {
 template <>
 C10_HOST_DEVICE inline constexpr Half pi<Half>() {
   return Half(0x4248, Half::from_bits());
+}
+template <>
+C10_HOST_DEVICE inline constexpr CFloatWithSubnormals pi<CFloatWithSubnormals>() {
+  return CFloatWithSubnormals(0x40490FDB, CFloatWithSubnormals::from_bits());
 }
 } // namespace detail
 

@@ -1138,6 +1138,7 @@ C10_UNUSED c10::Half calc_igammac<c10::Half>(c10::Half a, c10::Half x) {
 }
 
 inline c10::BFloat16 calc_erfinv(c10::BFloat16 a) { return calc_erfinv(float(a)); }
+inline c10::CFloatWithSubnormals calc_erfinv(c10::CFloatWithSubnormals a) { return calc_erfinv(static_cast<float>(a)); }
 
 template <typename T>
 static T abs_impl(T v) {
@@ -1483,6 +1484,10 @@ calc_i1e(T _x) {
   return (_x < T{0.0}) ? -out : out;
 }
 
+// FIXME Implement these using universal/applications/chebyshev/chebpts.hpp
+static inline c10::CFloatWithSubnormals calc_i1(c10::CFloatWithSubnormals a) { return calc_i1(static_cast<float>(a)); }
+static inline c10::CFloatWithSubnormals calc_i1e(c10::CFloatWithSubnormals a) { return calc_i1e(static_cast<float>(a)); }
+
 /*
  * This function is derived from the implementation of the i1e function in the Cephes Math Library.
  * See note [3-Clause BSD License for the Cephes Math Library].
@@ -1494,9 +1499,11 @@ template <typename T>
 static inline C10_HOST_DEVICE T calc_ndtri(T y0) {
 
   /* sqrt(2pi) */
-  constexpr T s2pi = 2.50662827463100050242E0;
-  constexpr T one = 1;
-  constexpr T zero = 0;
+  // NOTE : these constants were constexpr, but float constructor of CFloatWithSubnormals
+  // is not constexpr
+  const T s2pi = 2.50662827463100050242E0;
+  const T one = 1;
+  const T zero = 0;
 
   /* approximation for 0 <= |y - 0.5| <= 3/8 */
   static const T P0[5] = {
@@ -2120,6 +2127,11 @@ calc_erfcx(T x)
       return 2*exp(x*x) - erfcx_y100(400/(4-x));
     }
   }
+}
+
+C10_HOST_DEVICE static inline c10::CFloatWithSubnormals calc_erfcx(c10::CFloatWithSubnormals x)
+{
+  return static_cast<c10::CFloatWithSubnormals>(calc_erfcx(static_cast<float>(x)));
 }
 
 C10_CLANG_DIAGNOSTIC_POP()

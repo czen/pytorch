@@ -52,13 +52,13 @@ inline void _vec_log_sigmoid(TensorBase &output, TensorBase &buffer, const Tenso
 
 static void log_sigmoid_cpu_kernel(
     TensorBase &output, TensorBase &buffer, const TensorBase &input) {
-  AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "log_sigmoid_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(input.scalar_type(), "log_sigmoid_cpu", [&] {
     _vec_log_sigmoid<scalar_t>(output, buffer, input);
   });
 }
 
 static void log_sigmoid_backward_cpu_kernel(TensorIterator& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "log_sigmoid_backward_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "log_sigmoid_backward_cpu", [&]() {
     using Vec = Vectorized<scalar_t>;
     auto zero_val = scalar_t(0);
     auto zero_vec = Vec(zero_val);
@@ -102,7 +102,7 @@ static void threshold_kernel(
 }
 
 void elu_kernel(TensorIteratorBase& it, const Scalar& alpha, const Scalar& scale, const Scalar& input_scale) {
-  AT_DISPATCH_FLOATING_TYPES(it.dtype(), "elu_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(it.dtype(), "elu_cpu", [&]() {
     using Vec = Vectorized<scalar_t>;
     auto negcoef = alpha.to<scalar_t>() * scale.to<scalar_t>();
     auto poscoef = scale.to<scalar_t>();
@@ -129,7 +129,7 @@ void elu_kernel(TensorIteratorBase& it, const Scalar& alpha, const Scalar& scale
 }
 
 void elu_backward_kernel(TensorIteratorBase& it, const Scalar& alpha, const Scalar& scale, const Scalar& input_scale, bool is_result) {
-  AT_DISPATCH_FLOATING_TYPES(it.dtype(), "elu_backward_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(it.dtype(), "elu_backward_cpu", [&]() {
     using Vec = Vectorized<scalar_t>;
     auto negcoef = alpha.to<scalar_t>() * scale.to<scalar_t>();
     auto poscoef = scale.to<scalar_t>();
@@ -237,7 +237,7 @@ void GeluBackwardKernelImpl(TensorIteratorBase& it) {
 }
 
 void hardsigmoid_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "hardsigmoid_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "hardsigmoid_cpu", [&] {
     const scalar_t zero(0.0f);
     const scalar_t three(3.0f);
     const scalar_t six(6.0f);
@@ -260,7 +260,7 @@ void hardsigmoid_kernel(TensorIteratorBase& iter) {
 }
 
 void hardsigmoid_backward_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "hardsigmoid_backward", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "hardsigmoid_backward", [&] {
     const scalar_t zero(0.0f);
     const scalar_t three(3.0f);
     const scalar_t neg_three(-3.0f);
@@ -283,7 +283,7 @@ void hardsigmoid_backward_kernel(TensorIteratorBase& iter) {
 }
 
 void hardshrink_kernel(TensorIteratorBase& iter, const Scalar& lambd) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "hardshrink_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "hardshrink_cpu", [&] {
     auto lambd_val = lambd.to<scalar_t>();
     cpu_kernel_vec(
         iter,
@@ -298,7 +298,7 @@ void hardshrink_kernel(TensorIteratorBase& iter, const Scalar& lambd) {
 }
 
 void softshrink_kernel(TensorIteratorBase& iter, const Scalar& lambd) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "softshrink_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "softshrink_cpu", [&]() {
     auto lambd_val = lambd.to<scalar_t>();
     cpu_kernel(iter, [=](scalar_t a) -> scalar_t {
       return a > lambd_val ? a - lambd_val : (a < -lambd_val ? a + lambd_val : scalar_t(0));
@@ -307,7 +307,7 @@ void softshrink_kernel(TensorIteratorBase& iter, const Scalar& lambd) {
 }
 
 void shrink_backward_kernel(TensorIteratorBase& iter, const Scalar& lambd) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "shrink_backward_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "shrink_backward_cpu", [&] {
     auto lambd_val = lambd.to<scalar_t>();
     cpu_kernel_vec(
         iter,
@@ -322,7 +322,7 @@ void shrink_backward_kernel(TensorIteratorBase& iter, const Scalar& lambd) {
 }
 
 void hardtanh_backward_kernel(TensorIterator& iter, const Scalar& min, const Scalar& max) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "hardshrink_backward_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "hardshrink_backward_cpu", [&] {
     auto min_val = min.to<scalar_t>();
     auto max_val = max.to<scalar_t>();
     cpu_kernel_vec(
@@ -337,7 +337,7 @@ void hardtanh_backward_kernel(TensorIterator& iter, const Scalar& min, const Sca
 }
 
 void hardswish_kernel(TensorIterator& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "hardswish_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "hardswish_cpu", [&]() {
     const scalar_t zero(0.0f);
     const scalar_t three(3.0f);
     const scalar_t six(6.0f);
@@ -361,7 +361,7 @@ void hardswish_kernel(TensorIterator& iter) {
 }
 
 void hardswish_backward_kernel(TensorIterator& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "hardswish_backward_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "hardswish_backward_cpu", [&]() {
     const scalar_t zero(0.0f);
     const scalar_t three(3.0f);
     const scalar_t neg_three(-3.0f);
@@ -416,7 +416,7 @@ static void leaky_relu_kernel(TensorIteratorBase& iter, const Scalar& negval_) {
           return convert_float_bfloat16(res0, res1);
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "leaky_relu_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "leaky_relu_cpu", [&] {
       using Vec = Vectorized<scalar_t>;
       auto zero_vec = Vec((scalar_t)(0));
       auto one_vec = Vec((scalar_t)(1));
@@ -455,7 +455,7 @@ static void leaky_relu_backward_kernel(TensorIteratorBase& iter, const Scalar& n
         return convert_float_bfloat16(res0, res1);
       });
   } else {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "leaky_relu_backward_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "leaky_relu_backward_cpu", [&] {
       using Vec = Vectorized<scalar_t>;
       auto zero_vec = Vec((scalar_t)(0));
       auto one_vec = Vec((scalar_t)(1));
@@ -475,7 +475,7 @@ static void leaky_relu_backward_kernel(TensorIteratorBase& iter, const Scalar& n
 }
 
 void softplus_kernel(TensorIteratorBase& iter, const Scalar& beta_, const Scalar& threshold_) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "softplus_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "softplus_cpu", [&]() {
     using Vec = Vectorized<scalar_t>;
     auto beta = beta_.to<scalar_t>();
     auto threshold = threshold_.to<scalar_t>();
@@ -495,7 +495,7 @@ void softplus_kernel(TensorIteratorBase& iter, const Scalar& beta_, const Scalar
 }
 
 void softplus_backward_kernel(TensorIteratorBase& iter, const Scalar& beta_, const Scalar& threshold_) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "softplus_backward_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "softplus_backward_cpu", [&]() {
     using Vec = Vectorized<scalar_t>;
     auto beta = beta_.to<scalar_t>();
     auto threshold = threshold_.to<scalar_t>();
@@ -517,7 +517,7 @@ void softplus_backward_kernel(TensorIteratorBase& iter, const Scalar& beta_, con
 }
 
 void glu_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "glu_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "glu_cpu", [&] {
     using Vec = Vectorized<scalar_t>;
     const scalar_t one_val(1);
     const Vec one_vec(one_val);
@@ -534,7 +534,7 @@ void glu_kernel(TensorIteratorBase& iter) {
 }
 
 void glu_backward_kernel(TensorIterator& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "glu_backward_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "glu_backward_cpu", [&] {
     using Vec = Vectorized<scalar_t>;
     const scalar_t one_val(1);
     const Vec one_vec(one_val);
@@ -551,7 +551,7 @@ void glu_backward_kernel(TensorIterator& iter) {
 }
 
 void silu_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(
       kBFloat16, iter.dtype(), "silu_cpu", [&]() {
         const Vectorized<scalar_t> kOneVec(scalar_t(1));
         cpu_kernel_vec(
@@ -566,7 +566,7 @@ void silu_kernel(TensorIteratorBase& iter) {
 }
 
 void silu_backward_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(
       kBFloat16, iter.dtype(), "silu_backward_cpu", [&]() {
         const Vectorized<scalar_t> kOneVec(scalar_t(1));
         cpu_kernel_vec(
@@ -585,7 +585,7 @@ void silu_backward_kernel(TensorIteratorBase& iter) {
 }
 
 void mish_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "mish_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "mish_cpu", [&]() {
         using Vec = Vectorized<scalar_t>;
         cpu_kernel_vec(
             iter,
@@ -599,7 +599,7 @@ void mish_kernel(TensorIteratorBase& iter) {
 }
 
 void mish_backward_kernel(TensorIterator& iter) {
-  AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "mish_backward_cpu", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "mish_backward_cpu", [&]() {
         using Vec = Vectorized<scalar_t>;
         const Vec kOneVec(scalar_t(1));
         cpu_kernel_vec(

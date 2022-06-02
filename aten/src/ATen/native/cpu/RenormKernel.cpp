@@ -11,7 +11,7 @@ namespace native{
 namespace {
 
 void renorm_scale_factor_impl(TensorIteratorBase& iter, double maxnorm) {
-  AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "renorm_scale_factor_cpu", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "renorm_scale_factor_cpu", [&] {
     using vec_t = at::vec::Vectorized<scalar_t>;
     const auto maxnorm_s = static_cast<scalar_t>(maxnorm);
     const auto maxnorm_v = vec_t(maxnorm_s);

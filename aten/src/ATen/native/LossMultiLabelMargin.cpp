@@ -141,7 +141,7 @@ static void multilabel_margin_loss_forward_out_cpu_template(
   auto input_contiguous = input.contiguous();
   auto target_contiguous = target.contiguous();
 
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "multilabel_margin_loss_forward_out_frame", [&] {
         multilabel_margin_loss_forward_out_frame<scalar_t>(
             input_contiguous, target_contiguous, output, is_target, reduction, nframe, dim);
@@ -251,7 +251,7 @@ static void multilabel_margin_loss_backward_out_cpu_template(
   auto target_contiguous = target.contiguous();
   auto is_target_contiguous = is_target.contiguous();
 
-  AT_DISPATCH_FLOATING_TYPES(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(
       input.scalar_type(), "multilabel_margin_loss_backward_out_frame", [&] {
         multilabel_margin_loss_backward_out_frame<scalar_t>(
             grad_input,
