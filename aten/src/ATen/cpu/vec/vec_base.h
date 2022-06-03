@@ -69,7 +69,7 @@ struct is_floating_point:
       std::is_floating_point<T>::value ||
       std::is_same<T, at::Half>::value ||
       std::is_same<T, at::BFloat16>::value ||
-      std::is_same<T, at::CFloatWithSubnormals>::value> {
+      c10::is_universal_floating_point<T>::value> {
 };
 
 template<size_t n> struct int_of_size;

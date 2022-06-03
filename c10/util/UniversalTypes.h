@@ -10,6 +10,7 @@
 
 #include <type_traits>
 
+// Private macro (it is removed with #undef below)
 #define FORALL_SUPPORTED_TYPES(_) \
   _(int)                          \
   _(long)                         \
@@ -17,12 +18,14 @@
   _(float)                        \
   _(double)
 
+// Private macro (it is removed with #undef below)
 // (argument type, return type)
 #define FORALL_SUPPORTED_TYPES_IN_OPERATORS(_) \
   _(int, CFloatWithSubnormals)                 \
   _(float, CFloatWithSubnormals)               \
   _(double, double) // ATen requires returning double if the argument type is double
 
+// Private macro (it is removed with #undef below)
 #define FORALL_ADDITIONAL_TYPES(_) \
   _(unsigned char)                 \
   _(uint64_t)
@@ -451,6 +454,20 @@ inline C10_HOST_DEVICE CFloatWithSubnormals operator/(int64_t left, const CFloat
 #undef FORALL_SUPPORTED_TYPES_IN_OPERATORS
 #undef FORALL_ADDITIONAL_TYPES
 
+// Checks whether T is one of the new floating point types
+template <typename T>
+struct is_universal_floating_point :
+  std::integral_constant<bool,
+    std::is_same<T, CFloatWithSubnormals>::value> {
+};
+
+// In case we want to add complex or integral types later
+template <typename T>
+struct is_universal_type :
+  std::integral_constant<bool,
+    is_universal_floating_point<T>::value> {
+};
+
 }
 
 namespace std {
@@ -458,7 +475,7 @@ namespace std {
 template<>
 struct hash<c10::CFloatWithSubnormals> {
   size_t operator()(const c10::CFloatWithSubnormals& value) const noexcept {
-    return hash<uint32_t>()(reinterpret_cast<uint32_t>(value.block(0)));
+    return hash<uint32_t>()(value.block(0));
   }
 };
 

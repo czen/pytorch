@@ -137,10 +137,8 @@ void pow_tensor_scalar_kernel(
         pow_tensor_scalar_optimized_kernel<scalar_t, scalar_t>(
             iter, exp_scalar.to<scalar_t>());
       });
-  } else if (dtype == ScalarType::CFloatWithSubnormals) {
-    [&]() {
-      using scalar_t =
-          decltype(c10::impl::ScalarTypeToCPPType<ScalarType::CFloatWithSubnormals>::t);
+  } else if (isUniversalType(dtype)) {
+    AT_DISPATCH_UNIVERSAL_TYPES(dtype, "pow", [&]() {
       const auto exp = exp_scalar.to<scalar_t>();
       using Vec = Vectorized<scalar_t>;
       cpu_kernel_vec(iter,
@@ -149,7 +147,7 @@ void pow_tensor_scalar_kernel(
           },
           [=](Vec base) -> Vec { return base.pow(exp); }
       );
-    }();
+    });
   } else {
     AT_DISPATCH_INTEGRAL_TYPES(dtype, "pow", [&]() {
       const scalar_t exp = exp_scalar.to<scalar_t>();

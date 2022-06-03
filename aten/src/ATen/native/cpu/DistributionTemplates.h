@@ -43,7 +43,8 @@ void random_full_64_bits_range_kernel(TensorIteratorBase& iter, RNG generator) {
     if (std::is_same<scalar_t, int64_t>::value ||
         std::is_same<scalar_t, double>::value ||
         std::is_same<scalar_t, float>::value ||
-        std::is_same<scalar_t, at::BFloat16>::value) {
+        std::is_same<scalar_t, at::BFloat16>::value ||
+        c10::is_universal_type<scalar_t>::value) {
       cpu_serial_kernel(iter, [generator]() -> scalar_t {
         uniform_int_full_range_distribution<scalar_t> random;
         return random(generator);
