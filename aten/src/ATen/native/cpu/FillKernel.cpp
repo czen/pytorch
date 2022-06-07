@@ -34,18 +34,26 @@ void fill_non_native_type<c10::complex<at::Half>>(TensorIterator& iter, const Sc
       [val]() { return Vectorized<int32_t>(val); });
 }
 
-template <>
-void fill_non_native_type<c10::CFloatWithSubnormals>(TensorIterator& iter, const Scalar& value_scalar) {
-  static_assert(sizeof(c10::CFloatWithSubnormals) == sizeof(int32_t), "Size of CFloatWithSubnormals should be 32-bits");
-  auto value = value_scalar.to<c10::CFloatWithSubnormals>().block(0);
-  using H = typename std::make_signed<decltype(value)>::type;  // Signed type has more acceleration
-  // Reserve the representation of value. static_cast<H>(value) is implementation defined.
-  H val = *reinterpret_cast<H*>(std::addressof(value));
-  cpu_kernel_vec</*check_dynamic_cast=*/false>(
-      iter,
-      [val]() -> H { return val; },
-      [val]() { return Vectorized<H>(val); });
-}
+#define SPECIALIZE_FOR_UNIVERSAL(T, NAME)                                           \
+  template <>                                                                       \
+  void fill_non_native_type<T>(TensorIterator& iter, const Scalar& value_scalar) {  \
+    static_assert(                                                                  \
+      sizeof(T) == sizeof(int32_t),                                                 \
+      "Size of " #NAME "should be 32-bits"                                          \
+    );                                                                              \
+    auto value = value_scalar.to<T>().block(0);                                     \
+    /* Signed type has more acceleration */                                         \
+    using H = typename std::make_signed<decltype(value)>::type;                     \
+    /* Reserve the representation of value.                                         \
+       static_cast<H>(value) is implementation defined. */                          \
+    H val = *reinterpret_cast<H*>(std::addressof(value));                           \
+    cpu_kernel_vec</*check_dynamic_cast=*/false>(                                   \
+        iter,                                                                       \
+        [val]() -> H { return val; },                                               \
+        [val]() { return Vectorized<H>(val); });                                    \
+  }
+AT_FORALL_UNIVERSAL_TYPES(SPECIALIZE_FOR_UNIVERSAL)
+#undef SPECIALIZE_FOR_UNIVERSAL
 
 void fill_kernel(TensorIterator& iter, const Scalar& value_scalar) {
   if (iter.dtype() == ScalarType::Half) {

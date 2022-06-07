@@ -1138,7 +1138,10 @@ C10_UNUSED c10::Half calc_igammac<c10::Half>(c10::Half a, c10::Half x) {
 }
 
 inline c10::BFloat16 calc_erfinv(c10::BFloat16 a) { return calc_erfinv(float(a)); }
-inline c10::CFloatWithSubnormals calc_erfinv(c10::CFloatWithSubnormals a) { return calc_erfinv(static_cast<float>(a)); }
+#define OP(T, NAME) \
+  inline T calc_erfinv(T a) { return calc_erfinv(static_cast<float>(a)); }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 template <typename T>
 static T abs_impl(T v) {
@@ -1150,10 +1153,13 @@ C10_UNUSED uint8_t abs_impl(uint8_t v) {
   return v;
 }
 
-template <>
-c10::CFloatWithSubnormals abs_impl(c10::CFloatWithSubnormals v) {
-  return sw::universal::abs(v);
-}
+#define OP(T, NAME)                \
+  template <>                      \
+  T abs_impl(T v) {                \
+    return sw::universal::abs(v);  \
+  }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 template <typename T>
 static inline typename std::enable_if<std::is_integral<T>::value, T>::type
@@ -1391,7 +1397,10 @@ calc_i0(T _x) {
 // Upcast bfloat16 input to float for numerical accuracy purposes
 static inline c10::BFloat16 calc_i0(c10::BFloat16 a) { return calc_i0(static_cast<float>(a)); }
 // FIXME Implement this using universal/applications/chebyshev/chebpts.hpp
-static inline c10::CFloatWithSubnormals calc_i0(c10::CFloatWithSubnormals a) { return calc_i0(static_cast<float>(a)); }
+#define OP(T, NAME) \
+  static inline T calc_i0(T a) { return calc_i0(static_cast<float>(a)); }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 /*
  * This function is derived from the implementation of the i0e function in the Cephes Math Library.
@@ -1424,7 +1433,10 @@ calc_i0e(T _x) {
 // Upcast bfloat16 input to float for numerical accuracy purposes
 static inline c10::BFloat16 calc_i0e(c10::BFloat16 a) { return calc_i0e(static_cast<float>(a)); }
 // FIXME Implement this using universal/applications/chebyshev/chebpts.hpp
-static inline c10::CFloatWithSubnormals calc_i0e(c10::CFloatWithSubnormals a) { return calc_i0e(static_cast<float>(a)); }
+#define OP(T, NAME) \
+  static inline T calc_i0e(T a) { return calc_i0e(static_cast<float>(a)); }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 /*
  * This function is derived from the implementation of the i1 function in the Cephes Math Library.
@@ -1485,8 +1497,11 @@ calc_i1e(T _x) {
 }
 
 // FIXME Implement these using universal/applications/chebyshev/chebpts.hpp
-static inline c10::CFloatWithSubnormals calc_i1(c10::CFloatWithSubnormals a) { return calc_i1(static_cast<float>(a)); }
-static inline c10::CFloatWithSubnormals calc_i1e(c10::CFloatWithSubnormals a) { return calc_i1e(static_cast<float>(a)); }
+#define OP(T, NAME)                                                         \
+  static inline T calc_i1(T a) { return calc_i1(static_cast<float>(a)); }   \
+  static inline T calc_i1e(T a) { return calc_i1e(static_cast<float>(a)); }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 /*
  * This function is derived from the implementation of the i1e function in the Cephes Math Library.
@@ -2129,9 +2144,12 @@ calc_erfcx(T x)
   }
 }
 
-C10_HOST_DEVICE static inline c10::CFloatWithSubnormals calc_erfcx(c10::CFloatWithSubnormals x)
-{
-  return static_cast<c10::CFloatWithSubnormals>(calc_erfcx(static_cast<float>(x)));
-}
+#define OP(T, NAME)                                            \
+  C10_HOST_DEVICE static inline T calc_erfcx(T x)              \
+  {                                                            \
+    return static_cast<T>(calc_erfcx(static_cast<float>(x)));  \
+  }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 C10_CLANG_DIAGNOSTIC_POP()

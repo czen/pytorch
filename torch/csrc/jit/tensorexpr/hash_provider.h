@@ -295,7 +295,7 @@ class TORCH_API HashProvider : public IRVisitor {
     std::memcpy(&n, &d, sizeof d);
     return te_hash(n);
   }
-  
+
   size_t te_hash(c10::CFloatWithSubnormals d) {
     // memcpy as type punning. Should be optimized out.
     // NOLINTNEXTLINE(cppcoreguidelines-init-variables)

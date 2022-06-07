@@ -8,6 +8,7 @@
 #include <complex>
 #include <functional>
 #include <type_traits>
+#include <c10/core/ScalarType.h>
 #include <c10/util/BFloat16.h>
 #include <c10/util/Half.h>
 #include <c10/util/UniversalTypes.h>
@@ -58,15 +59,17 @@ inline C10_HOST_DEVICE bool _isnan(at::BFloat16 val) {
   return at::_isnan(static_cast<float>(val));
 }
 
-template <typename T,
-         typename std::enable_if<std::is_same<T, c10::CFloatWithSubnormals>::value, int>::type = 0>
-inline C10_HOST_DEVICE bool _isnan(c10::CFloatWithSubnormals val) {
-  return sw::universal::isnan(val);
-}
-
-inline C10_HOST_DEVICE bool _isnan(c10::CFloatWithSubnormals val) {
-  return sw::universal::isnan(val);
-}
+#define OP(T, NAME)                                                            \
+  template <typename T1,                                                       \
+           typename std::enable_if<std::is_same<T, T1>::value, int>::type = 0> \
+  inline C10_HOST_DEVICE bool _isnan(T1 val) {                                 \
+    return sw::universal::isnan(val);                                          \
+  }                                                                            \
+  inline C10_HOST_DEVICE bool _isnan(T val) {                                  \
+    return sw::universal::isnan(val);                                          \
+  }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 
 // std::isinf isn't performant to use on integral types; it will
@@ -98,10 +101,12 @@ inline C10_HOST_DEVICE bool _isinf(at::BFloat16 val) {
   return at::_isinf(static_cast<float>(val));
 }
 
-
-inline C10_HOST_DEVICE bool _isinf(c10::CFloatWithSubnormals val) {
-  return sw::universal::isinf(val);
-}
+#define OP(T, NAME)                            \
+  inline C10_HOST_DEVICE bool _isinf(T val) {  \
+    return sw::universal::isinf(val);          \
+  }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 
 template <typename T>
 C10_HOST_DEVICE inline T exp(T x) {

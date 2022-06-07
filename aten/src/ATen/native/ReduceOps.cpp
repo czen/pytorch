@@ -619,10 +619,13 @@ inline bool isnan_(T x) {
   return std::isnan(x);
 }
 #endif
-template<>
-inline bool isnan_(CFloatWithSubnormals x) {
-  return sw::universal::isnan(x);
-}
+#define OP(T, NAME)                  \
+  template<>                         \
+  inline bool isnan_(T x) {          \
+    return sw::universal::isnan(x);  \
+  }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
 }
 
 template<typename T1, typename T2, typename Operation>
