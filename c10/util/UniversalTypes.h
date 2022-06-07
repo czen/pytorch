@@ -115,9 +115,36 @@ inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isS
 FORALL_SUPPORTED_TYPES_IN_OPERATORS(OP)
 #undef OP
 
-// Instantiate cfloat methods and make them __host__ __device__
+// cfloat constructor
 extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat() noexcept;
 
+// blockbinary constructor and methods
+extern template C10_HOST_DEVICE blockbinary<8, uint32_t, BinaryNumberType::Signed>::blockbinary() noexcept;
+extern template C10_HOST_DEVICE bool blockbinary<8, uint32_t, BinaryNumberType::Signed>::isallones() const noexcept;
+extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::clear() noexcept;
+extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::setbits(uint64_t value) noexcept;
+#pragma push_macro("setbit")
+#undef setbit
+extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::setbit(size_t i, bool v) noexcept;
+#pragma pop_macro("setbit")
+
+// cfloat methods that handle blockbinary
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::exponent(
+  blockbinary<8, uint32_t, BinaryNumberType::Signed>& e) const;
+
+// isnan and necessary methods
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+inline C10_HOST_DEVICE bool isnan(const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& a);
+
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnan(int NaNType) const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnanencoding(int NaNType) const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::issupernormal() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isinf(int InfType) const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::ispos() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isneg() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::sign() const noexcept;
+
+// Instantiate cfloat methods and make them __host__ __device__
 extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<float>(float rhs) noexcept;
 
 #pragma diag_default 20040
