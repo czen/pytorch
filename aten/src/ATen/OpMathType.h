@@ -9,6 +9,7 @@ namespace at {
 template<typename scalar_t> struct OpMathType { using type = scalar_t; };
 template<> struct OpMathType<at::Half> { using type = float; };
 template<> struct OpMathType<at::BFloat16> { using type = float; };
+template<> struct OpMathType<at::CFloatWithSubnormals> { using type = float; };
 
 template<typename T>
 using opmath_type = typename OpMathType<T>::type;

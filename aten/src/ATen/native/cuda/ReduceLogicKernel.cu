@@ -9,7 +9,7 @@
 namespace at { namespace native {
 
 void and_kernel_cuda(TensorIterator& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       kHalf, kBFloat16, kBool, iter.common_dtype(), "and_cuda", [&]() {
         gpu_reduce_kernel<scalar_t, bool>(
             iter,
@@ -21,7 +21,7 @@ void and_kernel_cuda(TensorIterator& iter) {
 }
 
 void or_kernel_cuda(TensorIterator& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       kHalf, kBFloat16, kBool, iter.common_dtype(), "or_cuda", [&]() {
         gpu_reduce_kernel<scalar_t, bool>(
             iter,

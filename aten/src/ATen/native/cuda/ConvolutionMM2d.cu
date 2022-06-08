@@ -154,7 +154,7 @@ void slow_conv2d_forward(
     output.zero_();
   }
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
                                   "slow_conv2d_cuda", [&] {
     // For each elt in batch, do:
     for (int elt = 0; elt < batchSize; elt ++) {
@@ -236,7 +236,7 @@ void slow_conv2d_backward(
   resize_output(grad_columns, {nInputPlane*kW*kH, outputHeight*outputWidth});
   TORCH_CHECK(grad_columns.is_contiguous(), "grad_columns must be contiguous");
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
                                   "slow_conv2d_backward_cuda", [&] {
     // For each elt in batch, do:
     for (int elt = 0; elt < batchSize; elt ++) {
@@ -308,7 +308,7 @@ void slow_conv2d_grad_weight(
   const bool requires_columns = (
       kW != 1 || kH != 1 || dW != 1 || dH != 1 || padH != 0 || padW != 0);
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
                                   "slow_conv2d_grad_weight_cuda", [&] {
     // For each elt in batch, do:
     for (int elt = 0; elt < batchSize; elt ++) {

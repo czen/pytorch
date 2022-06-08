@@ -47,13 +47,13 @@ void min_values_kernel_cuda_impl(TensorIterator& iter) {
 }
 
 void max_values_kernel_cuda(TensorIterator& iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.dtype(), "max_values_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.dtype(), "max_values_cuda", [&]() {
     max_values_kernel_cuda_impl<scalar_t>(iter);
   });
 }
 
 void min_values_kernel_cuda(TensorIterator& iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.dtype(), "min_values_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.dtype(), "min_values_cuda", [&]() {
     min_values_kernel_cuda_impl<scalar_t>(iter);
   });
 }
@@ -82,7 +82,7 @@ void argmax_kernel_cuda(TensorIterator& iter) {
   } else if (iter.dtype(1) == kBFloat16) {
     argmax_kernel_cuda_impl<at::BFloat16, float>(iter);
   } else {
-    AT_DISPATCH_ALL_TYPES(iter.dtype(1), "argmax_cuda", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL(iter.dtype(1), "argmax_cuda", [&]() {
       argmax_kernel_cuda_impl<scalar_t>(iter);
     });
   }
@@ -96,14 +96,14 @@ void argmin_kernel_cuda(TensorIterator& iter) {
   } else if (iter.dtype(1) == kBFloat16) {
     argmin_kernel_cuda_impl<at::BFloat16, float>(iter);
   } else {
-    AT_DISPATCH_ALL_TYPES(iter.dtype(1), "argmin_cuda", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL(iter.dtype(1), "argmin_cuda", [&]() {
       argmin_kernel_cuda_impl<scalar_t>(iter);
     });
   }
 }
 
 void min_launch_kernel(TensorIterator &iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "min_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "min_cuda", [&]() {
     gpu_reduce_kernel<scalar_t, scalar_t>(
       iter,
       MinOps<scalar_t>{},
@@ -112,7 +112,7 @@ void min_launch_kernel(TensorIterator &iter) {
 }
 
 void max_launch_kernel(TensorIterator &iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "max_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "max_cuda", [&]() {
     gpu_reduce_kernel<scalar_t, scalar_t>(
       iter,
       MaxOps<scalar_t>{},
@@ -121,7 +121,7 @@ void max_launch_kernel(TensorIterator &iter) {
 }
 
 void aminmax_launch_kernel(TensorIterator &iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "aminmax_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "aminmax_cuda", [&]() {
     gpu_reduce_kernel<scalar_t, scalar_t>(
       iter,
       MinMaxOps<scalar_t, scalar_t, int32_t>{},
@@ -134,13 +134,13 @@ void aminmax_launch_kernel(TensorIterator &iter) {
 }
 
 void min_all_launch_kernel(TensorIterator &iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "min_all_cuda", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "min_all_cuda", [&] {
     min_values_kernel_cuda_impl<scalar_t>(iter);
   });
 }
 
 void max_all_launch_kernel(TensorIterator &iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "max_all_cuda", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "max_all_cuda", [&] {
     max_values_kernel_cuda_impl<scalar_t>(iter);
   });
 }
@@ -155,7 +155,7 @@ void _min_max_values_kernel_cuda_impl(TensorIterator& iter) {
 }
 
 void aminmax_allreduce_launch_kernel(TensorIterator &iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "aminmax_all_cuda", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBFloat16, kHalf, kBool, iter.input_dtype(), "aminmax_all_cuda", [&] {
     _min_max_values_kernel_cuda_impl<scalar_t>(iter);
   });
 }

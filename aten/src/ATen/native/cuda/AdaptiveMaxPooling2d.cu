@@ -222,7 +222,7 @@ const Tensor& indices) {
     int64_t istrideH = input.stride(1);
     int64_t istrideW = input.stride(2);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         kHalf, kBFloat16, input.scalar_type(), "adaptive_max_pool2d_cuda", [&] {
           scalar_t* input_data = input.data_ptr<scalar_t>();
           scalar_t* output_data = output_c.data_ptr<scalar_t>();
@@ -263,7 +263,7 @@ const Tensor& indices) {
     int64_t istrideH = input_.stride(2);
     int64_t istrideW = input_.stride(3);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         kHalf,
         kBFloat16,
         input_.scalar_type(),
@@ -347,7 +347,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool2d_backward_out_cuda)
 
     gradInput_c.zero_();
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         kHalf,
         kBFloat16,
         input.scalar_type(),
@@ -408,7 +408,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool2d_backward_out_cuda)
 
     // bool atomic = (isizeH%osizeH != 0) || (isizeW%osizeW != 0);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         kHalf,
         kBFloat16,
         input.scalar_type(),

@@ -23,7 +23,7 @@ void maximum_kernel_cuda(TensorIteratorBase& iter) {
       });
     });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "max_elementwise_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "max_elementwise_cuda", [&]() {
       gpu_kernel_with_scalars(iter, []GPU_LAMBDA(scalar_t a, scalar_t b) -> scalar_t {
         if (a != a) {
           return a;
@@ -49,7 +49,7 @@ void minimum_kernel_cuda(TensorIteratorBase& iter) {
       });
     });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "min_elementwise_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "min_elementwise_cuda", [&]() {
       gpu_kernel_with_scalars(iter, []GPU_LAMBDA(scalar_t a, scalar_t b) -> scalar_t {
         if (a != a) {
           return a;
@@ -65,7 +65,7 @@ void minimum_kernel_cuda(TensorIteratorBase& iter) {
 
 void fmax_kernel_cuda(TensorIteratorBase& iter) {
   if (isFloatingType(iter.common_dtype())) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "fmax_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "fmax_cuda", [&]() {
       gpu_kernel_with_scalars(iter, []GPU_LAMBDA(scalar_t a, scalar_t b) -> scalar_t {
         return ::fmax(a, b);
       });
@@ -77,7 +77,7 @@ void fmax_kernel_cuda(TensorIteratorBase& iter) {
 
 void fmin_kernel_cuda(TensorIteratorBase& iter) {
   if (isFloatingType(iter.common_dtype())) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "fmin_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "fmin_cuda", [&]() {
       gpu_kernel_with_scalars(iter, []GPU_LAMBDA(scalar_t a, scalar_t b) -> scalar_t {
         return ::fmin(a, b);
       });

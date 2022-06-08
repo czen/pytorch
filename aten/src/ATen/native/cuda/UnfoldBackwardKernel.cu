@@ -170,7 +170,7 @@ void unfold_backward_cuda_kernel(
       grad_out, grad_in, dim, size, step
     );
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
     at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
     iter.dtype(),
     "unfold_backward_cuda", [&] {

@@ -79,7 +79,7 @@ static void reduce_dispatch(TensorIterator& iter, GeneralDispatcher op) {
 
 static void sum_kernel_cuda(TensorIterator& iter){
   auto general_dispatcher = [](TensorIterator& iter) {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND(
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND(
         ScalarType::Bool, iter.dtype(), "sum_cuda", [&]() {
           sum_functor<scalar_t>{}(iter);
         });
@@ -90,7 +90,7 @@ static void sum_kernel_cuda(TensorIterator& iter){
 
 static void nansum_kernel_cuda(TensorIterator& iter) {
   auto general_dispatcher = [](TensorIterator& iter) {
-    AT_DISPATCH_FLOATING_TYPES(iter.dtype(), "nansum_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.dtype(), "nansum_cuda", [&]() {
       nansum_functor<scalar_t>{}(iter);
     });
   };
@@ -100,7 +100,7 @@ static void nansum_kernel_cuda(TensorIterator& iter) {
 
 static void prod_kernel_cuda(TensorIterator& iter) {
   auto general_dispatcher = [](TensorIterator& iter) {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND(ScalarType::Bool, iter.dtype(), "prod_cuda", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND(ScalarType::Bool, iter.dtype(), "prod_cuda", [&]() {
       prod_functor<scalar_t>{}(iter);
     });
   };

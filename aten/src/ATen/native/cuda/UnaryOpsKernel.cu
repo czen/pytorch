@@ -33,7 +33,7 @@ void bitwise_not_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 void exp_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "exp_cuda", [&]() {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "exp_cuda", [&]() {
     gpu_kernel(iter, []GPU_LAMBDA(scalar_t a) -> scalar_t {
       return std::exp(a);
     });
@@ -41,7 +41,7 @@ void exp_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 void expm1_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::BFloat16, ScalarType::Half,
       iter.common_dtype(), "expm1_cuda",
       [&]() {
@@ -65,7 +65,7 @@ __host__ __device__ static inline c10::complex<T> rsqrt_wrapper(c10::complex<T> 
 }
 
 void rsqrt_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::BFloat16, ScalarType::Half,
       iter.common_dtype(), "rsqrt_cuda",
       [&]() {
@@ -77,7 +77,7 @@ void rsqrt_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 void sqrt_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(ScalarType::Half, ScalarType::BFloat16, iter.common_dtype(), "sqrt_cuda", [&]() {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(ScalarType::Half, ScalarType::BFloat16, iter.common_dtype(), "sqrt_cuda", [&]() {
     gpu_kernel(iter, []GPU_LAMBDA(scalar_t a) -> scalar_t {
       return ::sqrt(a);
     });
@@ -85,7 +85,7 @@ void sqrt_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 void clamp_kernel_cuda(TensorIteratorBase& iter, const Scalar& min_value, const Scalar& max_value) {
-  AT_DISPATCH_ALL_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "clamp_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.dtype(), "clamp_cuda", [&]() {
     auto lower = min_value.to<scalar_t>();
     auto upper = max_value.to<scalar_t>();
     gpu_kernel(iter, [=]GPU_LAMBDA(scalar_t v) -> scalar_t {
@@ -100,7 +100,7 @@ void clamp_kernel_cuda(TensorIteratorBase& iter, const Scalar& min_value, const 
 }
 
 void clamp_min_kernel_cuda(TensorIteratorBase& iter, const Scalar& min_value) {
-  AT_DISPATCH_ALL_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "clamp_min_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.dtype(), "clamp_min_cuda", [&]() {
     auto lower = min_value.to<scalar_t>();
     gpu_kernel(iter, [=]GPU_LAMBDA(scalar_t v) -> scalar_t {
       // Propagate nan, which doesn't propagate automatically for ROCm
@@ -114,7 +114,7 @@ void clamp_min_kernel_cuda(TensorIteratorBase& iter, const Scalar& min_value) {
 }
 
 void clamp_max_kernel_cuda(TensorIteratorBase& iter, const Scalar& max_value) {
-  AT_DISPATCH_ALL_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "clamp_max_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.dtype(), "clamp_max_cuda", [&]() {
     auto upper = max_value.to<scalar_t>();
     gpu_kernel(iter, [=]GPU_LAMBDA(scalar_t v) -> scalar_t {
       // Propagate nan, which doesn't propagate automatically for ROCm
@@ -132,7 +132,7 @@ void nan_to_num_kernel_cuda(
     c10::optional<double> nan,
     c10::optional<double> pos_inf,
     c10::optional<double> neg_inf) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, iter.dtype(), "nan_to_num_cuda", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.dtype(), "nan_to_num_cuda", [&]() {
     scalar_t nan_replacement = static_cast<scalar_t>(nan.value_or(0.));
     scalar_t pos_inf_replacement = pos_inf.has_value()
         ? static_cast<scalar_t>(pos_inf.value())
@@ -154,7 +154,7 @@ void nan_to_num_kernel_cuda(
 }
 
 void frexp_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND(ScalarType::Half,
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(ScalarType::Half,
     // The iter.dtype() here is the dtype of mantissa output.
     // It's a floating point type and must be the same as the input's dtype.
     iter.dtype(),

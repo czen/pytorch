@@ -126,7 +126,7 @@ Tensor roll_cuda(const Tensor& self, IntArrayRef shifts, IntArrayRef dims) {
 
   auto total_dims = in_tensor.dim();
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
       in_tensor.scalar_type(), "roll_cuda",
       [&] {

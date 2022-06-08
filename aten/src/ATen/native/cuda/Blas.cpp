@@ -170,7 +170,7 @@ Tensor& addmm_out_cuda_impl(Tensor& result, const Tensor& self, const Tensor& ma
 
   TORCH_INTERNAL_ASSERT_DEBUG_ONLY(!result_->is_conj());
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, scalar_type, "addmm_cuda", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, scalar_type, "addmm_cuda", [&] {
     using opmath_t = at::opmath_type<scalar_t>;
     opmath_t alpha_val = alpha.to<opmath_t>();
     opmath_t beta_val = beta.to<opmath_t>();
@@ -240,7 +240,7 @@ const Tensor& baddbmm_out_cuda_impl(const Tensor& result, const Tensor& self, co
 
   TORCH_INTERNAL_ASSERT_DEBUG_ONLY(!result_->is_conj());
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, self.scalar_type(), "baddbmm_cuda", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, self.scalar_type(), "baddbmm_cuda", [&] {
     using opmath_t = at::opmath_type<scalar_t>;
     opmath_t alpha_val = alpha.to<opmath_t>();
     opmath_t beta_val = beta.to<opmath_t>();
@@ -357,7 +357,7 @@ Tensor dot_cuda(const Tensor& self, const Tensor& other) {
     incy = 1;
   }
 
-return AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(
+return AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::Half, ScalarType::BFloat16,
       self.scalar_type(), "dot",
       [&] {
@@ -451,7 +451,7 @@ TORCH_IMPL_FUNC(addmv_out_cuda)(const Tensor &self, const Tensor &mat, const Ten
       const auto vec_contiguous = vec_stride == 0 ? vec.contiguous() : vec;
       vec_stride = vec_contiguous.stride(0);
 
-      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, mat.scalar_type(), "addmv_impl_cuda", [&] {
+      AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, mat.scalar_type(), "addmv_impl_cuda", [&] {
         auto beta = beta_.to<scalar_t>();
         auto alpha = alpha_.to<scalar_t>();
         if (mat.stride(0) == 1 && mat.stride(1) >= std::max<int64_t>(1, mat.size(0))) {

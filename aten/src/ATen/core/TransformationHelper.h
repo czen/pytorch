@@ -113,6 +113,20 @@ C10_HOST_DEVICE inline T cauchy(T val, T median, T sigma) {
   return median + sigma * at::tan(c10::pi<T> * (val - static_cast<T>(0.5)));
 }
 
+// remove constexpr for universal types
+#define OP(T, NAME)                                                            \
+  template<>                                                                   \
+  C10_HOST_DEVICE inline T cauchy<T>(T val, T median, T sigma) {               \
+   const T eps = std::numeric_limits<T>::epsilon();                            \
+   const T one_minus_eps = 1 - eps;                                            \
+   const T zero_plus_eps = 0 + eps;                                            \
+   val = (val > one_minus_eps ? one_minus_eps : val);                          \
+   val = (val < zero_plus_eps ? zero_plus_eps : val);                          \
+   return median + sigma * at::tan(c10::detail::pi<T>() * (val - static_cast<T>(0.5)));  \
+  }
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
+
 template <>
 C10_HOST_DEVICE inline double cauchy(double val, double median, double sigma) {
   // https://en.wikipedia.org/wiki/Cauchy_distribution#Cumulative_distribution_function

@@ -34,7 +34,7 @@ static void std_var_kernel_cuda(TensorIterator& iter, int64_t correction, bool t
     // type promotion that does cast and reduction in a single kernel
     std_var_kernel_impl<at::BFloat16, float>(iter, correction, take_sqrt);
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16,
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16,
                                     iter.dtype(), "std_cuda", [&]() {
       std_var_kernel_impl<scalar_t>(iter, correction, take_sqrt);
     });
@@ -61,7 +61,7 @@ static void mean_kernel_cuda(TensorIterator& iter) {
     // type promotion that does cast and reduction in a single kernel
     mean_kernel_impl<at::BFloat16, float, float>(iter);
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX(iter.dtype(), "mean_cuda", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL(iter.dtype(), "mean_cuda", [&]() {
       mean_kernel_impl<scalar_t>(iter);
     });
   }

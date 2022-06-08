@@ -163,7 +163,7 @@ Tensor& multi_margin_loss_cuda_out(
 
   const auto stream = c10::cuda::getCurrentCUDAStream();
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(), "multi_margin_loss_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(), "multi_margin_loss_cuda", [&] {
     const scalar_t margin = margin_.to<scalar_t>();
     if (input.dim() <= 1) {
       int nframe = 1;
@@ -293,7 +293,7 @@ Tensor& multi_margin_loss_cuda_backward_out(
 
   const auto stream = c10::cuda::getCurrentCUDAStream();
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
                                   "multi_margin_loss_backward_cuda", [&] {
     const scalar_t margin = margin_.to<scalar_t>();
 

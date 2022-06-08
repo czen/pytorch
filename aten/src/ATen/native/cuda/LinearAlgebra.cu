@@ -40,7 +40,7 @@ void addr_kernel_cuda(TensorIterator &iter, const Scalar& beta, const Scalar& al
     return;
   }
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND2(kBFloat16, kHalf,
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(kBFloat16, kHalf,
                                          iter.dtype(), "addr_cuda", [&] {
     auto beta_val = beta.to<scalar_t>();
     auto alpha_val = alpha.to<scalar_t>();

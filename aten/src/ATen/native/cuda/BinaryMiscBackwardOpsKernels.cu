@@ -22,7 +22,7 @@ void sigmoid_backward_kernel_cuda(TensorIteratorBase& iter) {
       });
     });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "sigmoid_backward_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "sigmoid_backward_cuda", [&]() {
       gpu_kernel(iter, []GPU_LAMBDA(scalar_t a, scalar_t b) -> scalar_t {
         return a * (scalar_t(1.) - b) * b;
       });
@@ -31,7 +31,7 @@ void sigmoid_backward_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 void logit_backward_kernel_cuda(TensorIteratorBase& iter, const Scalar& eps_scalar) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half,
       at::ScalarType::BFloat16,
       iter.dtype(),
@@ -71,7 +71,7 @@ void tanh_backward_kernel_cuda(TensorIteratorBase& iter) {
       });
     });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "tanh_backward_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "tanh_backward_cuda", [&]() {
       gpu_kernel(iter, [] GPU_LAMBDA(scalar_t a, scalar_t b) -> scalar_t {
         return a * (scalar_t{1.} - b * b);
       });

@@ -17,13 +17,13 @@ namespace {
 const char zeta_name[] = "zeta";
 void zeta_kernel_cuda(TensorIteratorBase& iter) {
   #ifdef USE_JITERATOR
-    AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "zeta_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "zeta_cuda", [&]() {
       opmath_jitted_gpu_kernel_with_scalars</*name=*/zeta_name,
                                      /*return_dtype=*/ scalar_t,
                                      /*f_inputs_dtype=*/ scalar_t>(iter, zeta_string);
       });
   #else
-    AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "zeta_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "zeta_cuda", [&]() {
       gpu_kernel_with_scalars(iter, []GPU_LAMBDA(scalar_t x, scalar_t q) -> scalar_t {
         return zeta<scalar_t, /*is_cuda=*/true>(x, q);
       });

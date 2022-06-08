@@ -214,7 +214,7 @@ void multilabel_margin_loss_forward_out_cuda_template(
     dim3 blocks(1);
     dim3 threads(MULTILABELMARGIN_THREADS);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -241,7 +241,7 @@ void multilabel_margin_loss_forward_out_cuda_template(
     if (reduction != at::Reduction::None) {
       auto output_tmp = at::empty({input_.size(0)}, input_.options());
       output.resize_({});
-      AT_DISPATCH_FLOATING_TYPES_AND2(
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
           at::ScalarType::Half,
           at::ScalarType::BFloat16,
           input.scalar_type(),
@@ -267,7 +267,7 @@ void multilabel_margin_loss_forward_out_cuda_template(
           output.scalar_type());
     } else {
       output.resize_({input.size(0)});
-      AT_DISPATCH_FLOATING_TYPES_AND2(
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
           at::ScalarType::Half,
           at::ScalarType::BFloat16,
           input.scalar_type(),
@@ -324,7 +324,7 @@ void multilabel_margin_loss_backward_cuda_out_template(
     dim3 blocks(1);
     dim3 threads(MULTILABELMARGIN_THREADS);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -355,7 +355,7 @@ void multilabel_margin_loss_backward_cuda_out_template(
     dim3 blocks(grad_input.size(0));
     dim3 threads(MULTILABELMARGIN_THREADS);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),

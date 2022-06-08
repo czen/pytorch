@@ -223,7 +223,7 @@ void scan_dim_with_indices(const TensorBase& self, const TensorBase& values, con
 }
 
 void launch_cummax_cuda_kernel(const TensorBase& self, const TensorBase& values, const TensorBase& indices, int64_t dim) {
-  AT_DISPATCH_ALL_TYPES_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16,
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16,
     self.scalar_type(), "cummax_cuda", [&]() {
     scalar_t init = self.is_floating_point() ? (-1*std::numeric_limits<scalar_t>::infinity()) : std::numeric_limits<scalar_t>::lowest();
     scan_dim_with_indices<scalar_t>(self, values, indices, dim, init, std::greater_equal<scalar_t>());
@@ -231,7 +231,7 @@ void launch_cummax_cuda_kernel(const TensorBase& self, const TensorBase& values,
 }
 
 void launch_cummin_cuda_kernel(const TensorBase& self, const TensorBase& values, const TensorBase& indices, int64_t dim) {
-  AT_DISPATCH_ALL_TYPES_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16,
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16,
     self.scalar_type(), "cummin_cuda", [&]() {
     scalar_t init = self.is_floating_point() ? std::numeric_limits<scalar_t>::infinity() : std::numeric_limits<scalar_t>::max();
     scan_dim_with_indices<scalar_t>(self, values, indices, dim, init, std::less_equal<scalar_t>());
@@ -468,7 +468,7 @@ void scan_dim(const TensorBase& self, const TensorBase& result,
 
 void launch_logcumsumexp_cuda_kernel(const TensorBase& result, const TensorBase& self, int64_t dim) {
   const auto wrap_dim = maybe_wrap_dim(dim, self.dim());
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::Half, ScalarType::BFloat16,
       self.scalar_type(), "logcumsumexp_cuda",
       [&]() {
@@ -490,7 +490,7 @@ void launch_logcumsumexp_cuda_kernel(const TensorBase& result, const TensorBase&
 }
 
 void launch_cumsum_cuda_kernel(const TensorBase& result, const TensorBase& self, int64_t dim) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND2(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(
       ScalarType::Half, ScalarType::BFloat16,
       self.scalar_type(), "cumsum_cuda",
       [&]() {
@@ -505,7 +505,7 @@ void launch_cumsum_cuda_kernel(const TensorBase& result, const TensorBase& self,
 }
 
 void launch_cumprod_cuda_kernel(const TensorBase& result, const TensorBase& self, int64_t dim) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND2(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(
       ScalarType::Half, ScalarType::BFloat16, self.scalar_type(), "cumprod_cuda", [&]() {
         scalar_t init = 1;
         scan_dim<scalar_t>(

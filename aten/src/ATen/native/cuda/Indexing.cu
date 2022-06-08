@@ -273,7 +273,7 @@ void index_put_with_sort_kernel(Tensor & self, const c10::List<c10::optional<Ten
            std::min(std::max<int>(1,nElemBefore), at::cuda::getCurrentDeviceProperties()->maxGridSize[2]));
       dim3 block(C10_WARP_SIZE, indices_per_block);
 
-      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
+      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
       expandedValue.scalar_type(), "indexing_backward", [&] {
         indexing_backward_kernel<scalar_t, UNROLL><<<grid, block, 0, stream>>>(
           sorted_indices.data_ptr<int64_t>(),
@@ -541,7 +541,7 @@ void index_add_cuda_impl(const Tensor& self, int64_t dim, const Tensor& index, c
   if (cuda::detail::canUse32BitIndexMath(result) &&
       cuda::detail::canUse32BitIndexMath(source) &&
       cuda::detail::canUse32BitIndexMath(index)) {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16, result.scalar_type(), "index_add", [&] {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16, result.scalar_type(), "index_add", [&] {
       cuda::detail::TensorInfo<scalar_t, unsigned int> selfInfo =
           cuda::detail::getTensorInfo<scalar_t, unsigned int>(self_);
       int selfAddDim = selfInfo.collapseDims(dim);
@@ -593,7 +593,7 @@ void index_add_cuda_impl(const Tensor& self, int64_t dim, const Tensor& index, c
       });
     });
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16, self.scalar_type(), "index_add", [&] {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Bool, at::ScalarType::Half, at::ScalarType::BFloat16, self.scalar_type(), "index_add", [&] {
       cuda::detail::TensorInfo<scalar_t, uint64_t> selfInfo =
         cuda::detail::getTensorInfo<scalar_t, uint64_t>(self_);
       int selfAddDim = selfInfo.collapseDims(dim);
@@ -892,7 +892,7 @@ Tensor& index_select_out_cuda(
       index_select_out_cuda_impl<scalar_t>(out, self, dim, index);
     });
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
         at::ScalarType::Half,
         at::ScalarType::Bool,
         at::ScalarType::BFloat16,
@@ -922,7 +922,7 @@ namespace {
 
 template <typename mask_t>
 void masked_fill_kernel(TensorIterator& iter, const Scalar& value) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       kBool, kHalf, kBFloat16, iter.common_dtype(), "masked_fill_", [&]() {
         const auto value_ = value.to<scalar_t>();
         gpu_kernel(

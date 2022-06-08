@@ -229,6 +229,7 @@ void cdist_kernel_impl(Tensor& result, const Tensor& x1, const Tensor& x2, doubl
   const dim3 grid(result.numel());
   const dim3 block(forward_threads);
 
+  // this only works for native types
   AT_DISPATCH_FLOATING_TYPES(x1.scalar_type(), "cdist_cuda", [&] {
     if (p == 0.0) {
       cdist_kernel_cuda_impl<scalar_t, dists<scalar_t>::zero><<<grid, block, 0, at::cuda::getCurrentCUDAStream()>>>(result.data_ptr<scalar_t>(), x1.data_ptr<scalar_t>(), x2.data_ptr<scalar_t>(), p, r2, m, r_size, l1_size, l2_size);
@@ -259,6 +260,7 @@ void pdist_forward_kernel_impl(Tensor& result, const Tensor& self, double p) {
   const double n2 = n - .5;
   const double n2_squared_minus_1 = n2 * n2 - 1;
 
+  // this only works for native types
   AT_DISPATCH_FLOATING_TYPES(self.scalar_type(), "pdist_cuda", [&] {
     if (p == 0.0) {
       pdist_kernel_cuda_impl<scalar_t, dists<scalar_t>::zero><<<grid, block, 0, at::cuda::getCurrentCUDAStream()>>>(result.data_ptr<scalar_t>(), self.data_ptr<scalar_t>(), n, m, p, n2, n2_squared_minus_1);
@@ -301,6 +303,7 @@ void pdist_backward_kernel_impl(Tensor& result, const Tensor& grad, const Tensor
   const double n2_squared_minus_1 = n2 * n2 - 1;
 
   Tensor buffer = at::empty({n - 1, result.size(0), result.size(1)}, result.options());
+  // this only works for native types
   AT_DISPATCH_FLOATING_TYPES(self.scalar_type(), "pdist_cuda_backward", [&] {
     if (p == 1.0) {
       pdist_backward_kernel_cuda_impl<scalar_t, dists<scalar_t>::one><<<grid, block, 0, at::cuda::getCurrentCUDAStream()>>>(buffer.data_ptr<scalar_t>(), grad.data_ptr<scalar_t>(), self.data_ptr<scalar_t>(), dist.data_ptr<scalar_t>(), grad.stride(0), n, m, dist.numel(), p, n2, n2_squared_minus_1);
@@ -354,6 +357,7 @@ void cdist_backward_kernel_impl(Tensor& result, const Tensor& grad, const Tensor
   //we call grad.contiguous() before backward, so stride is guaranteed to be 1
 
   Tensor buffer = at::empty({batch, r2, r1, m}, result.options());
+  // this only works for native types
   AT_DISPATCH_FLOATING_TYPES(result.scalar_type(), "cdist_cuda_backward", [&] {
     if (p == 1.0) {
       cdist_backward_kernel_cuda_impl<scalar_t, dists<scalar_t>::one><<<grid, block, 0, at::cuda::getCurrentCUDAStream()>>>(buffer.data_ptr<scalar_t>(),

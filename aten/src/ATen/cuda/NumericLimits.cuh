@@ -118,4 +118,23 @@ struct numeric_limits<double> {
   static inline __host__ __device__ double upper_bound() { return inf; }
 };
 
+#define OP(T, NAME)                                                          \
+  template <>                                                                \
+  struct numeric_limits<T> {                                                 \
+    static inline __host__ __device__ double lowest() {                      \
+      return std::numeric_limits<T>::lowest();                               \
+    }                                                                        \
+    static inline __host__ __device__ double max() {                         \
+      return std::numeric_limits<T>::max();                                  \
+    }                                                                        \
+    static inline __host__ __device__ double lower_bound() {                 \
+      return -std::numeric_limits<T>::infinity();                            \
+    }                                                                        \
+    static inline __host__ __device__ double upper_bound() {                 \
+      return std::numeric_limits<T>::infinity();                             \
+    }                                                                        \
+  };
+AT_FORALL_UNIVERSAL_TYPES(OP)
+#undef OP
+
 } // namespace at

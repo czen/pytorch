@@ -22,7 +22,7 @@ void binary_cross_entropy_backward_out_kernel(Tensor& grad_input, const Tensor& 
       .add_input(input)
       .add_input(target)
       .build();
-  AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "binary_cross_entropy_backward_out_cuda", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "binary_cross_entropy_backward_out_cuda", [&]() {
     at::native::gpu_kernel(iter, [] GPU_LAMBDA (
         scalar_t grad_val,
         scalar_t input_val,
@@ -54,7 +54,7 @@ Tensor kl_div_backward_cuda(const Tensor& grad, const Tensor& input, const Tenso
         .add_input(target)
         .add_input(grad)
         .build();
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(input.scalar_type(), "kl_div_backward_cuda", [&]() {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,input.scalar_type(), "kl_div_backward_cuda", [&]() {
       scalar_t inv = (reduction == at::Reduction::Mean) ? scalar_t(1.0 / input.numel()) : scalar_t(1.0);
       gpu_kernel(iter,
         [inv] GPU_LAMBDA (scalar_t target_val, scalar_t grad_val) {
@@ -94,7 +94,7 @@ Tensor& binary_cross_entropy_out_cuda(const Tensor& input, const Tensor& target,
       .add_owned_input(at::squeeze(input))
       .add_owned_input(at::squeeze(target))
       .build();
-  AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "binary_cross_entropy_out_cuda", [&]() {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "binary_cross_entropy_out_cuda", [&]() {
     gpu_kernel(iter,
       [] GPU_LAMBDA (scalar_t input_val, scalar_t target_val) -> scalar_t {
         const scalar_t zero = 0;
@@ -305,7 +305,7 @@ void nll_loss_forward_out_cuda_template(
       return;
     }
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -352,7 +352,7 @@ void nll_loss_forward_out_cuda_template(
   }
 
   if (n_dims == 1) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -377,7 +377,7 @@ void nll_loss_forward_out_cuda_template(
               });
         });
   } else if (n_dims == 2) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -502,7 +502,7 @@ void nll_loss_backward_out_cuda_template(
       // This guards from unnecessary operations and launching CUDA kernel with 0 blocks.
       return;
     }
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -532,7 +532,7 @@ void nll_loss_backward_out_cuda_template(
   }
 
   if (n_dims == 1) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -557,7 +557,7 @@ void nll_loss_backward_out_cuda_template(
               });
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),

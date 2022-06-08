@@ -39,16 +39,45 @@ namespace universal {
 
 // Comparison
 template<size_t nnbits, size_t nes, typename nbt, bool nsub, bool nsup, bool nsat>
-inline C10_HOST_DEVICE bool operator<(const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs, const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
+inline C10_HOST_DEVICE bool operator==(
+  const cfloat<nnbits,nes,nbt,nsub,nsup,nsat>& lhs,
+  const cfloat<nnbits,nes,nbt,nsub,nsup,nsat>& rhs);
+template<size_t nnbits, size_t nes, typename nbt, bool nsub, bool nsup, bool nsat>
+inline C10_HOST_DEVICE bool operator!=(
+  const cfloat<nnbits,nes,nbt,nsub,nsup,nsat>& lhs,
+  const cfloat<nnbits,nes,nbt,nsub,nsup,nsat>& rhs);
+
+#define OP(T, _)                                                                                               \
+  template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>  \
+  inline C10_HOST_DEVICE bool operator==(                                                                      \
+    const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& lhs,                            \
+    T rhs);                                                                                                    \
+  template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>  \
+  inline C10_HOST_DEVICE bool operator!=(                                                                      \
+    const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& lhs,                            \
+    T rhs);
+FORALL_SUPPORTED_TYPES_IN_OPERATORS(OP)
+#undef OP
 
 template<size_t nnbits, size_t nes, typename nbt, bool nsub, bool nsup, bool nsat>
-inline C10_HOST_DEVICE bool operator<=(const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs, const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
+inline C10_HOST_DEVICE bool operator<(
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs,
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
 
 template<size_t nnbits, size_t nes, typename nbt, bool nsub, bool nsup, bool nsat>
-inline C10_HOST_DEVICE bool operator>(const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs, const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
+inline C10_HOST_DEVICE bool operator<=(
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs,
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
 
 template<size_t nnbits, size_t nes, typename nbt, bool nsub, bool nsup, bool nsat>
-inline C10_HOST_DEVICE bool operator>=(const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs, const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
+inline C10_HOST_DEVICE bool operator>(
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs,
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
+
+template<size_t nnbits, size_t nes, typename nbt, bool nsub, bool nsup, bool nsat>
+inline C10_HOST_DEVICE bool operator>=(
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& lhs,
+  const cfloat<nnbits, nes, nbt, nsub, nsup, nsat>& rhs);
 
 // Arithmetic
 template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
@@ -72,7 +101,7 @@ inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isS
   const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& rhs);
 
 
-#define OP(T, _)                                                                                                 \
+#define OP(T, _)                                                                                              \
   template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating> \
   inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> operator+(       \
     T lhs,                                                                                                    \
@@ -117,10 +146,12 @@ FORALL_SUPPORTED_TYPES_IN_OPERATORS(OP)
 
 // cfloat constructor
 extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat() noexcept;
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setblock(size_t b, uint32_t data) noexcept;
 
 // blockbinary constructor and methods
 extern template C10_HOST_DEVICE blockbinary<8, uint32_t, BinaryNumberType::Signed>::blockbinary() noexcept;
 extern template C10_HOST_DEVICE bool blockbinary<8, uint32_t, BinaryNumberType::Signed>::isallones() const noexcept;
+extern template C10_HOST_DEVICE bool blockbinary<8, uint32_t, BinaryNumberType::Signed>::iszero() const noexcept;
 extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::clear() noexcept;
 extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::setbits(uint64_t value) noexcept;
 #pragma push_macro("setbit")
@@ -132,9 +163,12 @@ extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::
 extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::exponent(
   blockbinary<8, uint32_t, BinaryNumberType::Signed>& e) const;
 
-// isnan and necessary methods
+// isnan, isinf, and necessary methods
 template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
 inline C10_HOST_DEVICE bool isnan(const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& a);
+
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+inline C10_HOST_DEVICE bool isinf(const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& a);
 
 extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnan(int NaNType) const noexcept;
 extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnanencoding(int NaNType) const noexcept;
@@ -144,8 +178,41 @@ extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>
 extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isneg() const noexcept;
 extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::sign() const noexcept;
 
-// Instantiate cfloat methods and make them __host__ __device__
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<float>(float rhs) noexcept;
+// Conversion to float and necessary methods
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator float() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::iszero() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::iszeroencoding() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::at(size_t bitIndex) const noexcept;
+
+// Conversion from float and necessary methods
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>&
+  cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<float>(float rhs) noexcept;
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setnan(int NaNType) noexcept;
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setinf(bool sign) noexcept;
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::clear() noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::flip() noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::maxneg() noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::maxpos() noexcept;
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setsign(bool sign);
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::shiftLeft(int leftShift);
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::shiftRight(int rightShift);
+
+// Explicit type casts to types other than float
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator int() const noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator long() const noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator long long() const noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator double() const noexcept;
+extern template C10_HOST_DEVICE int cfloat<32, 8, uint32_t, true, false, false>::to_int() const;
+extern template C10_HOST_DEVICE long cfloat<32, 8, uint32_t, true, false, false>::to_long() const;
+extern template C10_HOST_DEVICE long long cfloat<32, 8, uint32_t, true, false, false>::to_long_long() const;
+
+// extractFields and necessary functions (required for conversion from float)
+inline void extractFields(float value, bool& s, uint64_t& rawExponentBits, uint64_t& rawFractionBits);
+
+// to_native
+// FIXME extern template causes "Undefined reference" error. Fix it and move instantiation to UniversalTypes.cpp
+template C10_HOST_DEVICE float cfloat<32, 8, uint32_t, true, false, false>::to_native<float>() const;
+template C10_HOST_DEVICE double cfloat<32, 8, uint32_t, true, false, false>::to_native<double>() const;
 
 #pragma diag_default 20040
 
@@ -513,10 +580,10 @@ public:
   static constexpr c10::CFloatWithSubnormals min() { // return minimum value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::min());
   }
-  static constexpr c10::CFloatWithSubnormals max() { // return maximum value
+  static constexpr C10_HOST_DEVICE c10::CFloatWithSubnormals max() { // return maximum value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::max());
   }
-  static constexpr c10::CFloatWithSubnormals lowest() { // return most negative value
+  static constexpr C10_HOST_DEVICE c10::CFloatWithSubnormals lowest() { // return most negative value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::lowest());
   }
   static constexpr c10::CFloatWithSubnormals epsilon() { // return smallest effective increment from 1.0
@@ -528,7 +595,7 @@ public:
   static constexpr c10::CFloatWithSubnormals denorm_min() {  // return minimum denormalized value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::denorm_min());
   }
-  static constexpr c10::CFloatWithSubnormals infinity() { // return positive infinity
+  static constexpr C10_HOST_DEVICE c10::CFloatWithSubnormals infinity() { // return positive infinity
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::infinity());
   }
   static constexpr c10::CFloatWithSubnormals quiet_NaN() { // return non-signaling NaN

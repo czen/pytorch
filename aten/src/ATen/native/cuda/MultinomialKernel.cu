@@ -77,7 +77,7 @@ void renormRows(Tensor& t) {
   dim3 grid(rows < numSM * 4 ? rows : numSM * 4);
   dim3 block(std::min(maxThreads, C10_WARP_SIZE * ceil_div(cols, int64_t{C10_WARP_SIZE})));
 
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(t.scalar_type(), "renormRows_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,t.scalar_type(), "renormRows_cuda", [&] {
     renormRowsL1<scalar_t>
         <<<grid, block, (block.x / C10_WARP_SIZE) * sizeof(scalar_t),
         at::cuda::getCurrentCUDAStream()>>>(t.data_ptr<scalar_t>(),
@@ -327,7 +327,7 @@ void multinomial_with_replacement_kernel_impl(
 
   result.resize_({numDist, n_sample});
 
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(self_v.scalar_type(), "multinomial_kernel_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,self_v.scalar_type(), "multinomial_kernel_cuda", [&] {
     using accscalar_t = at::acc_type<scalar_t, true>;
     auto props = at::cuda::getCurrentDeviceProperties();
     CUDA_KERNEL_ASSERT(props != NULL);

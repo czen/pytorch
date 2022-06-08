@@ -12,7 +12,7 @@
 namespace at { namespace native {
 
 void logaddexp_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       ScalarType::BFloat16,
       iter.dtype(), "logaddexp_cuda",
       [&]() {
@@ -30,7 +30,7 @@ void logaddexp_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 void logaddexp2_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(
       ScalarType::BFloat16,
       iter.dtype(), "logaddexp2_cuda",
       [&]() {

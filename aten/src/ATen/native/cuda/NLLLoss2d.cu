@@ -246,7 +246,7 @@ void nll_loss2d_forward_out_cuda_template(
       return;
     }
     auto weight_ = optional_contiguous(weight);
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -297,7 +297,7 @@ void nll_loss2d_forward_out_cuda_template(
   blocks_per_sample = (blocks_per_sample == 0) ? 1 : blocks_per_sample;
   int total_blocks = blocks_per_sample * batch_size;
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half,
       at::ScalarType::BFloat16,
       input.scalar_type(),
@@ -381,7 +381,7 @@ void nll_loss2d_backward_out_cuda_template(
       return;
     }
     auto weight_ = optional_contiguous(weight);
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),
@@ -416,7 +416,7 @@ void nll_loss2d_backward_out_cuda_template(
     blocks_per_sample = (blocks_per_sample == 0) ? 1 : blocks_per_sample;
     int total_blocks = blocks_per_sample * batch_size;
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         at::ScalarType::Half,
         at::ScalarType::BFloat16,
         input.scalar_type(),

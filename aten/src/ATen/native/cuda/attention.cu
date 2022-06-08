@@ -111,7 +111,7 @@ std::tuple<Tensor, Tensor, Tensor> transform_bias_rescale_qkv(
   auto dim_per_head = 64;
   auto num_head = D / dim_per_head;
   auto q_k_v = at::empty({3, B, num_head, T, dim_per_head}, qkv.options());
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::Half,
       ScalarType::BFloat16,
       qkv.scalar_type(),
@@ -168,7 +168,7 @@ void masked_softmax_dropout(
   if (attn_mask) {
     TORCH_CHECK(attn_mask->is_contiguous());
   }
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::Half,
       ScalarType::BFloat16,
       attn_scores.scalar_type(),

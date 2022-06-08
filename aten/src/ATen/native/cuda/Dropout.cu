@@ -214,7 +214,7 @@ inline void launcher(
     const PhiloxCudaState rng_engine_inputs,
     dim3 grid,
     dim3 dim_block) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half,
       at::ScalarType::BFloat16,
       self.scalar_type(),
@@ -382,7 +382,7 @@ fused_dropout_cuda(const Tensor& self, double p, c10::optional<Generator> gen_){
 template <typename mask_t>
 Tensor dropout_backward_cuda(const Tensor& grad, const Tensor& mask, double scale){
    Tensor ret = at::empty_like(grad, grad.suggest_memory_format());
-   AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "masked_scale", [&] {
+   AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "masked_scale", [&] {
       using accscalar_t = acc_type<scalar_t, true>;
       masked_scale_kernel<mask_t, scalar_t>(ret, grad, mask, (accscalar_t)scale);
   });

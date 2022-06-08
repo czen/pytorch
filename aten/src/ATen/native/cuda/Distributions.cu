@@ -166,7 +166,7 @@ Tensor _s_poisson_cuda(const Tensor& lambda, c10::optional<Generator> gen_) {
     rng_engine_inputs = gen->philox_cuda_state(20);
   }
   Tensor ret = at::empty(lambda.sizes(), lambda.options());
-  AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "poisson_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "poisson_cuda", [&] {
     poisson_cuda_kernel<scalar_t>(ret, lambda, rng_engine_inputs);
   });
   return ret;
@@ -181,7 +181,7 @@ Tensor _s_binomial_cuda(const Tensor& count, const Tensor& prob, c10::optional<G
     rng_engine_inputs = gen->philox_cuda_state(42);
   }
   Tensor ret = at::empty(count.sizes(), count.options());
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(ret.scalar_type(), "binomial_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,ret.scalar_type(), "binomial_cuda", [&] {
     binomial_cuda_kernel<scalar_t>(ret, count, prob, rng_engine_inputs);
   });
   return ret;
@@ -196,7 +196,7 @@ Tensor _s_gamma_cuda(const Tensor& alpha, c10::optional<Generator> gen_) {
     rng_engine_inputs = gen->philox_cuda_state(10);
   }
   Tensor ret = at::empty(alpha.sizes(), alpha.options());
-  AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "gamma_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "gamma_cuda", [&] {
      gamma_cuda_kernel<scalar_t>(ret, alpha, rng_engine_inputs);
    });
   return ret;
@@ -211,7 +211,7 @@ Tensor _s_dirichlet_cuda(const Tensor& alpha, c10::optional<Generator> gen_) {
     rng_engine_inputs = gen->philox_cuda_state(10);
   }
   Tensor ret = at::empty(alpha.sizes(), alpha.options());
-  AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "dirichlet", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, ret.scalar_type(), "dirichlet", [&] {
     Tensor gamma = at::empty(alpha.sizes(), alpha.options());
     gamma_cuda_kernel<scalar_t>(gamma, alpha, rng_engine_inputs);
     dirichlet_scalar_cuda_kernel<scalar_t>(ret, gamma);
@@ -226,7 +226,7 @@ Tensor _standard_gamma_grad_cuda(const Tensor& self, const Tensor& output) {
       .add_input(self)
       .add_input(output)
       .build();
-  AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "_standard_gamma_grad_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, iter.common_dtype(), "_standard_gamma_grad_cuda", [&] {
     using accscalar_t = at::acc_type<scalar_t, true>;
     gpu_kernel(iter,
       [] GPU_LAMBDA (scalar_t self_val, scalar_t output_val) {
@@ -244,7 +244,7 @@ Tensor _dirichlet_grad_cuda(const Tensor& x, const Tensor& alpha, const Tensor& 
       .add_input(alpha)
       .add_input(total)
       .build();
-  AT_DISPATCH_FLOATING_TYPES(x.scalar_type(), "_dirichlet_grad_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(x.scalar_type(), "_dirichlet_grad_cuda", [&] {
     using accscalar_t = at::acc_type<scalar_t, true>;
     gpu_kernel(iter,
       [] GPU_LAMBDA (scalar_t x_val, scalar_t alpha_val, scalar_t total_val) -> scalar_t {

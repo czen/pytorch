@@ -335,7 +335,7 @@ const Tensor& indices) {
 
   const int count = safe_downcast<int, int64_t>(output.numel());
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
     "max_pool2d_with_indices_out_cuda_frame",
     [&] {
       using accscalar_t = acc_type<scalar_t, true>;
@@ -469,7 +469,7 @@ const Tensor& gradInput) {
 
   int64_t count = input.numel();
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
     "max_pool2d_with_indices_out_cuda_frame",
     [&] {
       using accscalar_t = acc_type<scalar_t, true>;

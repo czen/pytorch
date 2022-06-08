@@ -233,7 +233,7 @@ Tensor _segment_reduce_cuda_backward_kernel(
 
         // TODO: Swtich to TensorIterator for better maintainablility and
         // readability
-        AT_DISPATCH_FLOATING_TYPES_AND2(
+        AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
             kBFloat16,
             kHalf,
             data_contig.scalar_type(),
@@ -290,7 +290,7 @@ Tensor _segment_reduce_cuda_kernel(
       lengths.type(), "_segment_reduce_cuda_kernel1", ([&] {
         auto* offsets_data_ptr = offsets.data_ptr<index_t>();
         auto* lengths_data_ptr = lengths.data_ptr<index_t>();
-        AT_DISPATCH_FLOATING_TYPES_AND2(
+        AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
             at::ScalarType::Half,
             at::ScalarType::BFloat16,
             data.scalar_type(),

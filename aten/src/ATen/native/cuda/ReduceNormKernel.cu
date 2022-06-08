@@ -43,7 +43,7 @@ void norm_launch_kernel(TensorIterator& iter, double ord) {
     // type promotion that does cast and reduction in a single kernel
     return norm_kernel_cuda_impl<at::BFloat16, float, float>(iter, ord);
   }
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(iter.input_dtype(), "norm_cuda", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(iter.input_dtype(), "norm_cuda", [&] {
     norm_kernel_cuda_impl<scalar_t>(iter, ord);
   });
 }

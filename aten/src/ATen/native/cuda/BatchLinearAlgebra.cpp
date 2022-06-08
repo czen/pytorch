@@ -1327,7 +1327,7 @@ std::tuple<Tensor, Tensor> _solve_helper_cuda(const Tensor& self, const Tensor& 
   auto A_working_copy = cloneBatchedColumnMajor(A);
   // infos might not get filled for empty inputs therefore at::zeros is used instead of at::empty
   auto infos = at::zeros({std::max<int64_t>(1, batchCount(self))}, self.options().dtype(kInt));
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(self.scalar_type(), "solve_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(self.scalar_type(), "solve_cuda", [&]{
     apply_solve<scalar_t>(self_working_copy, A_working_copy, infos);
   });
   if (self.dim() > 2) {
@@ -1452,12 +1452,12 @@ Tensor& _linalg_inv_out_helper_cuda_legacy(Tensor& result, Tensor& infos_lu, Ten
   // assuming result is in column major order and contains the matrices to invert
   if (result.dim() > 2) {
     auto input_working_copy = cloneBatchedColumnMajor(result);
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "linalg_inv_out_cuda", [&]{
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "linalg_inv_out_cuda", [&]{
       apply_batched_inverse<scalar_t>(
         input_working_copy, result, infos_lu, infos_getri);
     });
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "linalg_inv_out_cuda", [&]{
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "linalg_inv_out_cuda", [&]{
       apply_single_inverse<scalar_t>(result, infos_lu, infos_getri);
     });
   }
@@ -1563,7 +1563,7 @@ Tensor _cholesky_solve_helper_cuda_magma(const Tensor& self, const Tensor& A, bo
   int64_t info = 0;
   auto self_working_copy = cloneBatchedColumnMajor(self);
   auto A_working_copy = cloneBatchedColumnMajor(A);
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(self.scalar_type(), "cholesky_solve_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(self.scalar_type(), "cholesky_solve_cuda", [&]{
     apply_cholesky_solve<scalar_t>(self_working_copy, A_working_copy, upper, info);
   });
   TORCH_CHECK(info == 0, "MAGMA cholesky_solve : invalid argument: ", -info);
@@ -1670,7 +1670,7 @@ void cholesky_helper_magma(const Tensor& input, bool upper, const Tensor& info) 
     result.copy_(upper ? input.mH() : input);
   }
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
     input.scalar_type(), "cholesky_cuda", [&] {
       apply_cholesky<scalar_t>(result, upper, info);
     });
@@ -1758,7 +1758,7 @@ static void apply_cholesky_inverse(Tensor& input, Tensor& infos, bool upper) {
 
 // This is a type dispatching helper function for 'apply_cholesky_inverse'
 Tensor& cholesky_inverse_kernel_impl_magma(Tensor &result, Tensor& infos, bool upper) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "cholesky_inverse_out_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "cholesky_inverse_out_cuda", [&]{
     apply_cholesky_inverse<scalar_t>(result, infos, upper);
   });
   return result;
@@ -1912,13 +1912,13 @@ static void apply_lu_factor_batched_magma(const Tensor& input, const Tensor& piv
 }
 
 static void lu_factor_looped_magma(const Tensor& input, const Tensor& pivots, const Tensor& infos, bool compute_pivots) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "lu_factor_magma_looped", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "lu_factor_magma_looped", [&]{
     apply_lu_factor_looped_magma<scalar_t>(input, pivots, infos, compute_pivots);
   });
 }
 
 static void lu_factor_batched_magma(const Tensor& input, const Tensor& pivots, const Tensor& infos, bool compute_pivots) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "lu_factor_magma_batched", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "lu_factor_magma_batched", [&]{
     apply_lu_factor_batched_magma<scalar_t>(input, pivots, infos, compute_pivots);
   });
 }
@@ -2073,7 +2073,7 @@ AT_ERROR("triangular_solve: MAGMA library not found in "
 }
 
 void triangular_solve_batched_magma(const Tensor& A, const Tensor& B, bool left, bool upper, TransposeType transpose, bool unitriangular) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(A.scalar_type(), "triangular_solve_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(A.scalar_type(), "triangular_solve_cuda", [&]{
     apply_triangular_solve_batched_magma<scalar_t>(A, B, left, upper, transpose, unitriangular);
   });
 }
@@ -2170,7 +2170,7 @@ static void apply_geqrf(const Tensor& input, const Tensor& tau) {
 
 // This is a type dispatching helper function for 'apply_geqrf'
 void geqrf_magma(const Tensor& input, const Tensor& tau) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "geqrf_magma", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "geqrf_magma", [&]{
     apply_geqrf<scalar_t>(input, tau);
   });
 }
@@ -2309,7 +2309,7 @@ std::tuple<Tensor, Tensor> linalg_qr_helper_magma(const Tensor& self, c10::strin
   int64_t m = q_sizes[self.dim() - 2];
   int64_t n = r_working_copy.size(-1);
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(self.scalar_type(), "qr_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(self.scalar_type(), "qr_cuda", [&]{
     apply_qr<scalar_t>(q_working_copy, r_working_copy, m, n, n_columns_q, compute_q);
   });
 
@@ -2433,7 +2433,7 @@ std::tuple<Tensor, Tensor> _symeig_helper_cuda(const Tensor& self, bool eigenvec
   }
 
   auto self_working_copy = cloneBatchedColumnMajor(self);
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(self.scalar_type(), "symeig_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(self.scalar_type(), "symeig_cuda", [&]{
     apply_magma_eigh<scalar_t>(eigvals_working_copy, self_working_copy, infos, upper, eigenvectors);
   });
 
@@ -2462,7 +2462,7 @@ void linalg_eigh_magma(const Tensor& eigenvalues, const Tensor& eigenvectors, co
     Tensor eigenvalues_cpu = eigenvalues.to(kCPU);
     Tensor infos_cpu = infos.to(kCPU);
 
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
       eigenvectors.scalar_type(), "linalg_eigh_magma", [&] {
         apply_magma_eigh<scalar_t>(
             eigenvalues_cpu, eigenvectors, infos_cpu, upper, compute_eigenvectors);
@@ -2584,7 +2584,7 @@ std::tuple<Tensor, Tensor> eig_kernel_impl(const Tensor& self, bool& eigenvector
                      : Tensor();
 
   int64_t info;
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(self.scalar_type(), "eig_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(self.scalar_type(), "eig_cuda", [&]{
     apply_eig<scalar_t>(self_working_copy, eigenvectors, out_eigvals, out_eigvecs, &info);
   });
   singleCheckErrors(info, "eig_cuda");
@@ -2673,7 +2673,7 @@ void linalg_eig_kernel(Tensor& eigenvalues, Tensor& eigenvectors, Tensor& infos,
   input_working_copy.transpose_(-2, -1);  // make input_working_copy to have Fortran contiguous memory layout
   input_working_copy.copy_(input);
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "linalg_eig_out_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "linalg_eig_out_cuda", [&]{
     apply_linalg_eig<scalar_t>(eigenvalues, eigenvectors, input_working_copy, infos, compute_eigenvectors);
   });
 }
@@ -2777,7 +2777,7 @@ void svd_magma(const Tensor& A,
   auto Vh_ = compute_uv ? empty_like_cpu(Vh) : Tensor{};
   auto info_ = empty_like_cpu(info);
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(A.scalar_type(), "svd_cuda", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(A.scalar_type(), "svd_cuda", [&] {
     apply_svd_magma<scalar_t>(A_, full_matrices, compute_uv, U_, S_, Vh_, info_);
   });
 
@@ -2951,13 +2951,13 @@ static void apply_lu_solve_batched_magma(const Tensor& b, const Tensor& lu, cons
 }
 
 static void lu_solve_batched_magma(const Tensor& b, const Tensor& lu, const Tensor& pivots, TransposeType trans) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(b.scalar_type(), "lu_solve_batched_magma", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(b.scalar_type(), "lu_solve_batched_magma", [&]{
     apply_lu_solve_batched_magma<scalar_t>(b, lu, pivots, trans);
   });
 }
 
 static void lu_solve_looped_magma(const Tensor& b, const Tensor& lu, const Tensor& pivots, TransposeType trans) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(b.scalar_type(), "lu_solve_looped_magma", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(b.scalar_type(), "lu_solve_looped_magma", [&]{
     apply_lu_solve_looped_magma<scalar_t>(b, lu, pivots, trans);
   });
 }
@@ -3037,7 +3037,7 @@ static void apply_gels(const Tensor& a, Tensor& b, Tensor& infos) {
 }
 
 void gels_magma(const Tensor& a, Tensor& b, Tensor& infos) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(a.scalar_type(), "gels_magma", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(a.scalar_type(), "gels_magma", [&] {
     apply_gels<scalar_t>(a, b, infos);
   });
 }
@@ -3226,7 +3226,7 @@ std::tuple<Tensor, Tensor> legacy_lstsq_cuda(const Tensor &B, const Tensor &A) {
   int64_t nrhs = b_sizes[1];
 
   int info;
-  AT_DISPATCH_FLOATING_TYPES(A.scalar_type(), "legacy_lstsq_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(A.scalar_type(), "legacy_lstsq_cuda", [&] {
     scalar_t *a_data = A_working.data_ptr<scalar_t>();
     scalar_t *b_data = B_working.data_ptr<scalar_t>();
     scalar_t wkopt;

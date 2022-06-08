@@ -139,7 +139,7 @@ std::vector<Tensor> foreach_tensor_norm_cuda(TensorList tensors, const Scalar& o
 
   auto tensor_lists = std::vector<std::vector<Tensor>>{tensors.vec()};
   if (p == static_cast<double>(1)) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       kHalf, kBFloat16, tensor_lists[0][0].scalar_type(), "foreach_tensor_norm_cuda", [&]() {
         using opmath_t = typename at::opmath_type<scalar_t>;
         multi_tensor_apply<1>(
@@ -157,7 +157,7 @@ std::vector<Tensor> foreach_tensor_norm_cuda(TensorList tensors, const Scalar& o
         C10_CUDA_KERNEL_LAUNCH_CHECK();
       });
   } else if (p == static_cast<double>(2)) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       kHalf, kBFloat16, tensor_lists[0][0].scalar_type(), "foreach_tensor_norm_cuda", [&]() {
         using opmath_t = typename at::opmath_type<scalar_t>;
         multi_tensor_apply<1>(

@@ -345,7 +345,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool3d_out_cuda)
     totalZ = sizeB * sizeD * osizeT;
   }
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       kHalf, kBFloat16, input_.scalar_type(), "adaptive_max_pool3d_cuda", [&] {
         scalar_t* input_data = input_.data_ptr<scalar_t>();
         scalar_t* output_data = output.data_ptr<scalar_t>();
@@ -425,7 +425,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool3d_backward_out_cuda)
   }
 
   if (atomic) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         kHalf,
         kBFloat16,
         input.scalar_type(),
@@ -448,7 +448,7 @@ TORCH_IMPL_FUNC(adaptive_max_pool3d_backward_out_cuda)
               osizeW);
         });
   } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
         kHalf,
         kBFloat16,
         input.scalar_type(),

@@ -92,7 +92,7 @@ void col2im_out_cuda_template(
   output.resize_({batch_size, n_output_plane, output_height, output_width});
   output.zero_();
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(kHalf,
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(kHalf,
       input.scalar_type(), "col2im_out_cuda", [&] {
     using accscalar_t = at::acc_type<scalar_t, true>;
 

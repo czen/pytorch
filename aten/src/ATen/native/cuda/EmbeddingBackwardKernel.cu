@@ -93,7 +93,9 @@ __global__ void compute_grad_weight_bags(
     const int seq_number = offset2bag[origRow];
     const int gradOutputRow = seq_number * stride;
 
-    acc_type<scalar_t, true> scale = count ? 1.0 / count[idx] : 1.0;
+    acc_type<scalar_t, true> scale = count
+      ? static_cast<acc_type<scalar_t, true>>(1.0 / count[idx])
+      : static_cast<acc_type<scalar_t, true>>(1.0);
     if (per_sample_weights) {
       scale *= per_sample_weights[origRow * per_sample_weights_stride];
     }
@@ -135,7 +137,7 @@ __global__ void compute_grad_weight(
   accscalar_t weight = 0;
   for (int idx=idx_begin; idx < idx_end; ++idx) {
     const index_t target_row = indices[idx];
-    const accscalar_t scale = count ? (accscalar_t)1.0 / count[idx] : 1.0;
+    const accscalar_t scale = count ? (accscalar_t)1.0 / count[idx] : static_cast<accscalar_t>(1.0);
     weight += gradOutput[target_row * stride + startFeature] * scale;
   }
   grad_weight_per_segment[id * stride + startFeature] = weight;
@@ -248,7 +250,7 @@ Tensor embedding_backward_cuda_kernel(
     const int block = std::min(stride_warped, MAX_BLOCK_SIZE);
     const int grid = ceil_div(num_of_partial_segments*stride_warped, block);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16,
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16,
       grad.scalar_type(), "embedding_bag_backward_cuda_compute_grad_weight", [&] {
         // For numerical stability, the dtype of `grad_weight_per_segment`
         // should match `acc_type`

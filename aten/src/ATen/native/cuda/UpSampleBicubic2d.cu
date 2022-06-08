@@ -182,7 +182,7 @@ static void upsample_bicubic2d_out_cuda_template(
   // Launch kernel
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
 
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
       input.scalar_type(), "upsample_bicubic2d_out_frame", [&] {
         using accscalar_t = at::acc_type<scalar_t, true>;
 
@@ -237,7 +237,7 @@ static void upsample_bicubic2d_backward_out_cuda_template(
       at::cuda::getCurrentDeviceProperties()->maxThreadsPerBlock, 1024);
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
 
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
       grad_output.scalar_type(), "upsample_bicubic2d_backward_out_frame", [&] {
         using accscalar_t = at::acc_type<scalar_t, true>;
 

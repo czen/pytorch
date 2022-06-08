@@ -274,7 +274,7 @@ void max_pool3d_with_indices_out_cuda_template(
     work_indices = work_indices.reshape({nbatch * nslices, otime, oheight, owidth});
   }
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16,
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16,
     input.scalar_type(),
     "max_pool3d_with_indices_out_frame",
     [&]{
@@ -391,7 +391,7 @@ void max_pool3d_with_indices_backward_out_cuda_template(
       work_indices = work_indices.reshape({nbatch * nslices, otime, oheight, owidth});
   }
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
     "max_pool3d_with_indices_backward_out_frame",
     [&] {
       const int64_t totalZ = otime * nslices * nbatch;

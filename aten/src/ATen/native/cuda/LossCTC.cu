@@ -741,7 +741,7 @@ Tensor ctc_loss_backward_gpu_template(const Tensor& grad_out, const Tensor& log_
 
 std::tuple<Tensor, Tensor> ctc_loss_gpu(const Tensor& log_probs, const Tensor& targets, IntArrayRef input_lengths, IntArrayRef target_lengths, int64_t BLANK, bool zero_infinity) {
   (void)zero_infinity; // only used for backward
-  return AT_DISPATCH_FLOATING_TYPES(log_probs.scalar_type(), "ctc_loss_cuda", [&] {
+  return AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(log_probs.scalar_type(), "ctc_loss_cuda", [&] {
       if (targets.scalar_type() == kLong) {
         return ctc_loss_gpu_template<scalar_t, kLong>(log_probs, targets, input_lengths, target_lengths, BLANK);
       } else {
@@ -755,7 +755,7 @@ Tensor ctc_loss_backward_gpu(const Tensor& grad, const Tensor& log_probs, const 
   // See Note [Writing Nondeterministic Operations]
   // Nondeterministic because of atomicAdd usage
   globalContext().alertNotDeterministic("ctc_loss_backward_gpu");
-  return AT_DISPATCH_FLOATING_TYPES(log_probs.scalar_type(), "ctc_loss_backward_cuda", [&] {
+  return AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(log_probs.scalar_type(), "ctc_loss_backward_cuda", [&] {
       if (targets.scalar_type() == kLong) {
         return ctc_loss_backward_gpu_template<scalar_t, kLong>(grad, log_probs, targets, input_lengths, target_lengths, neg_log_likelihood, log_alpha, BLANK, zero_infinity);
       } else {

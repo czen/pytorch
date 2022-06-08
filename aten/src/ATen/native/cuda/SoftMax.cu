@@ -704,7 +704,7 @@ Tensor host_softmax(const Tensor & input_, const int64_t dim_, const bool half_t
 
     if (inner_size == 1) {
       dim3 grid(outer_size);
-      AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, input.scalar_type(), "host_softmax", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, input.scalar_type(), "host_softmax", [&] {
         using accscalar_t = acc_type<scalar_t, true>;
         if (!half_to_float) {
           if (dim_size <= 1024 && dim_size*sizeof(scalar_t) <= 4096) {
@@ -756,7 +756,7 @@ Tensor host_softmax(const Tensor & input_, const int64_t dim_, const bool half_t
     } else {
       uint32_t smem_size;
       dim3 grid, block;
-      AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, input.scalar_type(), "host_softmax", [&] {
+      AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, input.scalar_type(), "host_softmax", [&] {
         using accscalar_t = acc_type<scalar_t, true>;
         if (!half_to_float) {
             SpatialSoftMax_getLaunchSizes<accscalar_t>(
@@ -806,7 +806,7 @@ void host_softmax_backward(const Tensor &grad_, const Tensor &output_, int64_t d
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   if (inner_size == 1) {
     dim3 grid(outer_size);
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, gI.scalar_type(), "host_softmax_backward", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, gI.scalar_type(), "host_softmax_backward", [&] {
     using accscalar_t = acc_type<scalar_t, true>;
     if (!half_to_float) {
       if (dim_size <= 1024 && dim_size*sizeof(scalar_t) <= 4096) {
@@ -861,7 +861,7 @@ void host_softmax_backward(const Tensor &grad_, const Tensor &output_, int64_t d
   } else {
     uint32_t smem_size;
     dim3 grid, block;
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, gI.scalar_type(), "host_softmax_backward", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, gI.scalar_type(), "host_softmax_backward", [&] {
       using accscalar_t = acc_type<scalar_t, true>;
       if (!half_to_float) {
           SpatialSoftMax_getLaunchSizes<accscalar_t>(
@@ -953,7 +953,7 @@ Tensor masked_softmax_cuda(const Tensor& input, const Tensor& mask) {
     Tensor output = at::empty_like(input, input.options());
     // Fallback to a slower masked softmax solution
     if (softmax_elements > 1024 || softmax_elements * input.element_size() > 4096 || !mask.is_contiguous()) {
-        AT_DISPATCH_FLOATING_TYPES_AND2(
+        AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
           ScalarType::Half,
           ScalarType::BFloat16,
           input.scalar_type(),
@@ -969,7 +969,7 @@ Tensor masked_softmax_cuda(const Tensor& input, const Tensor& mask) {
     if (is_transformer_mask) {
     // Only support when num_heads is even in transformer
     TORCH_CHECK(input.size(1) % 2 == 0, "Only support when num_heads is even in transformer");
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::Half,
       ScalarType::BFloat16,
       input.scalar_type(),
@@ -989,7 +989,7 @@ Tensor masked_softmax_cuda(const Tensor& input, const Tensor& mask) {
       });
 
     } else {
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       ScalarType::Half,
       ScalarType::BFloat16,
       input.scalar_type(),

@@ -33,25 +33,25 @@ struct CompareFunctor{
 
 
 void ge_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "ge_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "ge_cuda", [&]() {
     gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(OpType::GE));
   });
 }
 
 void gt_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "gt_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "gt_cuda", [&]() {
     gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(OpType::GT));
   });
 }
 
 void le_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "le_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "le_cuda", [&]() {
     gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(OpType::LE));
   });
 }
 
 void lt_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "lt_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kHalf, kBFloat16, kBool, iter.common_dtype(), "lt_cuda", [&]() {
     gpu_kernel_with_scalars(iter, CompareFunctor<scalar_t>(OpType::LT));
   });
 }

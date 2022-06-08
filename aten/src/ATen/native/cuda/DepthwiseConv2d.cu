@@ -297,7 +297,7 @@ void conv_depthwise2d_forward_out(
   dim3 block(CUDA_NUM_THREADS);
   const auto stream = c10::cuda::getCurrentCUDAStream();
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
                                   "conv_depthwise2d_forward_cuda", [&] {
     // Create PackedTensorAccessor
     // Kernel currently relies upon all the Tensors to be contiguous, but we made
@@ -378,7 +378,7 @@ void conv_depthwise2d_backward_out(
   dim3 grid(blocks);
   dim3 block(CUDA_NUM_THREADS);
   const auto stream = c10::cuda::getCurrentCUDAStream();
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, grad_output.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, grad_output.scalar_type(),
                                   "conv_depthwise2d_backward_cuda", [&] {
     auto grad_output_a = grad_output.packed_accessor32<scalar_t, 4>();
     auto grad_input_a = grad_input.packed_accessor32<scalar_t, 4>();
@@ -492,7 +492,7 @@ void conv_depthwise2d_grad_weight_out(
   dim3 block(getGradParamsNumThreads(batchSize));
   const auto stream = c10::cuda::getCurrentCUDAStream();
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, grad_output.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, grad_output.scalar_type(),
                                   "conv_depthwise2d_grad_weight_cuda", [&] {
     const auto grad_output_a = grad_output.packed_accessor32<scalar_t, 4>();
     const auto input_a = input.packed_accessor32<scalar_t, 4>();

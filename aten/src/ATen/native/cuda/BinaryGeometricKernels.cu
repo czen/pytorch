@@ -11,7 +11,7 @@
 namespace at { namespace native {
 
 void atan2_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half, at::ScalarType::BFloat16,
       iter.common_dtype(), "atan2_cuda",
       [&]() {
@@ -22,7 +22,7 @@ void atan2_kernel_cuda(TensorIteratorBase& iter) {
 }
 
 void hypot_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half, at::ScalarType::BFloat16,
       iter.common_dtype(), "hypot_cuda",
       [&]() {

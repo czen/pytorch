@@ -698,7 +698,7 @@ void LayerNormKernelImpl(
     Tensor* Y,
     Tensor* mean,
     Tensor* rstd) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half,
       at::ScalarType::BFloat16,
       X.scalar_type(),
@@ -794,7 +794,7 @@ void LayerNormBackwardKernelImpl(
     Tensor* dX,
     Tensor* dgamma,
     Tensor* dbeta) {
-  AT_DISPATCH_FLOATING_TYPES_AND2(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half,
       at::ScalarType::BFloat16,
       X.scalar_type(),

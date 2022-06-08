@@ -212,14 +212,14 @@ void fused_mode(
 void launch_fused_mode_kernel(
     const TensorBase &values, const TensorBase &indices, const TensorBase &self,
     int64_t slice_size, int64_t slices) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBool, kBFloat16, kHalf, self.scalar_type(), "cuda_mode", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBool, kBFloat16, kHalf, self.scalar_type(), "cuda_mode", [&] {
     fused_mode<scalar_t>(values, indices, self, slice_size, slices);
   });
 }
 
 void launch_apply_mode_kernel(const TensorBase &values, const TensorBase &indices,
                               const TensorBase &self, int64_t dim, int64_t ndim) {
-  AT_DISPATCH_ALL_TYPES_AND3(kBool, kBFloat16, kHalf, self.scalar_type(), "cuda_mode", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBool, kBFloat16, kHalf, self.scalar_type(), "cuda_mode", [&] {
     // Position will store the dimension values we are processing
     std::vector<int64_t> position(ndim - 1, 0);
 

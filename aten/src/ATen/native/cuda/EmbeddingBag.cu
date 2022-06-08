@@ -240,7 +240,7 @@ Tensor embedding_bag_backward_cuda_max(const Tensor &grad,
 #endif
   int grid = 1024;
 
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
       grad.scalar_type(), "embedding_bag_backward_cuda_max", [&] {
         AT_DISPATCH_INDEX_TYPES(max_indices.scalar_type(), "embedding_bag_backward_cuda_max", [&] () {
           EmbeddingBag_accGradParametersKernel_max<
@@ -338,7 +338,7 @@ _embedding_bag_cuda(const Tensor &weight, const Tensor &indices_,
   dim3 block = dim3(32, 8);
 #endif
   int grid = 1024;
-  AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, weight.scalar_type(), "embedding_bag_cuda", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, weight.scalar_type(), "embedding_bag_cuda", [&] {
     AT_DISPATCH_INDEX_TYPES(indices.scalar_type(), "embedding_bag_cuda", [&] () {
       if (mode == MODE_MAX) {
         EmbeddingBag_updateOutputKernel_max<scalar_t, index_t><<<grid, block, 0, stream>>>(
@@ -491,7 +491,7 @@ Tensor _embedding_bag_per_sample_weights_backward_cuda(
     return output;
   }
 
-  AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND(kHalf,
     grad.scalar_type(), "_embedding_bag_per_sample_weights_backward_cuda", [&]() {
       AT_DISPATCH_INDEX_TYPES(indices.scalar_type(), "_embedding_bag_per_sample_weights_backward_cuda", [&]() {
         _embedding_bag_per_sample_weights_backward_kernel<scalar_t, index_t>

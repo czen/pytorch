@@ -276,7 +276,7 @@ TORCH_IMPL_FUNC(avg_pool2d_out_cuda)
   const auto divisor_override_value = use_divisor ? divisor_override.value() : 0;
 
   if (count != 0) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
       "avg_pool2d_out_cuda_frame",
       [&] {
         using accscalar_t = acc_type<scalar_t, true>;
@@ -396,7 +396,7 @@ TORCH_IMPL_FUNC(avg_pool2d_backward_out_cuda) (
   bool use_divisor = divisor_override.has_value();
   const auto divisor_override_value = use_divisor ? divisor_override.value() : 0;
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(),
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(),
     "avg_pool2d_backward_out_cuda_frame",
     [&] {
       using accscalar_t = acc_type<scalar_t, true>;

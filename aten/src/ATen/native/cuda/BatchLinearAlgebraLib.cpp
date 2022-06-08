@@ -85,7 +85,7 @@ void apply_geqrf_batched(const Tensor& input, const Tensor& tau) {
 }
 
 void geqrf_batched_cublas(const Tensor& input, const Tensor& tau) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "geqrf_batched_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "geqrf_batched_cuda", [&]{
     apply_geqrf_batched<scalar_t>(input, tau);
   });
 }
@@ -117,7 +117,7 @@ static void apply_lu_solve_batched_cublas(const Tensor& b, const Tensor& lu, con
 }
 
 void lu_solve_batched_cublas(const Tensor& b, const Tensor& lu, const Tensor& pivots, TransposeType trans) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(lu.scalar_type(), "lu_solve_cublas", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(lu.scalar_type(), "lu_solve_cublas", [&]{
     apply_lu_solve_batched_cublas<scalar_t>(b, lu, pivots, trans);
   });
 }
@@ -151,7 +151,7 @@ static void apply_triangular_solve(const Tensor& A, const Tensor& B, bool left, 
 }
 
 void triangular_solve_cublas(const Tensor& A, const Tensor& B, bool left, bool upper, TransposeType transpose, bool unitriangular) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(A.scalar_type(), "triangular_solve_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(A.scalar_type(), "triangular_solve_cuda", [&]{
     apply_triangular_solve<scalar_t>(A, B, left, upper, transpose, unitriangular);
   });
 }
@@ -183,7 +183,7 @@ static void apply_triangular_solve_batched(const Tensor& A, const Tensor& B, boo
 }
 
 void triangular_solve_batched_cublas(const Tensor& A, const Tensor& B, bool left, bool upper, TransposeType transpose, bool unitriangular) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(A.scalar_type(), "triangular_solve_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(A.scalar_type(), "triangular_solve_cuda", [&]{
     apply_triangular_solve_batched<scalar_t>(A, B, left, upper, transpose, unitriangular);
   });
 }
@@ -251,7 +251,7 @@ inline void apply_gels_batched(const Tensor& A, Tensor& B, Tensor& infos) {
 
 // This is a type dispatching helper function for 'apply_gels_batched'
 void gels_batched_cublas(const Tensor& a, Tensor& b, Tensor& infos) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(a.scalar_type(), "gels_batched_cublas", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(a.scalar_type(), "gels_batched_cublas", [&]{
     apply_gels_batched<scalar_t>(a, b, infos);
   });
 }
@@ -346,12 +346,12 @@ Tensor& _linalg_inv_out_helper_cuda_lib(Tensor& result, Tensor& infos_getrf, Ten
   result.diagonal(/*offset=*/0, /*dim1=*/-2, /*dim2=*/-1).fill_(1);
 
   if (result.dim() > 2) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "linalg_inv_out_cuda", [&]{
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "linalg_inv_out_cuda", [&]{
       apply_batched_inverse_lib<scalar_t>(
         input_working_copy, result, infos_getrf, infos_getrs);
     });
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "linalg_inv_out_cuda", [&]{
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "linalg_inv_out_cuda", [&]{
       apply_single_inverse_lib<scalar_t>(input_working_copy, result, infos_getrf, infos_getrs);
     });
   }
@@ -440,7 +440,7 @@ inline static void svd_cusolver_gesvd(const Tensor& A, const Tensor& U, const Te
   // We need to pass a copy of A, as it will be overwritten
   // gesvd just knows how to handle m >= n, so in the other case we need to transpose A
   const auto not_A_H = A.size(-2) >= A.size(-1);
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(A.scalar_type(), "svd_cuda_gesvd", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(A.scalar_type(), "svd_cuda_gesvd", [&] {
     apply_svd_cusolver_gesvd<scalar_t>(cloneBatchedColumnMajor(not_A_H ? A : A.mH()),
                                        not_A_H ? U : V,
                                        S,
@@ -520,7 +520,7 @@ inline static void apply_svd_cusolver_gesvdj(const Tensor& A, const Tensor& U, c
 // wrapper around apply_svd_cusolver_gesvdj that handles dtype dispatch
 // note that gesvdj returns V, which is what we want
 inline static void svd_cusolver_gesvdj(const Tensor& A, const Tensor& U, const Tensor& S, const Tensor& V, const Tensor& infos, bool full_matrices, bool compute_uv) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(A.scalar_type(), "svd_cuda_gesvdj", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(A.scalar_type(), "svd_cuda_gesvdj", [&] {
     apply_svd_cusolver_gesvdj<scalar_t>(A, U, S, V, infos, full_matrices, compute_uv);
   });
 }
@@ -573,7 +573,7 @@ inline static void apply_svd_cusolver_gesvdjBatched(const Tensor& A, const Tenso
 }
 
 inline static void svd_cusolver_gesvdjBatched(const Tensor& A, const Tensor& U, const Tensor& S, const Tensor& V, const Tensor& infos, bool compute_uv) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(A.scalar_type(), "svd_cuda_gesvdjBatched", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(A.scalar_type(), "svd_cuda_gesvdjBatched", [&] {
     apply_svd_cusolver_gesvdjBatched<scalar_t>(A, U, S, V, infos, compute_uv);
   });
 }
@@ -759,11 +759,11 @@ void cholesky_helper_cusolver(const Tensor& input, bool upper, const Tensor& inf
   }
 
   if (use_cusolver_potrf_batched_ && batchCount(input) > 1) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "cholesky_cusolver", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "cholesky_cusolver", [&] {
       apply_cholesky_cusolver_potrfBatched<scalar_t>(input, upper, info);
     });
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "cholesky_cusolver", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "cholesky_cusolver", [&] {
       apply_cholesky_cusolver_potrf_looped<scalar_t>(input, upper, info);
     });
   }
@@ -865,11 +865,11 @@ Tensor _cholesky_solve_helper_cuda_cusolver(const Tensor& self, const Tensor& A,
 
   // cusolverDn<t>potrsBatched only supports nrhs == 1
   if (batch_size > 1 && nrhs == 1) {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(self.scalar_type(), "cholesky_cuda_potrs_batched", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(self.scalar_type(), "cholesky_cuda_potrs_batched", [&] {
       apply_cholesky_cusolver_potrsBatched<scalar_t>(self_working_copy, A_column_major_copy, upper, infos);
     });
   } else {
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(self.scalar_type(), "cholesky_cuda_potrs", [&] {
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(self.scalar_type(), "cholesky_cuda_potrs", [&] {
       apply_cholesky_cusolver_potrs<scalar_t>(self_working_copy, A_column_major_copy, upper, infos);
     });
   }
@@ -887,7 +887,7 @@ void _cholesky_inverse_cusolver_potrs_based(Tensor& result, Tensor& infos, bool 
   at::Tensor infos_gpu = at::zeros({1}, result.options().dtype(at::kInt));
   result.fill_(0);
   result.diagonal(/*offset=*/0, /*dim1=*/-2, /*dim2=*/-1).fill_(1);
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "cholesky_cuda_potri", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "cholesky_cuda_potri", [&] {
     apply_cholesky_cusolver_potrs<scalar_t>(result, input_working_copy, upper, infos_gpu);
   });
 
@@ -1003,7 +1003,7 @@ static void apply_geqrf(const Tensor& A, const Tensor& tau) {
 
 // This is a type dispatching helper function for 'apply_geqrf'
 void geqrf_cusolver(const Tensor& input, const Tensor& tau) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "geqrf_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "geqrf_cuda", [&]{
     apply_geqrf<scalar_t>(input, tau);
   });
 }
@@ -1081,7 +1081,7 @@ static void apply_ormqr(const Tensor& input, const Tensor& tau, const Tensor& ot
 
 // This is a type dispatching helper function for 'apply_ormqr'
 void ormqr_cusolver(const Tensor& input, const Tensor& tau, const Tensor& other, bool left, bool transpose) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(input.scalar_type(), "orgmr_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(input.scalar_type(), "orgmr_cuda", [&]{
     apply_ormqr<scalar_t>(input, tau, other, left, transpose);
   });
 }
@@ -1156,7 +1156,7 @@ inline static void apply_orgqr(Tensor& self, const Tensor& tau) {
 
 // This is a type dispatching helper function for 'apply_orgqr'
 Tensor& orgqr_helper_cusolver(Tensor& result, const Tensor& tau) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "orgqr_cuda", [&]{
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "orgqr_cuda", [&]{
     apply_orgqr<scalar_t>(result, tau);
   });
   return result;
@@ -1367,19 +1367,19 @@ static void apply_syevj_batched(const Tensor& values, const Tensor& vectors, con
 }
 
 static void linalg_eigh_cusolver_syevd(const Tensor& eigenvalues, const Tensor& eigenvectors, const Tensor& infos, bool upper, bool compute_eigenvectors) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(eigenvectors.scalar_type(), "linalg_eigh_cuda", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(eigenvectors.scalar_type(), "linalg_eigh_cuda", [&] {
     apply_syevd<scalar_t>(eigenvalues, eigenvectors, infos, upper, compute_eigenvectors);
   });
 }
 
 static void linalg_eigh_cusolver_syevj(const Tensor& eigenvalues, const Tensor& eigenvectors, const Tensor& infos, bool upper, bool compute_eigenvectors) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(eigenvectors.scalar_type(), "linalg_eigh_cuda", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(eigenvectors.scalar_type(), "linalg_eigh_cuda", [&] {
     apply_syevj<scalar_t>(eigenvalues, eigenvectors, infos, upper, compute_eigenvectors);
   });
 }
 
 static void linalg_eigh_cusolver_syevj_batched(const Tensor& eigenvalues, const Tensor& eigenvectors, const Tensor& infos, bool upper, bool compute_eigenvectors) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(eigenvectors.scalar_type(), "linalg_eigh_cuda", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(eigenvectors.scalar_type(), "linalg_eigh_cuda", [&] {
     apply_syevj_batched<scalar_t>(eigenvalues, eigenvectors, infos, upper, compute_eigenvectors);
   });
 }
@@ -1402,7 +1402,7 @@ void linalg_eigh_cusolver(const Tensor& eigenvalues, const Tensor& eigenvectors,
 // underneath. Since the cusolver API has a slightly different structure we do not prepend
 // apply_ to this function.
 void lu_factor_looped_cusolver(const Tensor& self, const Tensor& pivots, const Tensor& infos, bool get_pivots, const bool use_magma_) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(
     self.scalar_type(),
     "lu_factor_cusolver",
     [&self,
@@ -1441,7 +1441,7 @@ void lu_factor_looped_cusolver(const Tensor& self, const Tensor& pivots, const T
 }
 
 void lu_solve_looped_cusolver(const Tensor& b, const Tensor& lu, const Tensor& pivots, TransposeType transpose) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(b.scalar_type(), "lu_solve_cusolver", [&] {
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(b.scalar_type(), "lu_solve_cusolver", [&] {
     const auto trans = to_cublas(transpose);
     int n = cuda_int_cast(lu.size(-2), "n");
     int nrhs = cuda_int_cast(b.size(-1), "nrhs");

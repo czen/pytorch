@@ -1509,7 +1509,7 @@ void batch_norm_elemt_channels_last_cuda_template(
       (shift.defined() ? shift.scalar_type() : input.scalar_type());
 
   if (input.scalar_type() != second_dtype) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_forward", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_forward", [&] {
       using accscalar_t = at::acc_type<scalar_t, true>;
       batch_norm_transform_input_channels_last_kernel<scalar_t, accscalar_t, accscalar_t, ELEMENTS_PER_ITER>
           <<<grid, block, 0, stream>>>(
@@ -1530,7 +1530,7 @@ void batch_norm_elemt_channels_last_cuda_template(
       TORCH_CHECK(input.scalar_type() == weight.scalar_type(), "batchnorm_forward: input.scalar_type() ", input.scalar_type(),
         " is not supported with weight.scalar_type() ", weight.scalar_type());
     }
-    AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_forward", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_forward", [&] {
       using accscalar_t = at::acc_type<scalar_t, true>;
       batch_norm_transform_input_channels_last_kernel<scalar_t, accscalar_t, scalar_t, ELEMENTS_PER_ITER>
           <<<grid, block, 0, stream>>>(
@@ -1586,7 +1586,7 @@ batch_norm_backward_reduce_cuda_channels_last_template(const at::Tensor& grad_ou
   auto stream = at::cuda::getCurrentCUDAStream();
 
   if (weight.defined() && input.scalar_type() != weight.scalar_type()) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_reduce", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_reduce", [&] {
       using accscalar_t = at::acc_type<scalar_t, true>;
       accscalar_t* staging_data_ptr = grid.y > 1 ? staging_data.data_ptr<accscalar_t>() : nullptr;
       int* semaphores_ptr = grid.y > 1 ? semaphores.data_ptr<int>() : nullptr;
@@ -1611,7 +1611,7 @@ batch_norm_backward_reduce_cuda_channels_last_template(const at::Tensor& grad_ou
       TORCH_CHECK(input.scalar_type() == weight.scalar_type(), "batchnorm_backward_reduce: input.scalar_type() ", input.scalar_type(),
         " is not supported with weight.scalar_type() ", weight.scalar_type());
     }
-    AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_reduce", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_reduce", [&] {
       using accscalar_t = at::acc_type<scalar_t, true>;
       accscalar_t* staging_data_ptr = grid.y > 1 ? staging_data.data_ptr<accscalar_t>() : nullptr;
       int* semaphores_ptr = grid.y > 1 ? semaphores.data_ptr<int>() : nullptr;
@@ -1658,7 +1658,7 @@ at::Tensor batch_norm_backward_elemt_channels_last_cuda_template(
   auto stream = at::cuda::getCurrentCUDAStream();
 
   if (weight.defined() && weight.scalar_type() != input.scalar_type()) {
-    AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_element", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_element", [&] {
       using accscalar_t = at::acc_type<scalar_t, true>;
       batch_norm_backward_elemt_channels_last_kernel<ELEMENTS_PER_ITER>
           <<<grid, block, 0, stream>>>(
@@ -1681,7 +1681,7 @@ at::Tensor batch_norm_backward_elemt_channels_last_cuda_template(
       TORCH_CHECK(input.scalar_type() == weight.scalar_type(), "batchnorm_backward_element: input.scalar_type() ", input.scalar_type(),
         " is not supported with weight.scalar_type() ", weight.scalar_type());
     }
-    AT_DISPATCH_FLOATING_TYPES_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, input.scalar_type(), "batchnorm_backward_element", [&] {
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(at::ScalarType::Half, at::ScalarType::BFloat16, input.scalar_type(), "batchnorm_backward_element", [&] {
       using accscalar_t = at::acc_type<scalar_t, true>;
       batch_norm_backward_elemt_channels_last_kernel<ELEMENTS_PER_ITER>
           <<<grid, block, 0, stream>>>(
@@ -1725,7 +1725,7 @@ at::Tensor batch_norm_backward_elemt_channels_last_cuda_template(
 
   auto stream = at::cuda::getCurrentCUDAStream();
 
-  AT_DISPATCH_FLOATING_TYPES_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_element", [&] {
+  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, input.scalar_type(), "batchnorm_backward_element", [&] {
     using accscalar_t = at::acc_type<scalar_t, true>;
 
     if (weight.defined() && weight.scalar_type() != input.scalar_type()) {

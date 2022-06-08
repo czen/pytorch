@@ -171,7 +171,7 @@ struct cuda_scatter_gather_base_kernel {
     auto index_stride = is_scatter_like ? self_dim_stride : src_dim_stride;
 
 
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
       iter.dtype(),
       "cuda_scatter_gather_base_kernel_func", [&] {
@@ -229,7 +229,7 @@ struct cuda_scatter_gather_base_kernel {
     auto index_stride = is_scatter_like ? self_dim_stride : src_dim_stride;
 
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half, at::ScalarType::BFloat16,
       iter.dtype(),
       "cuda_scatter_gather_base_kernel_reduce_multiply", [&] {
@@ -317,7 +317,7 @@ struct cuda_scatter_fill_base_kernel {
     auto index_size = ensure_nonempty_size(self, dim);
     auto index_stride = ensure_nonempty_stride(self, dim);
 
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
       iter.dtype(),
       "cuda_scatter_fill_base_kernel_func", [&] {
@@ -360,7 +360,7 @@ struct cuda_scatter_fill_base_kernel {
     auto index_size = ensure_nonempty_size(self, dim);
     auto index_stride = ensure_nonempty_stride(self, dim);
 
-    AT_DISPATCH_FLOATING_TYPES_AND2(
+    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half, at::ScalarType::BFloat16,
       iter.dtype(),
       "cuda_scatter_fill_base_kernel_reduce_multiply", [&] {

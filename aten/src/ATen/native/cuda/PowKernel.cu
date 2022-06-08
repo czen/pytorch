@@ -84,7 +84,7 @@ void pow_scalar_tensor_impl(TensorIteratorBase& iter, c10::complex<value_t> base
 }
 
 void pow_tensor_tensor_kernel(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND2(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(
       kHalf, kBFloat16, iter.common_dtype(), "pow_cuda", [&] {
     if (iter.is_cpu_scalar(1)) {
       const auto base = iter.scalar_value<scalar_t>(1);
@@ -147,7 +147,7 @@ void pow_tensor_scalar_kernel(TensorIteratorBase& iter, const Scalar& exp_scalar
       });
     });
   } else if (isFloatingType(iter.common_dtype()) || exp_scalar.isIntegral(false)) {
-    AT_DISPATCH_ALL_TYPES_AND2(kHalf, kBFloat16, iter.common_dtype(), "pow_cuda", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kHalf, kBFloat16, iter.common_dtype(), "pow_cuda", [&]() {
       const auto exp = exp_scalar.to<scalar_t>();
       pow_tensor_scalar_kernel_impl<scalar_t>(iter, exp);
     });

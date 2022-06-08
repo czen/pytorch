@@ -15,16 +15,16 @@ namespace at { namespace native {
 void logical_not_kernel_cuda(TensorIteratorBase& iter) {
   // error check -- this is just ensuring we don't dispatch on types that aren't in ALL_TYPES_AND_COMPLEX_AND3(...)
   // so we don't have to maintain a separate list or to do double dispatch.
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(kBool, kHalf, kBFloat16, iter.dtype(0), "logical_not_cuda", [&]() {});
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(kBool, kHalf, kBFloat16, iter.dtype(0), "logical_not_cuda", [&]() {});
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(kBool, kHalf, kBFloat16, iter.dtype(1), "logical_not_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(kBool, kHalf, kBFloat16, iter.dtype(1), "logical_not_cuda", [&]() {
     gpu_kernel(iter, []GPU_LAMBDA(scalar_t a) -> bool { return !a; });
   });
 }
 
 // NB: Ignores the negative bit on tensors
 void neg_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND2(ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "neg_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND2(ScalarType::Half, at::ScalarType::BFloat16, iter.dtype(), "neg_cuda", [&]() {
     gpu_kernel(iter, []GPU_LAMBDA(scalar_t a) -> scalar_t {
       return -a;
     });
@@ -37,7 +37,7 @@ void sign_kernel_cuda(TensorIteratorBase& iter){
       return a;
     });
   } else {
-    AT_DISPATCH_ALL_TYPES_AND2(ScalarType::Half, ScalarType::BFloat16, iter.dtype(), "sign_cuda", [&]() {
+    AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(ScalarType::Half, ScalarType::BFloat16, iter.dtype(), "sign_cuda", [&]() {
         gpu_kernel(iter, []GPU_LAMBDA(scalar_t a) -> scalar_t {
             return c10::signum(a);
         });
@@ -46,7 +46,7 @@ void sign_kernel_cuda(TensorIteratorBase& iter){
 }
 
 void signbit_kernel_cuda(TensorIteratorBase& iter){
-  AT_DISPATCH_ALL_TYPES_AND2(kBFloat16, ScalarType::Half, iter.input_dtype(), "signbit_cuda", [&]() {
+  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND2(kBFloat16, ScalarType::Half, iter.input_dtype(), "signbit_cuda", [&]() {
     gpu_kernel(iter, []GPU_LAMBDA(scalar_t a) -> bool { return is_negative(a); });
   });
 }

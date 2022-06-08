@@ -192,7 +192,7 @@ void index_put_kernel_impl(TensorIterator& iter, IntArrayRef index_size, IntArra
 }
 
 static void index_kernel(TensorIterator& iter, IntArrayRef index_size, IntArrayRef index_stride) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "index_cuda", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "index_cuda", [&] {
     using dtype = OpaqueType<sizeof(scalar_t)>;
     index_kernel_impl<dtype>(iter, index_size, index_stride);
   });
@@ -204,7 +204,7 @@ static void index_fill_kernel(
   int64_t self_dim_size,
   int64_t self_dim_stride,
   const Scalar& source) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
     at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
     iter.dtype(), "index_fill_cuda", [&] {
     using dtype = OpaqueType<sizeof(scalar_t)>;
@@ -222,7 +222,7 @@ static void index_copy_kernel(
   // See note [Writing Nondeterministic Operations]
   // Nondeterministic when index contains duplicate entries
   // this kernel will not be called when torch.use_deterministic_algorithms(True)
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
     at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
     iter.dtype(), "index_copy_cuda", [&] {
     using dtype = OpaqueType<sizeof(scalar_t)>;
@@ -233,7 +233,7 @@ static void index_copy_kernel(
 
 static void index_put_kernel(TensorIterator& iter, IntArrayRef index_size, IntArrayRef index_stride, bool accumulate) {
   TORCH_CHECK(!accumulate, "index_put does not support accumulate=true");
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "index_put", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "index_put", [&] {
     using dtype = OpaqueType<sizeof(scalar_t)>;
     index_put_kernel_impl<dtype>(iter, index_size, index_stride);
   });
@@ -288,7 +288,7 @@ void cuda_take_put_kernel(
 }
 
 void put_kernel(TensorIterator& iter, const TensorBase& output, const bool accumulate) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "put_cuda", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "put_cuda", [&] {
     // Cannot use `OpaqueType`, as we need the actual type for `fastSpecializedgpuAtomicAdd`
     AT_DISPATCH_INDEX_TYPES(cuda::detail::canUse32BitIndexMath(output) ? ScalarType::Int : ScalarType::Long,
         "put_cuda_index", [&] {
@@ -313,7 +313,7 @@ void put_kernel(TensorIterator& iter, const TensorBase& output, const bool accum
 void take_kernel(
   TensorIterator& iter,
   const TensorBase& input) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "take_cuda", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16, iter.dtype(), "take_cuda", [&] {
     // Cannot use `OpaqueType`, as Tensor::data_ptr<OpaqueType<N>> is not implemented
     AT_DISPATCH_INDEX_TYPES(cuda::detail::canUse32BitIndexMath(input) ? ScalarType::Int : ScalarType::Long,
       "take_cuda_index", [&] {
@@ -370,7 +370,7 @@ void masked_scatter_cuda_impl(
       .add_input(maskPrefixSum)
       .build();
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
       ScalarType::Bool,
       ScalarType::BFloat16,
       ScalarType::Half,
@@ -433,7 +433,7 @@ void flip_kernel(TensorIterator& iter, const bool quantized) {
       flip_kernel_impl<dtype>(iter);
     });
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
                                            iter.dtype(), "flip_cuda",
     [&] {
       using dtype = OpaqueType<sizeof(scalar_t)>;

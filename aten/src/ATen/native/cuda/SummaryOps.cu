@@ -411,7 +411,7 @@ Tensor _histc_cuda(
   // See Note [Writing Nondeterministic Operations]
   // Nondeterministic because of atomicAdd usage
   globalContext().alertNotDeterministic("_histc_cuda");
-  return AT_DISPATCH_ALL_TYPES(self.scalar_type(), "histc", [&] {
+  return AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL(self.scalar_type(), "histc", [&] {
     return _histc_cuda_template<scalar_t>(self, nbins, min.to<scalar_t>(), max.to<scalar_t>());
   });
 }

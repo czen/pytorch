@@ -24,7 +24,7 @@ void direct_copy_kernel_cuda(TensorIteratorBase &iter) {
       gpu_kernel(iter, [] GPU_LAMBDA(scalar_t x) { return x; });
     });
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
         kHalf, kBool, kBFloat16, dtype, "copy_", [&] {
           gpu_kernel(iter, [] GPU_LAMBDA(scalar_t x) { return x; });
     });

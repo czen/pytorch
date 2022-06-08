@@ -9,7 +9,7 @@ namespace native {
 namespace {
 
 void lerp_tensor_kernel(at::TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half, at::ScalarType::BFloat16,
       iter.common_dtype(), "lerp_cuda",
       [&] {
@@ -29,7 +29,7 @@ void lerp_tensor_kernel(at::TensorIteratorBase& iter) {
 }
 
 void lerp_scalar_kernel(at::TensorIteratorBase& iter, const c10::Scalar& weight) {
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND2(
       at::ScalarType::Half, at::ScalarType::BFloat16,
       iter.common_dtype(), "lerp_cuda",
       [&]{

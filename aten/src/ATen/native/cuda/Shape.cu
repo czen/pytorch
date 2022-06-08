@@ -553,7 +553,7 @@ Tensor& cat_out_cuda(TensorList inputs, int64_t dimension, Tensor& out) {
       allContiguous &&
       all32BitIndexable &&
       allSameType) {
-      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
           at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
           out.scalar_type(), "cat_cuda", [&]() {
         hip_parallel_cat<scalar_t>(out, inputs, dimension, nDims, memory_format);
@@ -570,7 +570,7 @@ Tensor& cat_out_cuda(TensorList inputs, int64_t dimension, Tensor& out) {
       allContiguous &&
       all32BitIndexable &&
       allSameType) {
-      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
           at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
           out.scalar_type(), "cat_cuda", [&]() {
         parallel_cat<scalar_t, CAT_ARRAY_BATCH_SIZE, 1>(out, inputs, dimension, nDims, memory_format);
@@ -582,7 +582,7 @@ Tensor& cat_out_cuda(TensorList inputs, int64_t dimension, Tensor& out) {
       all32BitIndexable &&
       allSameType &&
       memory_format == c10::MemoryFormat::Contiguous) {
-      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(
+      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL_AND3(
           at::ScalarType::Half, at::ScalarType::Bool, at::ScalarType::BFloat16,
           out.scalar_type(), "cat_cuda", [&]() {
         parallel_cat<scalar_t, CAT_ARRAY_BATCH_SIZE/2, CAT_ARRAY_BATCH_SIZE/2>(out, inputs, dimension, nDims, memory_format);
