@@ -3,6 +3,8 @@
 #include <cuda.h>
 #include <c10/util/Half.h>
 #include <c10/util/BFloat16.h>
+#include <c10/util/UniversalTypes.h>
+#include <c10/core/ScalarType.h>
 
 template <typename T>
 struct AtomicFPOp;
@@ -370,6 +372,16 @@ inline __device__ double gpuAtomicMul(double * address, double val) {
                               [](double val, unsigned long long int assumed) {
                                 return __double_as_longlong(val * __longlong_as_double(assumed));
                               });
+}
+
+inline __device__ at::CFloatWithSubnormals gpuAtomicMul(
+    at::CFloatWithSubnormals * address, at::CFloatWithSubnormals val) {
+  return AtomicFPOp<at::CFloatWithSubnormals>()(
+    address, val,
+    [](at::CFloatWithSubnormals bsum, at::CFloatWithSubnormals val) {
+      return bsum * val;
+    }
+  );
 }
 
 // Dont use a templated function for this since the addition function defaults to the CUDA built-in.

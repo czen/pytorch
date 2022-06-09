@@ -68,7 +68,7 @@ ctc_loss_log_alpha_gpu_kernel(scalar_t* __restrict__ log_alpha_data,
                                     const int64_t* __restrict__ tg_batch_offsets, int64_t tg_target_stride,
                                     int64_t batch_size, int64_t BLANK) {
 
-  constexpr scalar_t neginf = -INFINITY;
+  const scalar_t neginf = -INFINITY;
 
   // bookkeeping
   int64_t b = threadIdx.y + blockIdx.y * blockDim.y;
@@ -178,7 +178,7 @@ ctc_loss_log_alpha_gpu_kernel(scalar_t* __restrict__ log_alpha_data,
                la_target_stride * (target_length * 2 - 1)]
         : neginf;
     scalar_t m = ((l1 > l2) ? l1 : l2);
-    m = ((m == neginf) ? 0 : m);
+    m = ((m == neginf) ? static_cast<scalar_t>(0) : m);
     scalar_t log_likelihood = std::log(std::exp(l1-m)+std::exp(l2-m))+m;
     neg_log_likelihood_data[b] = -log_likelihood;
   }
@@ -293,7 +293,7 @@ ctc_loss_backward_log_beta_gpu_kernel(scalar_t* __restrict__ log_beta_data,
                                       int64_t lb_batch_stride, int64_t lb_input_stride, int64_t lb_target_stride,
                                       const int64_t* __restrict__ tg_batch_offsets, int64_t tg_target_stride,
                                       int64_t batch_size, int64_t BLANK) {
-  constexpr scalar_t neginf = -INFINITY;
+  const scalar_t neginf = -INFINITY;
 
   int64_t b = threadIdx.y + blockIdx.y * blockDim.y;
 
@@ -478,7 +478,7 @@ ctc_loss_backward_collect_gpu_kernel(scalar_t* __restrict__ gradient_data,
                                                      const int64_t* __restrict__ tg_batch_offsets, int64_t tg_target_stride,
                                      int64_t batch_size, int64_t num_labels, int64_t BLANK, bool zero_infinity) {
 
-  constexpr scalar_t neginf = -INFINITY;
+  const scalar_t neginf = -INFINITY;
   int64_t b = threadIdx.y + blockIdx.y * blockDim.y;
   int64_t t = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -568,7 +568,7 @@ ctc_loss_zero_padded_gradients(
 template<typename scalar_t, ScalarType target_scalar_type>
 Tensor ctc_loss_backward_gpu_template(const Tensor& grad_out, const Tensor& log_probs, const Tensor& targets, IntArrayRef input_lengths, IntArrayRef target_lengths,
                                       const Tensor& neg_log_likelihood, const Tensor& log_alpha, int64_t BLANK, bool zero_infinity) {
-  constexpr scalar_t neginf = -INFINITY;
+  const scalar_t neginf = -INFINITY;
   using target_t = typename std::conditional<target_scalar_type == kInt, int, int64_t>::type;
   int64_t batch_size = log_probs.size(1);
   int64_t num_labels = log_probs.size(2);

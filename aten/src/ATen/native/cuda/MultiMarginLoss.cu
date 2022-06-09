@@ -86,7 +86,7 @@ __global__ void MultiMarginLoss_backward_kernel(
     }
 
     if (z > 0) {
-      acc_t h = (P == 1) ? g : 2*g*z;
+      acc_t h = (P == 1) ? g : static_cast<acc_t>(2*g*z);
       if (weights) {
         h *= weights[target_k];
       }

@@ -1365,7 +1365,8 @@ void baddbmm_with_gemm_(const Tensor &result, const Tensor &mat1, const Tensor &
   const int64_t ldb = mat1_strides[transpose_b ? 2 : 1];
   const int64_t ldc = result_strides[1];
 
-  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL(result.scalar_type(), "baddbmm_with_gemm", [&] {
+  // gemm_batched_with_stride does not support Universal types
+  AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES(result.scalar_type(), "baddbmm_with_gemm", [&] {
     using opmath_t = at::opmath_type<scalar_t>;
     const auto alpha = alpha_.to<opmath_t>();
     const auto beta = beta_.to<opmath_t>();
@@ -1454,6 +1455,7 @@ static inline void bmm_out_or_baddbmm_(const Tensor& self_or_result_, const Tens
   } else if (at::hasMKL() && ((
             self_or_result.scalar_type() != kHalf &&
             self_or_result.scalar_type() != kBFloat16 &&
+            !isUniversalType(self_or_result.scalar_type()) &&
             at::native::is_floating_point(self_or_result)) ||
             at::native::is_complex(self_or_result))
             && batch_items_contiguous_or_transposed(batch1)

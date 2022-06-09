@@ -223,7 +223,7 @@ struct InnerNanSumCastLoadPolicy {
   static vacc_t load(const char * C10_RESTRICT data, int64_t stride, int64_t index) {
     auto ptr = reinterpret_cast<const scalar_t*>(data + stride * index);
     return load_reduce_vec<acc_t>(ptr, [](acc_t a, scalar_t b) {
-      return at::_isnan(b) ? a : a + b;
+      return at::_isnan(b) ? a : static_cast<acc_t>(a + b);
     }, acc_t(0));
   }
 };

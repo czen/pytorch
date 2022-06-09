@@ -39,9 +39,14 @@ template<typename scalar_t, int num_threads_x, int num_threads_y, class BinaryFu
 __global__ void tensor_kernel_scan_innermost_dim_with_indices(const scalar_t *self_, scalar_t *values_, int64_t *indices_,
                                                 int num_rows, int row_size,
                                                 scalar_t init, BinaryFunction binary_op) {
-  __shared__ scalar_t vbuf[num_threads_y][2 * num_threads_x];
+  // FIXME This is only necessary because sw::universal::cfloat is not trivial. Find a better workaround.
+  __shared__ typename std::conditional<
+    std::is_same<scalar_t, at::CFloatWithSubnormals>::value,
+    uint32_t,
+    scalar_t
+  >::type vbuf[num_threads_y][2 * num_threads_x];
   __shared__ int64_t ibuf[num_threads_y][2 * num_threads_x];
-  scalar_t* row_buf = vbuf[threadIdx.y];
+  scalar_t* row_buf = reinterpret_cast<scalar_t*>(vbuf[threadIdx.y]);
   int64_t* row_idx_buf = ibuf[threadIdx.y];
 
   for (int block_row = blockIdx.x * blockDim.y;
@@ -368,8 +373,13 @@ tensor_kernel_scan_innermost_dim(
     const uint32_t row_size,
     T init,
     BinaryFunction binary_op) {
-  __shared__ T sbuf[num_threads_y][2 * num_threads_x];
-  T* row_buf = sbuf[threadIdx.y];
+  // FIXME This is only necessary because sw::universal::cfloat is not trivial. Find a better workaround.
+  __shared__ typename std::conditional<
+    std::is_same<T, at::CFloatWithSubnormals>::value,
+    uint32_t,
+    T
+  >::type sbuf[num_threads_y][2 * num_threads_x];
+  T* row_buf = reinterpret_cast<T*>(sbuf[threadIdx.y]);
 
   tensor_kernel_scan_innermost_dim_impl<T, num_threads_x, num_threads_y>(
       row_buf, tgt_, src_, num_rows, row_size, init, binary_op);

@@ -119,7 +119,7 @@ void sortKeyValueInplace(const TensorBase& key,
   // we are sorting on a per-block basis
   // The constructed key/value tensor info is used to select the slice
   // we are sorting on a per-block basis
-  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(at::ScalarType::Half, at::ScalarType::BFloat16, at::ScalarType::Bool, key.scalar_type(), "sortKeyValueInplace", [&]  {
+  AT_DISPATCH_ALL_TYPES_AND3(at::ScalarType::Half, at::ScalarType::BFloat16, at::ScalarType::Bool, key.scalar_type(), "sortKeyValueInplace", [&]  {
     if (at::cuda::detail::canUse32BitIndexMath(key)) {
       at::cuda::detail::TensorInfo<scalar_t, unsigned int> keyInfo =
         at::cuda::detail::getTensorInfo<scalar_t, unsigned int>(key);
@@ -331,7 +331,7 @@ void launch_stable_sort_kernel(
   constexpr bool is_rocm = false;
 #endif
 
-  AT_DISPATCH_ALL_TYPES_AND_UNIVERSAL_AND3(kBool, kHalf, kBFloat16, self.scalar_type(), "sort", [&]{
+  AT_DISPATCH_ALL_TYPES_AND3(kBool, kHalf, kBFloat16, self.scalar_type(), "sort", [&]{
     c10::guts::if_constexpr<!(is_rocm && std::is_same<scalar_t, c10::BFloat16>::value)>([&](auto _){
       const scalar_t *self_ptr = self.data_ptr<scalar_t>();
       scalar_t *values_ptr = values.data_ptr<scalar_t>();

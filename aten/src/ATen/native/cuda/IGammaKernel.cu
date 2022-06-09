@@ -534,13 +534,13 @@ struct CalcIgamma{
 namespace at { namespace native {
 
 void igamma_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "igamma_cuda", [&]() {
+  AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "igamma_cuda", [&]() {
     gpu_kernel(iter, CalcIgamma<scalar_t>(false));
   });
 }
 
 void igammac_kernel_cuda(TensorIteratorBase& iter) {
-  AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "igammac_cuda", [&]() {
+  AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "igammac_cuda", [&]() {
     gpu_kernel(iter, CalcIgamma<scalar_t>(true));
   });
 }

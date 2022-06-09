@@ -93,5 +93,8 @@ template <> inline std::string typeName<at::Half>(){
 template <> inline std::string typeName<at::BFloat16>(){
     return "at::BFloat16";
 }
+template <> inline std::string typeName<at::CFloatWithSubnormals>(){
+    return "at::CFloatWithSubnormals";
+}
 
 }}}  // namespace at::cuda::jit

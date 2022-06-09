@@ -146,6 +146,8 @@ FORALL_SUPPORTED_TYPES_IN_OPERATORS(OP)
 
 // cfloat constructor
 extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat() noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat(float) noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat(double) noexcept;
 extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setblock(size_t b, uint32_t data) noexcept;
 
 // blockbinary constructor and methods
@@ -197,6 +199,10 @@ extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>
 extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::shiftLeft(int leftShift);
 extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::shiftRight(int rightShift);
 
+// Conversion from double
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>&
+  cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<double>(double rhs) noexcept;
+
 // Explicit type casts to types other than float
 extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator int() const noexcept;
 extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator long() const noexcept;
@@ -206,13 +212,135 @@ extern template C10_HOST_DEVICE int cfloat<32, 8, uint32_t, true, false, false>:
 extern template C10_HOST_DEVICE long cfloat<32, 8, uint32_t, true, false, false>::to_long() const;
 extern template C10_HOST_DEVICE long long cfloat<32, 8, uint32_t, true, false, false>::to_long_long() const;
 
-// extractFields and necessary functions (required for conversion from float)
-inline void extractFields(float value, bool& s, uint64_t& rawExponentBits, uint64_t& rawFractionBits);
+// extractFields and necessary functions (required for conversion from float and from double)
+inline C10_HOST_DEVICE void extractFields(float value, bool& s, uint64_t& rawExponentBits, uint64_t& rawFractionBits);
+inline C10_HOST_DEVICE void extractFields(double value, bool& s, uint64_t& rawExponentBits, uint64_t& rawFractionBits);
+
+// operator=
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator=(
+  float rhs) noexcept;
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator=(
+  double rhs) noexcept;
 
 // to_native
 // FIXME extern template causes "Undefined reference" error. Fix it and move instantiation to UniversalTypes.cpp
 template C10_HOST_DEVICE float cfloat<32, 8, uint32_t, true, false, false>::to_native<float>() const;
 template C10_HOST_DEVICE double cfloat<32, 8, uint32_t, true, false, false>::to_native<double>() const;
+
+// addition and necessary methods
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator+=(
+  const cfloat<32, 8, uint32_t, true, false, false>& rhs);
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::normalizeAddition(
+  blocktriple<23, BlockTripleOperator::ADD, uint32_t>& tgt) const;
+extern template C10_HOST_DEVICE int cfloat<32, 8, uint32_t, true, false, false>::scale() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnormal() const noexcept;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isdenormal() const noexcept;
+extern template C10_HOST_DEVICE uint64_t cfloat<32, 8, uint32_t, true, false, false>::fraction_ull() const;
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::blockcopy<BlockTripleOperator::ADD>(
+  blocktriple<23, BlockTripleOperator::ADD, uint32_t>& tgt) const;
+template<size_t srcbits, BlockTripleOperator op, size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+inline C10_HOST_DEVICE void convert(
+  const blocktriple<srcbits, op, bt>& src,
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& tgt);
+
+// blocktriple for ADD
+extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::ADD, uint32_t>::blocktriple() noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::clear() noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::sign() const noexcept;
+extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::ADD, uint32_t>::scale() const noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::isnan() const noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::isinf() const noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::iszero() const noexcept;
+extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::ADD, uint32_t>::Significant
+  blocktriple<23, BlockTripleOperator::ADD, uint32_t>::significant() const noexcept;
+extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::ADD, uint32_t>::significantscale() const noexcept;
+extern template C10_HOST_DEVICE uint64_t blocktriple<23, BlockTripleOperator::ADD, uint32_t>::significant_ull() const noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setnan(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setinf(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setzero(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setnormal() noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setsign(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setscale(int scale) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setbits(uint64_t raw) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setblock(size_t i, const uint32_t& block) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setradix() noexcept;
+#pragma push_macro("setbit")
+#undef setbit
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setbit(size_t index, bool v) noexcept;
+#pragma pop_macro("setbit")
+extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::ADD, uint32_t>& blocktriple<23, BlockTripleOperator::ADD, uint32_t>::bitShift(
+  int leftShift) noexcept;
+extern template C10_HOST_DEVICE std::pair<bool, size_t> blocktriple<23, BlockTripleOperator::ADD, uint32_t>::roundingDecision(
+  int adjustment) const noexcept;
+
+// blocksignificant
+extern template C10_HOST_DEVICE blocksignificant<29, uint32_t>::blocksignificant() noexcept;
+extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::clear() noexcept;
+extern template C10_HOST_DEVICE bool blocksignificant<29, uint32_t>::at(size_t bitIndex) const noexcept;
+extern template C10_HOST_DEVICE uint64_t blocksignificant<29, uint32_t>::significant_ull() const noexcept;
+extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setradix(int radix);
+extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setbits(uint64_t value) noexcept;
+extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setblock(size_t b, const uint32_t& block) noexcept;
+#pragma push_macro("setbit")
+#undef setbit
+extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setbit(size_t index, bool v) noexcept;
+#pragma pop_macro("setbit")
+extern template C10_HOST_DEVICE blocksignificant<29, uint32_t>& blocksignificant<29, uint32_t>::operator<<=(int bitsToShift);
+extern template C10_HOST_DEVICE bool blocksignificant<29, uint32_t>::roundingDirection(size_t targetLsb) const;
+
+// multiplication and necessary methods
+extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator*=(
+  const cfloat<32, 8, uint32_t, true, false, false>& rhs);
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::normalizeMultiplication(
+  blocktriple<23, BlockTripleOperator::MUL, uint32_t>& tgt) const;
+extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::issupernormal() const noexcept;
+extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::blockcopy<BlockTripleOperator::MUL>(
+  blocktriple<23, BlockTripleOperator::MUL, uint32_t>& tgt) const;
+
+// blocktriple for MUL
+extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::MUL, uint32_t>::blocktriple() noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::clear() noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::sign() const noexcept;
+extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::MUL, uint32_t>::scale() const noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::isnan() const noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::isinf() const noexcept;
+extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::iszero() const noexcept;
+extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::MUL, uint32_t>::Significant
+  blocktriple<23, BlockTripleOperator::MUL, uint32_t>::significant() const noexcept;
+extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::MUL, uint32_t>::significantscale() const noexcept;
+extern template C10_HOST_DEVICE uint64_t blocktriple<23, BlockTripleOperator::MUL, uint32_t>::significant_ull() const noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setnan(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setinf(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setzero(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setnormal() noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setsign(bool sign) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setscale(int scale) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setbits(uint64_t raw) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setblock(size_t i, const uint32_t& block) noexcept;
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setradix() noexcept;
+#pragma push_macro("setbit")
+#undef setbit
+extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setbit(size_t index, bool v) noexcept;
+#pragma pop_macro("setbit")
+extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::MUL, uint32_t>& blocktriple<23, BlockTripleOperator::MUL, uint32_t>::bitShift(
+  int leftShift) noexcept;
+extern template C10_HOST_DEVICE std::pair<bool, size_t> blocktriple<23, BlockTripleOperator::MUL, uint32_t>::roundingDecision(
+  int adjustment) const noexcept;
+
+// blocksignificant
+extern template C10_HOST_DEVICE blocksignificant<48, uint32_t>::blocksignificant() noexcept;
+extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::clear() noexcept;
+extern template C10_HOST_DEVICE bool blocksignificant<48, uint32_t>::at(size_t bitIndex) const noexcept;
+extern template C10_HOST_DEVICE uint64_t blocksignificant<48, uint32_t>::significant_ull() const noexcept;
+extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setradix(int radix);
+extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setbits(uint64_t value) noexcept;
+extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setblock(size_t b, const uint32_t& block) noexcept;
+#pragma push_macro("setbit")
+#undef setbit
+extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setbit(size_t index, bool v) noexcept;
+#pragma pop_macro("setbit")
+extern template C10_HOST_DEVICE blocksignificant<48, uint32_t>& blocksignificant<48, uint32_t>::operator<<=(int bitsToShift);
+extern template C10_HOST_DEVICE bool blocksignificant<48, uint32_t>::roundingDirection(size_t targetLsb) const;
 
 #pragma diag_default 20040
 
@@ -227,7 +355,7 @@ class alignas(4) CFloatWithSubnormals : public sw::universal::cfloat<32, 8, uint
 public:
   using Base = sw::universal::cfloat<32, 8, uint32_t, true, false, false>;
 
-  constexpr C10_HOST_DEVICE CFloatWithSubnormals() : Base() {}
+  constexpr C10_HOST_DEVICE CFloatWithSubnormals() = default;
   C10_HOST_DEVICE CFloatWithSubnormals(float value) : Base()
   {
     convert_ieee754<float>(value);
