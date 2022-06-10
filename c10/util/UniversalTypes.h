@@ -10,6 +10,10 @@
 
 #include <type_traits>
 
+#include <c10/util/UniversalTypes-CFloatWithSubnormals-add.h>
+#include <c10/util/UniversalTypes-CFloatWithSubnormals-mul.h>
+#include <c10/util/UniversalTypes-CFloatWithSubnormals-div.h>
+
 // Private macro (it is removed with #undef below)
 #define FORALL_SUPPORTED_TYPES(_) \
   _(int)                          \
@@ -17,6 +21,13 @@
   _(long long)                    \
   _(float)                        \
   _(double)
+
+  // Private macro (it is removed with #undef below)
+  #define FORALL_SUPPORTED_TYPES_EXCEPT_DOUBLE(_) \
+    _(int)                                        \
+    _(long)                                       \
+    _(long long)                                  \
+    _(float)
 
 // Private macro (it is removed with #undef below)
 // (argument type, return type)
@@ -100,6 +111,30 @@ inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isS
   const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& lhs,
   const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& rhs);
 
+// Other math functions
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> exp(
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> x);
+
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> log(
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> x);
+
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> pow(
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> x,
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> y);
+
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> pow(
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> x,
+  int y);
+
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> pow(
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> x,
+  double y);
+
 
 #define OP(T, _)                                                                                              \
   template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating> \
@@ -144,26 +179,37 @@ inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isS
 FORALL_SUPPORTED_TYPES_IN_OPERATORS(OP)
 #undef OP
 
+// min and max
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> min(
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> x,
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> y);
+
+template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> max(
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> x,
+  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating> y);
+
 // cfloat constructor
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat() noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat(float) noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat(double) noexcept;
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setblock(size_t b, uint32_t data) noexcept;
+extern template C10_HOST_DEVICE CFloat::cfloat() noexcept;
+extern template C10_HOST_DEVICE CFloat::cfloat(float) noexcept;
+extern template C10_HOST_DEVICE CFloat::cfloat(double) noexcept;
+extern template C10_HOST_DEVICE void CFloat::setblock(size_t b, uint32_t data) noexcept;
 
 // blockbinary constructor and methods
-extern template C10_HOST_DEVICE blockbinary<8, uint32_t, BinaryNumberType::Signed>::blockbinary() noexcept;
-extern template C10_HOST_DEVICE bool blockbinary<8, uint32_t, BinaryNumberType::Signed>::isallones() const noexcept;
-extern template C10_HOST_DEVICE bool blockbinary<8, uint32_t, BinaryNumberType::Signed>::iszero() const noexcept;
-extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::clear() noexcept;
-extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::setbits(uint64_t value) noexcept;
+extern template C10_HOST_DEVICE BlockBinary::blockbinary() noexcept;
+extern template C10_HOST_DEVICE bool BlockBinary::isallones() const noexcept;
+extern template C10_HOST_DEVICE bool BlockBinary::iszero() const noexcept;
+extern template C10_HOST_DEVICE void BlockBinary::clear() noexcept;
+extern template C10_HOST_DEVICE void BlockBinary::setbits(uint64_t value) noexcept;
 #pragma push_macro("setbit")
 #undef setbit
-extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::setbit(size_t i, bool v) noexcept;
+extern template C10_HOST_DEVICE void BlockBinary::setbit(size_t i, bool v) noexcept;
 #pragma pop_macro("setbit")
 
 // cfloat methods that handle blockbinary
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::exponent(
-  blockbinary<8, uint32_t, BinaryNumberType::Signed>& e) const;
+extern template C10_HOST_DEVICE void CFloat::exponent(
+  BlockBinary& e) const;
 
 // isnan, isinf, and necessary methods
 template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
@@ -172,175 +218,53 @@ inline C10_HOST_DEVICE bool isnan(const cfloat<nbits, es, bt, hasSubnormals, has
 template<size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
 inline C10_HOST_DEVICE bool isinf(const cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& a);
 
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnan(int NaNType) const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnanencoding(int NaNType) const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::issupernormal() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isinf(int InfType) const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::ispos() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isneg() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::sign() const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::isnan(int NaNType) const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::isnanencoding(int NaNType) const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::issupernormal() const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::isinf(int InfType) const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::ispos() const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::isneg() const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::sign() const noexcept;
 
 // Conversion to float and necessary methods
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator float() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::iszero() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::iszeroencoding() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::at(size_t bitIndex) const noexcept;
+extern template C10_HOST_DEVICE CFloat::operator float() const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::iszero() const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::iszeroencoding() const noexcept;
+extern template C10_HOST_DEVICE bool CFloat::at(size_t bitIndex) const noexcept;
 
 // Conversion from float and necessary methods
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>&
-  cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<float>(float rhs) noexcept;
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setnan(int NaNType) noexcept;
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setinf(bool sign) noexcept;
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::clear() noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::flip() noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::maxneg() noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::maxpos() noexcept;
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::setsign(bool sign);
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::shiftLeft(int leftShift);
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::shiftRight(int rightShift);
-
-// Conversion from double
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>&
-  cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<double>(double rhs) noexcept;
+extern template C10_HOST_DEVICE CFloat&
+  CFloat::convert_ieee754<float>(float rhs) noexcept;
+extern template C10_HOST_DEVICE void CFloat::setnan(int NaNType) noexcept;
+extern template C10_HOST_DEVICE void CFloat::setinf(bool sign) noexcept;
+extern template C10_HOST_DEVICE void CFloat::clear() noexcept;
+extern template C10_HOST_DEVICE CFloat& CFloat::flip() noexcept;
+extern template C10_HOST_DEVICE CFloat& CFloat::maxneg() noexcept;
+extern template C10_HOST_DEVICE CFloat& CFloat::maxpos() noexcept;
+extern template C10_HOST_DEVICE void CFloat::setsign(bool sign);
+extern template C10_HOST_DEVICE void CFloat::shiftLeft(int leftShift);
+extern template C10_HOST_DEVICE void CFloat::shiftRight(int rightShift);
 
 // Explicit type casts to types other than float
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator int() const noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator long() const noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator long long() const noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::operator double() const noexcept;
-extern template C10_HOST_DEVICE int cfloat<32, 8, uint32_t, true, false, false>::to_int() const;
-extern template C10_HOST_DEVICE long cfloat<32, 8, uint32_t, true, false, false>::to_long() const;
-extern template C10_HOST_DEVICE long long cfloat<32, 8, uint32_t, true, false, false>::to_long_long() const;
+extern template C10_HOST_DEVICE CFloat::operator int() const noexcept;
+extern template C10_HOST_DEVICE CFloat::operator long() const noexcept;
+extern template C10_HOST_DEVICE CFloat::operator long long() const noexcept;
+extern template C10_HOST_DEVICE CFloat::operator double() const noexcept;
+extern template C10_HOST_DEVICE int CFloat::to_int() const;
+extern template C10_HOST_DEVICE long CFloat::to_long() const;
+extern template C10_HOST_DEVICE long long CFloat::to_long_long() const;
 
 // extractFields and necessary functions (required for conversion from float and from double)
 inline C10_HOST_DEVICE void extractFields(float value, bool& s, uint64_t& rawExponentBits, uint64_t& rawFractionBits);
-inline C10_HOST_DEVICE void extractFields(double value, bool& s, uint64_t& rawExponentBits, uint64_t& rawFractionBits);
 
 // operator=
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator=(
+extern template C10_HOST_DEVICE CFloat& CFloat::operator=(
   float rhs) noexcept;
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator=(
-  double rhs) noexcept;
 
 // to_native
 // FIXME extern template causes "Undefined reference" error. Fix it and move instantiation to UniversalTypes.cpp
-template C10_HOST_DEVICE float cfloat<32, 8, uint32_t, true, false, false>::to_native<float>() const;
-template C10_HOST_DEVICE double cfloat<32, 8, uint32_t, true, false, false>::to_native<double>() const;
-
-// addition and necessary methods
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator+=(
-  const cfloat<32, 8, uint32_t, true, false, false>& rhs);
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::normalizeAddition(
-  blocktriple<23, BlockTripleOperator::ADD, uint32_t>& tgt) const;
-extern template C10_HOST_DEVICE int cfloat<32, 8, uint32_t, true, false, false>::scale() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isnormal() const noexcept;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::isdenormal() const noexcept;
-extern template C10_HOST_DEVICE uint64_t cfloat<32, 8, uint32_t, true, false, false>::fraction_ull() const;
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::blockcopy<BlockTripleOperator::ADD>(
-  blocktriple<23, BlockTripleOperator::ADD, uint32_t>& tgt) const;
-template<size_t srcbits, BlockTripleOperator op, size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
-inline C10_HOST_DEVICE void convert(
-  const blocktriple<srcbits, op, bt>& src,
-  cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& tgt);
-
-// blocktriple for ADD
-extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::ADD, uint32_t>::blocktriple() noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::clear() noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::sign() const noexcept;
-extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::ADD, uint32_t>::scale() const noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::isnan() const noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::isinf() const noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::ADD, uint32_t>::iszero() const noexcept;
-extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::ADD, uint32_t>::Significant
-  blocktriple<23, BlockTripleOperator::ADD, uint32_t>::significant() const noexcept;
-extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::ADD, uint32_t>::significantscale() const noexcept;
-extern template C10_HOST_DEVICE uint64_t blocktriple<23, BlockTripleOperator::ADD, uint32_t>::significant_ull() const noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setnan(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setinf(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setzero(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setnormal() noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setsign(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setscale(int scale) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setbits(uint64_t raw) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setblock(size_t i, const uint32_t& block) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setradix() noexcept;
-#pragma push_macro("setbit")
-#undef setbit
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::ADD, uint32_t>::setbit(size_t index, bool v) noexcept;
-#pragma pop_macro("setbit")
-extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::ADD, uint32_t>& blocktriple<23, BlockTripleOperator::ADD, uint32_t>::bitShift(
-  int leftShift) noexcept;
-extern template C10_HOST_DEVICE std::pair<bool, size_t> blocktriple<23, BlockTripleOperator::ADD, uint32_t>::roundingDecision(
-  int adjustment) const noexcept;
-
-// blocksignificant
-extern template C10_HOST_DEVICE blocksignificant<29, uint32_t>::blocksignificant() noexcept;
-extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::clear() noexcept;
-extern template C10_HOST_DEVICE bool blocksignificant<29, uint32_t>::at(size_t bitIndex) const noexcept;
-extern template C10_HOST_DEVICE uint64_t blocksignificant<29, uint32_t>::significant_ull() const noexcept;
-extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setradix(int radix);
-extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setbits(uint64_t value) noexcept;
-extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setblock(size_t b, const uint32_t& block) noexcept;
-#pragma push_macro("setbit")
-#undef setbit
-extern template C10_HOST_DEVICE void blocksignificant<29, uint32_t>::setbit(size_t index, bool v) noexcept;
-#pragma pop_macro("setbit")
-extern template C10_HOST_DEVICE blocksignificant<29, uint32_t>& blocksignificant<29, uint32_t>::operator<<=(int bitsToShift);
-extern template C10_HOST_DEVICE bool blocksignificant<29, uint32_t>::roundingDirection(size_t targetLsb) const;
-
-// multiplication and necessary methods
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::operator*=(
-  const cfloat<32, 8, uint32_t, true, false, false>& rhs);
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::normalizeMultiplication(
-  blocktriple<23, BlockTripleOperator::MUL, uint32_t>& tgt) const;
-extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::issupernormal() const noexcept;
-extern template C10_HOST_DEVICE void cfloat<32, 8, uint32_t, true, false, false>::blockcopy<BlockTripleOperator::MUL>(
-  blocktriple<23, BlockTripleOperator::MUL, uint32_t>& tgt) const;
-
-// blocktriple for MUL
-extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::MUL, uint32_t>::blocktriple() noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::clear() noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::sign() const noexcept;
-extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::MUL, uint32_t>::scale() const noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::isnan() const noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::isinf() const noexcept;
-extern template C10_HOST_DEVICE bool blocktriple<23, BlockTripleOperator::MUL, uint32_t>::iszero() const noexcept;
-extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::MUL, uint32_t>::Significant
-  blocktriple<23, BlockTripleOperator::MUL, uint32_t>::significant() const noexcept;
-extern template C10_HOST_DEVICE int blocktriple<23, BlockTripleOperator::MUL, uint32_t>::significantscale() const noexcept;
-extern template C10_HOST_DEVICE uint64_t blocktriple<23, BlockTripleOperator::MUL, uint32_t>::significant_ull() const noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setnan(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setinf(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setzero(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setnormal() noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setsign(bool sign) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setscale(int scale) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setbits(uint64_t raw) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setblock(size_t i, const uint32_t& block) noexcept;
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setradix() noexcept;
-#pragma push_macro("setbit")
-#undef setbit
-extern template C10_HOST_DEVICE void blocktriple<23, BlockTripleOperator::MUL, uint32_t>::setbit(size_t index, bool v) noexcept;
-#pragma pop_macro("setbit")
-extern template C10_HOST_DEVICE blocktriple<23, BlockTripleOperator::MUL, uint32_t>& blocktriple<23, BlockTripleOperator::MUL, uint32_t>::bitShift(
-  int leftShift) noexcept;
-extern template C10_HOST_DEVICE std::pair<bool, size_t> blocktriple<23, BlockTripleOperator::MUL, uint32_t>::roundingDecision(
-  int adjustment) const noexcept;
-
-// blocksignificant
-extern template C10_HOST_DEVICE blocksignificant<48, uint32_t>::blocksignificant() noexcept;
-extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::clear() noexcept;
-extern template C10_HOST_DEVICE bool blocksignificant<48, uint32_t>::at(size_t bitIndex) const noexcept;
-extern template C10_HOST_DEVICE uint64_t blocksignificant<48, uint32_t>::significant_ull() const noexcept;
-extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setradix(int radix);
-extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setbits(uint64_t value) noexcept;
-extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setblock(size_t b, const uint32_t& block) noexcept;
-#pragma push_macro("setbit")
-#undef setbit
-extern template C10_HOST_DEVICE void blocksignificant<48, uint32_t>::setbit(size_t index, bool v) noexcept;
-#pragma pop_macro("setbit")
-extern template C10_HOST_DEVICE blocksignificant<48, uint32_t>& blocksignificant<48, uint32_t>::operator<<=(int bitsToShift);
-extern template C10_HOST_DEVICE bool blocksignificant<48, uint32_t>::roundingDirection(size_t targetLsb) const;
+template C10_HOST_DEVICE float CFloat::to_native<float>() const;
+template C10_HOST_DEVICE double CFloat::to_native<double>() const;
 
 #pragma diag_default 20040
 
@@ -349,6 +273,215 @@ extern template C10_HOST_DEVICE bool blocksignificant<48, uint32_t>::roundingDir
 
 namespace c10 {
 
+static constexpr C10_DEVICE int subnormal_reciprocal_shift_device[] = {
+	0,                    // es =  0 : not a valid value
+	-1,                   // es =  1 : 2^(2 - 2^(es-1)) = 2^1
+	0,                    // es =  2 : 2^(2 - 2^(es-1)) = 2^0
+	2,                    // es =  3 : 2^(2 - 2^(es-1)) = 2^-2
+	6,                    // es =  4 : 2^(2 - 2^(es-1)) = 2^-6
+	14,                   // es =  5 : 2^(2 - 2^(es-1)) = 2^-14
+	30,                   // es =  6 : 2^(2 - 2^(es-1)) = 2^-30
+	62,                   // es =  7 : 2^(2 - 2^(es-1)) = 2^-62
+	126,                  // es =  8 : 2^(2 - 2^(es-1)) = 2^-126
+	254,                  // es =  9 : 2^(2 - 2^(es-1)) = 2^-254
+	510,                  // es = 10 : 2^(2 - 2^(es-1)) = 2^-510
+	1022,                 // es = 11 : 2^(2 - 2^(es-1)) = 2^-1022
+	2046,                 // es = 12 : 2^(2 - 2^(es-1)) = 2^-2046
+	4094,                 // es = 13 : 2^(2 - 2^(es-1)) = 2^-4094
+	8190,                 // es = 14 : 2^(2 - 2^(es-1)) = 2^-8190
+	16382,                // es = 15 : 2^(2 - 2^(es-1)) = 2^-16382
+	32766,                // es = 16 : 2^(2 - 2^(es-1)) = 2^-32766
+	65534,                // es = 17 : 2^(2 - 2^(es-1)) = 2^-65534
+	131070,               // es = 18 : 2^(2 - 2^(es-1)) = 2^-131070
+	262142,               // es = 19 : 2^(2 - 2^(es-1)) = 2^-262142
+	524286                // es = 20 : 2^(2 - 2^(es-1)) = 2^-524286
+};
+
+// __host__ __device__ version of convert
+template<
+  size_t srcbits, sw::universal::BlockTripleOperator op,
+  size_t nbits, size_t es, typename bt, bool hasSubnormals, bool hasSupernormals, bool isSaturating>
+inline C10_HOST_DEVICE void convert(
+    const sw::universal::blocktriple<srcbits, op, bt>& src,
+    sw::universal::cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>& tgt)
+{
+  using btType = sw::universal::blocktriple<srcbits, op, bt>;
+	using cfloatType = sw::universal::cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>;
+	// test special cases
+	if (src.isnan()) {
+		tgt.setnan(src.sign() ? sw::universal::NAN_TYPE_SIGNALLING : sw::universal::NAN_TYPE_QUIET);
+	}
+	else	if (src.isinf()) {
+		tgt.setinf(src.sign());
+	}
+	else 	if (src.iszero()) {
+		tgt.setzero();
+		tgt.setsign(src.sign()); // preserve sign
+	}
+	else {
+		int significantScale = src.significantscale();
+		int exponent = src.scale() + significantScale;
+
+    #ifdef __CUDA_ARCH__
+    constexpr int subnormal_reciprocal_shift = subnormal_reciprocal_shift_device[es];
+    #else
+    constexpr int subnormal_reciprocal_shift = sw::universal::subnormal_reciprocal_shift[es];
+    #endif
+
+		// special case of underflow
+		if (hasSubnormals) {
+//			std::cout << "exponent = " << exponent << " bias = " << cfloatType::EXP_BIAS << " exp subnormal = " << cfloatType::MIN_EXP_SUBNORMAL << '\n';
+			// why must exponent be less than (minExpSubnormal - 1) to be rounded to zero?
+			// because the half-way value that would round up to minpos is at exp = (minExpSubnormal - 1)
+			if (exponent < cfloatType::MIN_EXP_SUBNORMAL) {
+				tgt.setzero();
+				if (exponent == (cfloatType::MIN_EXP_SUBNORMAL - 1)) {
+					// -exponent because we are right shifting and exponent in this range is negative
+					int adjustment = -(exponent + subnormal_reciprocal_shift);
+					std::pair<bool, size_t> alignment = src.roundingDecision(adjustment);
+					if (alignment.first) ++tgt; // we are minpos
+				}
+				tgt.setsign(src.sign());
+				return;
+			}
+		}
+		else {
+			if (exponent + cfloatType::EXP_BIAS <= 0) {  // value is in the subnormal range, which maps to 0
+				tgt.setzero();
+				tgt.setsign(src.sign());
+				return;
+			}
+		}
+		// special case of overflow
+		if (hasSupernormals) {
+			if (isSaturating) {
+				if (exponent > cfloatType::MAX_EXP) {
+					if (src.sign()) tgt.maxneg(); else tgt.maxpos();
+					return;
+				}
+			}
+			else {
+				if (exponent > cfloatType::MAX_EXP) {
+					tgt.setinf(src.sign());
+					return;
+				}
+			}
+		}
+		else {  // no supernormals will saturate at a different encoding: TODO can we hide it all in maxpos?
+			if (isSaturating) {
+				if (exponent > cfloatType::MAX_EXP) {
+					if (src.sign()) tgt.maxneg(); else tgt.maxpos();
+					return;
+				}
+			}
+			else {
+				if (exponent > cfloatType::MAX_EXP) {
+					tgt.setinf(src.sign());
+					return;
+				}
+			}
+		}
+
+		// our value needs to go through rounding to be correctly interpreted
+		//
+		// tgt.clear();  // no need as all bits are going to be set by the code below
+
+		// exponent construction
+		int adjustment{ 0 };
+		// construct exponent
+		uint64_t biasedExponent = static_cast<uint64_t>(static_cast<long long>(exponent) + static_cast<long long>(cfloatType::EXP_BIAS)); // this is guaranteed to be positive if exponent in encoding range
+//			std::cout << "exponent         " << to_binary(biasedExponent) << '\n';
+		if (hasSubnormals) {
+			//if (exponent >= cfloatType::MIN_EXP_SUBNORMAL && exponent < cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isSaturating>::MIN_EXP_NORMAL) {
+			if (exponent < cfloatType::MIN_EXP_NORMAL) {
+				// the value is in the subnormal range of the cfloat
+				biasedExponent = 0;
+				// -exponent because we are right shifting and exponent in this range is negative
+				adjustment = -(exponent + subnormal_reciprocal_shift);
+				// this is the right shift adjustment required for subnormal representation due
+				// to the scale of the input number, i.e. the exponent of 2^-adjustment
+			}
+			else {
+				// the value is in the normal range of the cfloat
+				biasedExponent = static_cast<uint64_t>(static_cast<long long>(exponent) + static_cast<long long>(cfloatType::EXP_BIAS)); // this is guaranteed to be positive
+			}
+		}
+		else {
+			if (exponent < cfloatType::MIN_EXP_NORMAL) biasedExponent = 1ull; // fixup biasedExponent if we are in the subnormal region
+		}
+
+
+		// get the rounding direction and the LSB right shift:
+		std::pair<bool, size_t> alignment = src.roundingDecision(adjustment);
+		bool roundup = alignment.first;
+		size_t rightShift = alignment.second;  // this is the shift to get the LSB of the src to the LSB of the tgt
+		//std::cout << "round-up?        " << (roundup ? "yes" : "no") << '\n';
+		//std::cout << "rightShift       " << rightShift << '\n';
+
+		if (btType::bfbits < 65) {
+			// we can use a uint64_t to construct the cfloat
+			uint64_t raw = (src.sign() ? 1ull : 0ull); // process sign
+			//std::cout << "raw bits (sign)  " << to_binary(raw) << '\n';
+			// construct the fraction bits
+			uint64_t fracbits = src.significant_ull(); // get all the bits, including the integer bits
+			//std::cout << "fracbits         " << to_binary(fracbits) << '\n';
+			fracbits >>= rightShift;
+			//std::cout << "fracbits shifted " << to_binary(fracbits) << '\n';
+			fracbits &= cfloatType::ALL_ONES_FR; // remove the hidden bit
+			//std::cout << "fracbits masked  " << to_binary(fracbits) << '\n';
+			if (roundup) ++fracbits;
+			if (fracbits == (1ull << cfloatType::fbits)) { // check for overflow
+				if (biasedExponent == cfloatType::ALL_ONES_ES) {
+					fracbits = cfloatType::INF_ENCODING; // project to INF
+				}
+				else {
+					++biasedExponent;
+					fracbits = 0;
+				}
+			}
+
+			raw <<= es; // shift sign to make room for the exponent bits
+			raw |= biasedExponent;
+			//std::cout << "raw bits (exp)   " << to_binary(raw) << '\n';
+			raw <<= cfloatType::fbits; // make room for the fraction bits
+			//std::cout << "raw bits (s+exp) " << to_binary(raw) << '\n';
+			raw |= fracbits;
+			//std::cout << "raw bits (final) " << to_binary(raw) << '\n';
+			tgt.setbits(raw);
+//			std::cout << "raw bits (all)   " << to_binary(raw) << '\n';
+			// when you get too far, map it back to +-inf: TBD: this doesn't appear to be the right algorithm to catch all overflow patterns
+			if (tgt.isnan()) tgt.setinf(src.sign());	// map back to +-inf
+		}
+		else {
+			// compose the segments
+			auto fracbits = src.significant();  // why significant? cheesy optimization: we are going to overwrite the hidden bit position anyway when we write the exponent below, so no need to pay the overhead of generating the fraction here.
+			//std::cout << "fraction      : " << to_binary(fracbits, true) << '\n';
+			fracbits >>= static_cast<int>(rightShift);
+			//std::cout << "aligned fbits : " << to_binary(fracbits, true) << '\n';
+
+			// copy the blocks that contain fraction bits
+			// significant blocks are organized like this:
+			//   ADD        iii.ffffrrrrrrrrr          3 integer bits, f fraction bits, and 2*fhbits rounding bits
+			//   MUL         ii.ffff'ffff              2 integer bits, 2*f fraction bits
+			//   DIV         ii.ffff'ffff'ffff'rrrr    2 integer bits, 3*f fraction bits, and r rounding bits
+			//std::cout << "fraction bits : " << to_binary(fracbits, true) << '\n';
+			tgt.clear();
+			//std::cout << "initial state : " << to_binary(tgt) << " : " << tgt << '\n';
+			for (size_t b = 0; b < btType::nrBlocks; ++b) {
+				tgt.setblock(b, fracbits.block(b));
+			}
+			//std::cout << "fraction bits : " << to_binary(tgt, true) << '\n';
+			tgt.setsign(src.sign());
+			//std::cout << "adding sign   : " << to_binary(tgt) << '\n';
+      tgt.setexponent(exponent);
+			// if (!tgt.setexponent(exponent)) {
+			// 	std::cerr << "exponent value is out of range: " << exponent << '\n';
+			// }
+			//std::cout << "add exponent  : " << to_binary(tgt) << '\n';
+		}
+	}
+}
+
 
 class alignas(4) CFloatWithSubnormals : public sw::universal::cfloat<32, 8, uint32_t, true, false, false>
 {
@@ -356,6 +489,7 @@ public:
   using Base = sw::universal::cfloat<32, 8, uint32_t, true, false, false>;
 
   constexpr C10_HOST_DEVICE CFloatWithSubnormals() = default;
+
   C10_HOST_DEVICE CFloatWithSubnormals(float value) : Base()
   {
     convert_ieee754<float>(value);
@@ -447,8 +581,14 @@ public:
       Base::operator=(value);                                \
       return *this;                                          \
     }
-  FORALL_SUPPORTED_TYPES(OP)
+  FORALL_SUPPORTED_TYPES_EXCEPT_DOUBLE(OP)
   #undef OP
+  // FIXME remove this once std::cout gets removed from the double conversion
+  C10_HOST_DEVICE CFloatWithSubnormals& operator=(double value)
+  {
+    Base::operator=(static_cast<float>(value));
+    return *this;
+  }
   C10_HOST_DEVICE CFloatWithSubnormals& operator=(signed char value)
   {
     convert_signed_integer(value);
@@ -488,21 +628,214 @@ public:
     tmp.setblock(Base::MSU, tmp.block(Base::MSU) ^ Base::SIGN_BIT_MASK);
     return static_cast<CFloatWithSubnormals>(tmp);
   }
-  C10_HOST_DEVICE CFloatWithSubnormals& operator+=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator+=(const CFloatWithSubnormals& rhs)
   {
-    return static_cast<CFloatWithSubnormals&>(Base::operator+=(right));
+    // This operator has to use the redefined convert
+		// special case handling of the inputs
+#if CFLOAT_THROW_ARITHMETIC_EXCEPTION
+		if (isnan(sw::universal::NAN_TYPE_SIGNALLING) || rhs.isnan(sw::universal::NAN_TYPE_SIGNALLING)) {
+			throw sw::universal::cfloat_operand_is_nan{};
+		}
+#else
+		if (isnan(sw::universal::NAN_TYPE_SIGNALLING) || rhs.isnan(sw::universal::NAN_TYPE_SIGNALLING)) {
+			setnan(sw::universal::NAN_TYPE_SIGNALLING);
+			return *this;
+		}
+		if (isnan(sw::universal::NAN_TYPE_QUIET) || rhs.isnan(sw::universal::NAN_TYPE_QUIET)) {
+			setnan(sw::universal::NAN_TYPE_QUIET);
+			return *this;
+		}
+#endif
+		// normal + inf  = inf
+		// normal + -inf = -inf
+		// inf + normal = inf
+		// inf + inf    = inf
+		// inf + -inf    = ?
+		// -inf + normal = -inf
+		// -inf + -inf   = -inf
+		// -inf + inf    = ?
+		if (isinf()) {
+			if (rhs.isinf()) {
+				if (sign() != rhs.sign()) {
+					setnan(sw::universal::NAN_TYPE_SIGNALLING);
+				}
+				return *this;
+			}
+			else {
+				return *this;
+			}
+		}
+		else {
+			if (rhs.isinf()) {
+				*this = rhs;
+				return *this;
+			}
+		}
+
+		if (iszero()) {
+			*this = rhs;
+			return *this;
+		}
+		if (rhs.iszero()) return *this;
+
+		// arithmetic operation
+		sw::universal::blocktriple<fbits, sw::universal::BlockTripleOperator::ADD, uint32_t> a, b, sum;
+
+		// transform the inputs into (sign,scale,significant)
+		// triples of the correct width
+		normalizeAddition(a);
+		rhs.normalizeAddition(b);
+		sum.add(a, b);
+
+		c10::convert(sum, *this);
+
+		return *this;
   }
-  C10_HOST_DEVICE CFloatWithSubnormals& operator-=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator-=(const CFloatWithSubnormals& rhs)
   {
-    return static_cast<CFloatWithSubnormals&>(Base::operator-=(right));
+    // This operator has to use the redefined convert
+		if (rhs.isnan())
+			return *this += rhs;
+		else
+			return *this += -rhs;
   }
-  C10_HOST_DEVICE CFloatWithSubnormals& operator*=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator*=(const CFloatWithSubnormals& rhs)
   {
-    return static_cast<CFloatWithSubnormals&>(Base::operator*=(right));
+    // This operator has to use the redefined convert
+		// special case handling of the inputs
+#if CFLOAT_THROW_ARITHMETIC_EXCEPTION
+		if (isnan(sw::universal::NAN_TYPE_SIGNALLING) || rhs.isnan(sw::universal::NAN_TYPE_SIGNALLING)) {
+			throw cfloat_operand_is_nan{};
+		}
+#else
+		if (isnan(sw::universal::NAN_TYPE_SIGNALLING) || rhs.isnan(sw::universal::NAN_TYPE_SIGNALLING)) {
+			setnan(sw::universal::NAN_TYPE_SIGNALLING);
+			return *this;
+		}
+		if (isnan(sw::universal::NAN_TYPE_QUIET) || rhs.isnan(sw::universal::NAN_TYPE_QUIET)) {
+			setnan(sw::universal::NAN_TYPE_QUIET);
+			return *this;
+		}
+#endif
+		//  inf * inf = inf
+		//  inf * -inf = -inf
+		// -inf * inf = -inf
+		// -inf * -inf = inf
+		//	0 * inf = -nan(ind)
+		bool resultSign = sign() != rhs.sign();
+		if (isinf()) {
+			if (rhs.isinf()) {
+				setsign(resultSign);
+				return *this;
+			}
+			else {
+				setnan(sw::universal::NAN_TYPE_SIGNALLING);
+				return *this;
+			}
+		}
+		else {
+			if (rhs.isinf()) {
+				setnan(sw::universal::NAN_TYPE_SIGNALLING);
+				return *this;
+			}
+		}
+
+		if (iszero() || rhs.iszero()) {
+			setzero();
+			setsign(resultSign); // deal with negative 0
+			return *this;
+		}
+
+		// arithmetic operation
+		sw::universal::blocktriple<fbits, sw::universal::BlockTripleOperator::MUL, uint32_t> a, b, product;
+
+		// transform the inputs into (sign,scale,significant)
+		// triples of the correct width
+		normalizeMultiplication(a);
+		rhs.normalizeMultiplication(b);
+		product.mul(a, b);
+		c10::convert(product, *this);
+
+		return *this;
   }
-  C10_HOST_DEVICE CFloatWithSubnormals& operator/=(const CFloatWithSubnormals& right)
+  C10_HOST_DEVICE CFloatWithSubnormals& operator/=(const CFloatWithSubnormals& rhs)
   {
-    return static_cast<CFloatWithSubnormals&>(Base::operator/=(right));
+    // special case handling of the inputs
+		// qnan / qnan = qnan
+		// qnan / snan = qnan
+		// snan / qnan = snan
+		// snan / snan = snan
+#if CFLOAT_THROW_ARITHMETIC_EXCEPTION
+		if (rhs.iszero()) throw sw::universal::cfloat_divide_by_zero();
+		if (rhs.isnan()) throw sw::universal::cfloat_divide_by_nan();
+		if (isnan()) throw sw::universal::cfloat_operand_is_nan();
+#else
+		if (isnan(sw::universal::NAN_TYPE_SIGNALLING) || rhs.isnan(sw::universal::NAN_TYPE_SIGNALLING)) {
+			setnan(sw::universal::NAN_TYPE_SIGNALLING);
+			return *this;
+		}
+		if (isnan(sw::universal::NAN_TYPE_QUIET) || rhs.isnan(sw::universal::NAN_TYPE_QUIET)) {
+			setnan(sw::universal::NAN_TYPE_QUIET);
+			return *this;
+		}
+		if (rhs.iszero()) {
+			if (iszero()) {
+				// zero divide by zero yields quiet NaN (in MSVC it is labeled -nan(ind) for indeterminate)
+				setnan(sw::universal::NAN_TYPE_QUIET);
+			}
+			else {
+				// non-zero divide by zero yields INF
+				bool resultSign = sign() != rhs.sign();
+				setinf(resultSign);
+			}
+			return *this;
+		}
+#endif
+		//  inf /  inf = -nan(ind)
+		//  inf / -inf = -nan(ind)
+		// -inf /  inf = -nan(ind)
+		// -inf / -inf = -nan(ind)
+		//	1.0 /  inf = 0
+		bool resultSign = sign() != rhs.sign();
+		if (isinf()) {
+			if (rhs.isinf()) {
+				// inf divide by inf yields quiet NaN (in MSVC it is labeled -nan(ind) for indeterminate)
+				setnan(sw::universal::NAN_TYPE_QUIET);
+				return *this;
+			}
+			else {
+				// we stay an infinite but may change sign
+				setsign(resultSign);
+				return *this;
+			}
+		}
+		else {
+			if (rhs.isinf()) {
+				setzero();
+				setsign(resultSign);
+				return *this;
+			}
+		}
+
+		if (iszero()) {
+			setzero();
+			setsign(resultSign); // deal with negative 0
+			return *this;
+		}
+
+		// arithmetic operation
+		using BlockTriple = sw::universal::blocktriple<fbits, sw::universal::BlockTripleOperator::DIV, uint32_t>;
+		BlockTriple a, b, quotient;
+
+		// transform the inputs into (sign,scale,significant)
+		// triples of the correct width
+		normalizeDivision(a);
+		rhs.normalizeDivision(b);
+		quotient.div(a, b);
+		quotient.setradix(BlockTriple::radix);
+		c10::convert(quotient, *this);
+
+		return *this;
   }
 };
 
@@ -673,6 +1006,7 @@ inline C10_HOST_DEVICE CFloatWithSubnormals operator/(int64_t left, const CFloat
 }
 
 #undef FORALL_SUPPORTED_TYPES
+#undef FORALL_SUPPORTED_TYPES_EXCEPT_DOUBLE
 #undef FORALL_SUPPORTED_TYPES_IN_OPERATORS
 #undef FORALL_ADDITIONAL_TYPES
 
