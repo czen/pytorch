@@ -25,3 +25,8 @@ from torch.testing._legacy import (
     integral_types,
     integral_types_and,
 )
+import torch
+
+_universal_types = _dispatch_dtypes((torch.cfloatwithsubnormals,))
+def universal_types():
+    return _universal_types
