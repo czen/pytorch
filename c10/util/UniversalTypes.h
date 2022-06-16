@@ -2,7 +2,11 @@
 
 #pragma push_macro("setbit")
 #undef setbit
+#define half sw_universal_half
+#define bfloat16 sw_universal_bfloat16
 #include <universal/number/cfloat/cfloat.hpp>
+#undef half
+#undef bfloat16
 #pragma pop_macro("setbit")
 
 #include <c10/util/BFloat16.h>
