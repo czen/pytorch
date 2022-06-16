@@ -314,3 +314,6 @@ pr.diff
 
 # precompiled headers
 *.gch
+
+# Test data for Universal
+/test_universal/test_data
