@@ -597,7 +597,7 @@ void round_decimals_kernel(TensorIteratorBase& iter, int64_t decimals) {
   inline namespace CPU_CAPABILITY {                                                              \
   void op##_kernel(TensorIteratorBase& iter) {                                                   \
     TORCH_INTERNAL_ASSERT(iter.ntensors() == 2);                                                 \
-    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND1(kBFloat16, iter.dtype(), #op "_vml_cpu", [&]() { \
+    AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND_UNIVERSAL_AND1(kBFloat16, iter.dtype(), #op "_vml_cpu", [&]() { \
       iter.serial_for_each(                                                                      \
           IMPLEMENT_ITERATOR_LAMBDA(op),                                                         \
           {0, iter.numel()});                                                                    \

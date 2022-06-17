@@ -67,7 +67,7 @@ from enum import Enum
 from statistics import mean
 import functools
 from .composite_compliance import no_dispatch
-from torch.testing._internal.common_dtype import get_all_dtypes
+from torch.testing._internal.common_dtype import get_all_dtypes, universal_types
 from torch.nn import ModuleList, ModuleDict, Sequential, ParameterList, ParameterDict
 from torch._C import ScriptList, ScriptDict  # type: ignore[attr-defined]
 
@@ -2048,7 +2048,7 @@ class TestCase(expecttest.TestCase):
             assert device is None
             assert dtype is None
             t_cpu = tensor_like.detach().cpu()
-            if t_cpu.dtype is torch.bfloat16:
+            if t_cpu.dtype is torch.bfloat16 or t_cpu.dtype in universal_types():
                 t_cpu = t_cpu.float()
             a = t_cpu.numpy()
             t = tensor_like
@@ -2070,6 +2070,8 @@ class TestCase(expecttest.TestCase):
                 #   for example, the array has negative strides.
                 np_result = torch.from_numpy(np_result.copy())
             if t.dtype is torch.bfloat16 and torch_result.dtype is torch.bfloat16 and np_result.dtype is torch.float:
+                torch_result = torch_result.to(torch.float)
+            elif t.dtype in universal_types() and torch_result.dtype == t.dtype and np_result.dtype is torch.float:
                 torch_result = torch_result.to(torch.float)
 
         self.assertEqual(np_result, torch_result, **kwargs)

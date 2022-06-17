@@ -104,7 +104,10 @@ def make_tensor(
         return low, high
 
     _integral_types = [torch.uint8, torch.int8, torch.int16, torch.int32, torch.int64]
-    _floating_types = [torch.float16, torch.bfloat16, torch.float32, torch.float64]
+    _floating_types = [
+        torch.float16, torch.bfloat16, torch.float32, torch.float64,
+        torch.cfloatwithsubnormals
+    ]
     _complex_types = [torch.cfloat, torch.cdouble]
     if requires_grad and dtype not in _floating_types and dtype not in _complex_types:
         raise ValueError("make_tensor: requires_grad must be False for integral dtype")

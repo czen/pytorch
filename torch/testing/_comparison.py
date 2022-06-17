@@ -47,6 +47,7 @@ _DTYPE_PRECISIONS = {
     torch.float64: (1e-7, 1e-7),
     torch.complex64: (1.3e-6, 1e-5),
     torch.complex128: (1e-7, 1e-7),
+    torch.cfloatwithsubnormals: (1.3e-6, 1e-5),
 }
 # The default tolerances of torch.float32 are used for quantized dtypes, because quantized tensors are compared in
 # their dequantized and floating point representation. For more details see `TensorLikePair._compare_quantized_values`

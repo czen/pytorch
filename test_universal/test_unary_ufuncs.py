@@ -17,11 +17,11 @@ from torch.testing._internal.common_methods_invocations import (
     unary_ufuncs, _NOTHING)
 from torch.testing._internal.common_device_type import (
     instantiate_device_type_tests, ops, dtypes, onlyCPU, onlyNativeDeviceTypes,
-    onlyCUDA, dtypesIfCUDA, precisionOverride, skipCUDAIfRocm, dtypesIfCPU,
-    OpDTypes)
+    onlyCUDA, dtypesIfCUDA, precisionOverride, skipCUDAIfRocm, dtypesIfCPU)
 from torch.testing import make_tensor
 from torch.testing._internal.common_dtype import (
-    universal_types
+    universal_types, all_types_and_complex_and_universal_and, get_all_int_dtypes,
+    get_all_complex_dtypes, get_all_fp_dtypes
 )
 
 if TEST_SCIPY:
@@ -221,7 +221,7 @@ class TestUnaryUfuncs(TestCase):
     exact_dtype = True
 
     @ops([_fn for _fn in unary_ufuncs if _fn.domain != (None, None)],
-         allowed_dtypes=universal_types())
+         dtypes=universal_types())
     def test_float_domains(self, device, dtype, op):
         eps = (1e-5, 1e-3, 1e-1, 1, 2, 10, 20, 50, 100)
 
@@ -277,7 +277,7 @@ class TestUnaryUfuncs(TestCase):
                 # Also ops like scipy.special.erf, scipy.special.erfc, etc, promote float16
                 # to float32
                 if expected.dtype == np.float32:
-                    assert actual.dtype in (torch.float16, torch.bfloat16, torch.float32)
+                    assert actual.dtype in (torch.float16, torch.bfloat16, torch.float32, *universal_types())
                 else:
                     assert expected.dtype == torch_to_numpy_dtype_dict[actual.dtype]
 
@@ -305,12 +305,16 @@ class TestUnaryUfuncs(TestCase):
                 # Ref: https://github.com/pytorch/pytorch/blob/master/torch/testing/_internal/common_utils.py#L1149
                 self.assertEqualHelper(actual, expected, msg, dtype=dtype,
                                        exact_dtype=exact_dtype, rtol=16e-3, atol=1e-5)
+            elif dtype in universal_types():
+                # Ref: https://github.com/pytorch/pytorch/blob/master/torch/testing/_internal/common_utils.py#L1149
+                self.assertEqualHelper(actual, expected, msg, dtype=dtype,
+                                       exact_dtype=exact_dtype, rtol=1e-3, atol=1e-5)
             else:
                 self.assertEqualHelper(actual, expected, msg, dtype=dtype, equal_nan=equal_nan, exact_dtype=exact_dtype)
 
         for t in tensors:
             torch_kwargs, numpy_kwargs = op.sample_kwargs(t.device, dtype, t)
-            if dtype is torch.bfloat16:
+            if dtype is torch.bfloat16 or dtype in universal_types():
                 a = t.cpu().to(torch.float32).numpy()
             else:
                 a = t.cpu().numpy()
@@ -339,7 +343,7 @@ class TestUnaryUfuncs(TestCase):
     #   1D tensors and a large 2D tensor with interesting and extremal values
     #   and noncontiguities.
     @suppress_warnings
-    @ops(reference_filtered_ops)
+    @ops(reference_filtered_ops, dtypes=universal_types())
     def test_reference_numerics_normal(self, device, dtype, op):
         tensors = generate_numeric_tensors(device, dtype,
                                            domain=op.domain,
@@ -347,7 +351,7 @@ class TestUnaryUfuncs(TestCase):
         self._test_reference_numerics(dtype, op, tensors)
 
     @suppress_warnings
-    @ops(reference_filtered_ops, allowed_dtypes=universal_types())
+    @ops(reference_filtered_ops, dtypes=universal_types())
     def test_reference_numerics_hard(self, device, dtype, op):
         if not op.handles_large_floats:
             raise self.skipTest("This op does not handle large values")
@@ -358,7 +362,7 @@ class TestUnaryUfuncs(TestCase):
 
     @suppress_warnings
     @ops(reference_filtered_ops,
-         allowed_dtypes=universal_types())
+         dtypes=universal_types())
     def test_reference_numerics_extremal(self, device, dtype, op):
         handles_extremals = (op.handles_complex_extremals if
                              dtype in (torch.cfloat, torch.cdouble) else op.handles_extremals)
@@ -372,7 +376,7 @@ class TestUnaryUfuncs(TestCase):
 
     # Tests for testing (non)contiguity consistency
 
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_contig_vs_every_other(self, device, dtype, op):
         contig = make_tensor((1026,), device=device, dtype=dtype,
                              low=op.domain[0], high=op.domain[1])
@@ -384,7 +388,7 @@ class TestUnaryUfuncs(TestCase):
         torch_kwargs, _ = op.sample_kwargs(device, dtype, non_contig)
         self.assertEqual(op(contig, **torch_kwargs)[::2], op(non_contig, **torch_kwargs))
 
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_contig_vs_transposed(self, device, dtype, op):
         contig = make_tensor((789, 357), device=device, dtype=dtype,
                              low=op.domain[0], high=op.domain[1])
@@ -396,7 +400,7 @@ class TestUnaryUfuncs(TestCase):
         torch_kwargs, _ = op.sample_kwargs(device, dtype, contig)
         self.assertEqual(op(contig, **torch_kwargs).T, op(non_contig, **torch_kwargs))
 
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_non_contig(self, device, dtype, op):
         shapes = [(5, 7), (1024,)]
         for shape in shapes:
@@ -411,7 +415,7 @@ class TestUnaryUfuncs(TestCase):
             torch_kwargs, _ = op.sample_kwargs(device, dtype, contig)
             self.assertEqual(op(contig, **torch_kwargs), op(non_contig, **torch_kwargs))
 
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_non_contig_index(self, device, dtype, op):
         contig = make_tensor((2, 2, 1, 2), device, dtype,
                              low=op.domain[0], high=op.domain[1])
@@ -424,7 +428,7 @@ class TestUnaryUfuncs(TestCase):
         torch_kwargs, _ = op.sample_kwargs(device, dtype, contig)
         self.assertEqual(op(contig, **torch_kwargs), op(non_contig, **torch_kwargs))
 
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_non_contig_expand(self, device, dtype, op):
         shapes = [(1, 3), (1, 7), (5, 7)]
         for shape in shapes:
@@ -442,7 +446,7 @@ class TestUnaryUfuncs(TestCase):
                 self.assertEqual(contig, non_contig[i],
                                  msg='non-contiguous expand[' + str(i) + ']')
 
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_contig_size1(self, device, dtype, op):
         contig = make_tensor((5, 100), device, dtype,
                              low=op.domain[0], high=op.domain[1])
@@ -456,7 +460,7 @@ class TestUnaryUfuncs(TestCase):
         torch_kwargs, _ = op.sample_kwargs(device, dtype, contig)
         self.assertEqual(op(contig, **torch_kwargs), op(contig2, **torch_kwargs))
 
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_contig_size1_large_dim(self, device, dtype, op):
         contig = make_tensor((5, 2, 3, 1, 4, 5, 3, 2, 1, 2, 3, 4), device, dtype,
                              low=op.domain[0], high=op.domain[1])
@@ -472,7 +476,7 @@ class TestUnaryUfuncs(TestCase):
 
     # Tests that computation on a multiple batches is the same as
     # per-batch computation.
-    @ops(unary_ufuncs)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_batch_vs_slicing(self, device, dtype, op):
         input = make_tensor((1024, 512), dtype=dtype, device=device,
                             low=op.domain[0], high=op.domain[1])
@@ -497,7 +501,7 @@ class TestUnaryUfuncs(TestCase):
             self.assertTrue(res is output)
             self.assertEqual(output, expected.to(output.dtype))
 
-    @ops(unary_ufuncs, dtypes=OpDTypes.supported)
+    @ops(unary_ufuncs, dtypes=universal_types())
     def test_out_arg_all_dtypes(self, device, dtype, op):
         if not op.supports_out:
             self.skipTest("Skipped! Op doesn't support out= kwarg.")
@@ -507,7 +511,7 @@ class TestUnaryUfuncs(TestCase):
         torch_kwargs, _ = op.sample_kwargs(device, dtype, input)
         expected = op(input, **torch_kwargs)
 
-        for out_dtype in all_types_and_complex_and(torch.bool, torch.half):
+        for out_dtype in all_types_and_complex_and_universal_and(torch.bool, torch.half):
             out = torch.empty_like(input, dtype=out_dtype)
             self._test_out_arg(op, input, out, expected, **torch_kwargs)
 
@@ -593,14 +597,14 @@ class TestUnaryUfuncs(TestCase):
     def test_frexp(self, device, dtype):
         input = make_tensor((50, 50), device, dtype)
         mantissa, exponent = torch.frexp(input)
-        np_mantissa, np_exponent = np.frexp(input.cpu().numpy())
+        np_mantissa, np_exponent = np.frexp(input.cpu().to(torch.float32).numpy())
 
-        self.assertEqual(mantissa, np_mantissa)
-        self.assertEqual(exponent, np_exponent)
+        self.assertEqual(mantissa.to(torch.float32), np_mantissa)
+        self.assertEqual(exponent.to(torch.float32), np_exponent)
 
         # torch.frexp returns exponent in int32 to be compatible with np.frexp
         self.assertTrue(exponent.dtype == torch.int32)
-        self.assertTrue(torch_to_numpy_dtype_dict[exponent.dtype] == np_exponent.dtype)
+        # self.assertTrue(torch_to_numpy_dtype_dict[exponent.dtype] == np_exponent.dtype)
 
     @skipCUDAIfRocm
     def test_frexp_assert_raises(self, device):
@@ -615,7 +619,7 @@ class TestUnaryUfuncs(TestCase):
         for dtype in get_all_fp_dtypes(include_half=True, include_bfloat16=False):
             input = make_tensor((50, 50), device, dtype)
 
-            dtypes = list(all_types_and_complex_and(torch.bool, torch.half, torch.bfloat16))
+            dtypes = list(all_types_and_complex_and_universal_and(torch.bool, torch.half, torch.bfloat16))
             dtypes.remove(dtype)
             for mantissa_dtype in dtypes:
                 mantissa = torch.empty_like(input, dtype=mantissa_dtype)
@@ -915,7 +919,7 @@ class TestUnaryUfuncs(TestCase):
         self.assertEqual(a, b.expand(2 ** 31))
 
     @precisionOverride({torch.bfloat16: 1e-2, torch.float: 0.0002, torch.double: 0.0002})
-    @dtypesIfCUDA()
+    @dtypesIfCUDA(*universal_types())
     @dtypes(*universal_types())
     def test_hardswish(self, device, dtype):
         inputValues = [-1000, -4, -3, -2, 0, 2, 3, 4, 1000]
@@ -937,7 +941,7 @@ class TestUnaryUfuncs(TestCase):
         self.assertEqual(inputTensorCpy, expectedOutputTensor)
 
     @precisionOverride({torch.bfloat16: 1e-2, torch.float: 0.0002, torch.double: 0.0002})
-    @dtypesIfCUDA()
+    @dtypesIfCUDA(*universal_types())
     @dtypes(*universal_types())
     def test_hardsigmoid(self, device, dtype):
         inputValues = [-1000, -4, -3, -2, 0, 2, 3, 4, 1000]
@@ -955,7 +959,7 @@ class TestUnaryUfuncs(TestCase):
                          torch.tensor(expectedOutput, dtype=dtype, device=device))
 
     @precisionOverride({torch.bfloat16: 1e-2, torch.float: 0.0002, torch.double: 0.0002})
-    @dtypesIfCUDA()
+    @dtypesIfCUDA(*universal_types())
     @dtypes(*universal_types())
     def test_hardsigmoid_backward(self, device, dtype):
         inputValues = [-3.0, 3.0, -2.0, 2.0, -6.0, 6.0]
@@ -971,23 +975,22 @@ class TestUnaryUfuncs(TestCase):
     def test_silu(self, device, dtype):
         input_np = np.random.randn(5, 8)
         special_input = [[-1000, -1, -0.1, 0, 0.5, 1, 2, 1000]]
-        input_np = np.concatenate((input_np, special_input), axis=0).astype(
-            torch_to_numpy_dtype_dict[dtype])
+        input_np = np.concatenate((input_np, special_input), axis=0)
         expected_output_np = input_np * scipy.special.expit(input_np)
 
-        expected_output = torch.from_numpy(expected_output_np).to(device)
+        expected_output = torch.from_numpy(expected_output_np).to(dtype).to(device)
         expected_output_noncontig = expected_output.transpose(0, 1)
 
         atol = 1e-6
         rtol = 1e-6
 
-        input = torch.from_numpy(input_np).clone().contiguous().to(device)
+        input = torch.from_numpy(input_np).to(dtype).clone().contiguous().to(device)
         self.assertEqual(torch.nn.functional.silu(input), expected_output,
                          atol=atol, rtol=rtol)
         self.assertEqual(torch.nn.functional.silu(input, inplace=True),
                          expected_output, atol=atol, rtol=rtol)
 
-        input = torch.from_numpy(input_np).clone().to(device)
+        input = torch.from_numpy(input_np).to(dtype).clone().to(device)
         input_noncontig = input.transpose(0, 1)
         self.assertEqual(torch.nn.functional.silu(input_noncontig),
                          expected_output_noncontig, atol=atol, rtol=rtol)
@@ -1015,23 +1018,22 @@ class TestUnaryUfuncs(TestCase):
     def test_mish(self, device, dtype):
         input_np = np.random.randn(5, 8)
         special_input = [[-1000, -1, -0.1, 0, 0.5, 1, 2, 1000]]
-        input_np = np.concatenate((input_np, special_input), axis=0).astype(
-            torch_to_numpy_dtype_dict[dtype])
+        input_np = np.concatenate((input_np, special_input), axis=0)
         expected_output_np = input_np * np.tanh(np.log1p(np.exp(input_np)))
 
-        expected_output = torch.from_numpy(expected_output_np).to(device)
+        expected_output = torch.from_numpy(expected_output_np).to(dtype).to(device)
         expected_output_noncontig = expected_output.transpose(0, 1)
 
         atol = 1e-6
         rtol = 1e-6
 
-        input = torch.from_numpy(input_np).clone().contiguous().to(device)
+        input = torch.from_numpy(input_np).to(dtype).clone().contiguous().to(device)
         self.assertEqual(torch.nn.functional.mish(input), expected_output,
                          atol=atol, rtol=rtol)
         self.assertEqual(torch.nn.functional.mish(input, inplace=True),
                          expected_output, atol=atol, rtol=rtol)
 
-        input = torch.from_numpy(input_np).clone().to(device)
+        input = torch.from_numpy(input_np).to(dtype).clone().to(device)
         input_noncontig = input.transpose(0, 1)
         self.assertEqual(torch.nn.functional.mish(input_noncontig),
                          expected_output_noncontig, atol=atol, rtol=rtol)
@@ -1067,7 +1069,7 @@ class TestUnaryUfuncs(TestCase):
         half_prec = dtype in [torch.bfloat16, torch.float16]
         for input0, input1 in inputs:
             actual = torch_fcn(input0, input1)
-            if half_prec:
+            if half_prec or dtype in universal_types():
                 input0 = input0.to(torch.float)
                 input1 = input1.to(torch.float)
             expected = scipy_fcn(input0.cpu().numpy(), input1.cpu().numpy())
@@ -1076,7 +1078,7 @@ class TestUnaryUfuncs(TestCase):
 
     @skipCUDAIfRocm  # see issue https://github.com/pytorch/pytorch/issues/46531
     @dtypesIfCPU(*universal_types())
-    @dtypes()
+    @dtypes(*universal_types())
     @unittest.skipIf(not TEST_SCIPY, "SciPy not found")
     @onlyNativeDeviceTypes
     def test_igamma_common(self, device, dtype):
@@ -1087,7 +1089,7 @@ class TestUnaryUfuncs(TestCase):
                                  torch.igamma, scipy.special.gammainc)
 
     @dtypesIfCPU(*universal_types())
-    @dtypes()
+    @dtypes(*universal_types())
     @unittest.skipIf(not TEST_SCIPY, "SciPy not found")
     @onlyNativeDeviceTypes
     def test_igammac_common(self, device, dtype):
@@ -1098,7 +1100,7 @@ class TestUnaryUfuncs(TestCase):
                                  torch.igammac, scipy.special.gammaincc)
 
     @dtypesIfCPU(*universal_types())
-    @dtypes()
+    @dtypes(*universal_types())
     @onlyNativeDeviceTypes
     def test_igamma_edge_cases(self, device, dtype):
         tkwargs = {"dtype": dtype, "device": device}
@@ -1127,7 +1129,7 @@ class TestUnaryUfuncs(TestCase):
                 self.assertEqual(calc, output)
 
     @dtypesIfCPU(*universal_types())
-    @dtypes()
+    @dtypes(*universal_types())
     @onlyNativeDeviceTypes
     def test_igammac_edge_cases(self, device, dtype):
         tkwargs = {"dtype": dtype, "device": device}
@@ -1159,11 +1161,11 @@ class TestUnaryUfuncs(TestCase):
         # Test by comparing to scipy
         dtype = t.dtype
         actual = torch.i0(t)
-        if dtype is torch.bfloat16:
+        if dtype is torch.bfloat16 or dtype in universal_types():
             t = t.to(torch.float32)
         expected = scipy.special.i0(t.cpu().numpy())
         # Casting down for dtype float16 is required since scipy upcasts to float32
-        if dtype is torch.bfloat16 or dtype is torch.float16:
+        if dtype is torch.bfloat16 or dtype is torch.float16 or dtype in universal_types():
             expected = torch.from_numpy(expected).to(dtype)
         self.assertEqual(actual, expected)
 
@@ -1175,7 +1177,7 @@ class TestUnaryUfuncs(TestCase):
             t = torch.rand(1000, device=device).to(dtype) * r
             self._i0_helper(t)
 
-    @dtypesIfCUDA()
+    @dtypesIfCUDA(*universal_types())
     @dtypes(*universal_types())
     @unittest.skipIf(not TEST_SCIPY, "SciPy not found")
     def test_i0_range1(self, device, dtype):
@@ -1183,7 +1185,7 @@ class TestUnaryUfuncs(TestCase):
         # The domain is (-13.25, 13.25)
         self._i0_range_helper(13.25, device, dtype)
 
-    @dtypesIfCUDA()
+    @dtypesIfCUDA(*universal_types())
     @dtypes(*universal_types())
     @unittest.skipIf(not TEST_SCIPY, "SciPy not found")
     def test_i0_range2(self, device, dtype):
@@ -1198,7 +1200,7 @@ class TestUnaryUfuncs(TestCase):
         # The domain is (-709.75, 709.75)
         self._i0_range_helper(709.75, device, dtype)
 
-    @dtypesIfCUDA()
+    @dtypesIfCUDA(*universal_types())
     @dtypes(*universal_types())
     @unittest.skipIf(not TEST_SCIPY, "SciPy not found")
     def test_i0_special(self, device, dtype):
@@ -1208,19 +1210,19 @@ class TestUnaryUfuncs(TestCase):
         t = torch.tensor([inf, -inf, nan], device=device, dtype=dtype)
         self.assertTrue(torch.i0(t).isnan().all())
 
-    @dtypesIfCUDA()
+    @dtypesIfCUDA(*universal_types())
     @dtypes(*universal_types())
     @unittest.skipIf(not TEST_SCIPY, "SciPy not found")
     def test_special_i0_i1_vs_scipy(self, device, dtype):
         def check_equal(t, torch_fn, scipy_fn):
             # Test by comparing to scipy
             actual = torch_fn(t)
-            if dtype is torch.bfloat16:
+            if dtype is torch.bfloat16 or dtype in universal_types():
                 t = t.to(torch.float32)
             expected = scipy_fn(t.cpu().numpy())
 
             # Casting down for dtype float16 is required since scipy upcasts to float32
-            if dtype is torch.bfloat16 or dtype is torch.float16:
+            if dtype is torch.bfloat16 or dtype is torch.float16 or dtype in universal_types():
                 expected = torch.from_numpy(expected).to(dtype)
             self.assertEqual(actual, expected)
 
@@ -1257,8 +1259,8 @@ class TestUnaryUfuncs(TestCase):
     def test_special_ndtr_vs_scipy(self, device, dtype):
         def check_equal(t):
             # Test by comparing to scipy
-            actual = torch.special.ndtr(t)
-            expected = scipy.special.ndtr(t.cpu().numpy())
+            actual = torch.special.ndtr(t.to(torch.float32))
+            expected = scipy.special.ndtr(t.to(torch.float32).cpu().numpy())
             self.assertEqual(actual, expected)
 
         range = (-10, 10)
@@ -1293,7 +1295,7 @@ class TestUnaryUfuncs(TestCase):
 
     # TODO: update to compare against NumPy by rationalizing with OpInfo
     @onlyCUDA
-    @dtypes()
+    @dtypes(*universal_types())
     def test_abs_zero(self, device, dtype):
         # Both abs(0.0) and abs(-0.0) should result in 0.0
         abs_zeros = torch.tensor([0.0, -0.0], device=device, dtype=dtype).abs().tolist()
@@ -1342,7 +1344,8 @@ class TestUnaryUfuncs(TestCase):
         self.assertEqual(torch.empty(0, dtype=torch.long), z[0])
 
     # TODO: rationalize with exp OpInfo
-    @dtypes(*universal_types())
+    # Numpy does not support universal types
+    @dtypes()
     @dtypesIfCUDA()
     def test_exp(self, device, dtype):
         for v in (2, -2) + ((1j, 1 + 1j) if dtype.is_complex else ()):
@@ -1412,7 +1415,7 @@ class TestUnaryUfuncs(TestCase):
                 self.compare_with_numpy(torch.exp, np.exp, nan_real_inf_imag_in)
 
 
-instantiate_device_type_tests(TestUnaryUfuncs, globals())
+instantiate_device_type_tests(TestUnaryUfuncs, globals(), except_for=('cuda', 'meta'))
 
 if __name__ == '__main__':
     run_tests()
