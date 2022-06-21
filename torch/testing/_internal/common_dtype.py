@@ -5,6 +5,7 @@ from torch.testing._legacy import (
     _validate_dtypes,
     _dispatch_dtypes,
     _all_types_and_complex,
+    _floating_and_complex_types,
     all_types,
     all_types_and,
     all_types_and_complex,
@@ -28,6 +29,14 @@ from torch.testing._legacy import (
 )
 import torch
 
+native_equivalent = {
+    torch.cfloatwithsubnormals: torch.float32
+}
+
+universal_fp_limit = {
+    torch.cfloatwithsubnormals: 2**24
+}
+
 _universal_types = _dispatch_dtypes((torch.cfloatwithsubnormals,))
 def universal_types():
     return _universal_types
@@ -38,6 +47,10 @@ def all_types_and_complex_and_universal():
 
 def all_types_and_complex_and_universal_and(*dtypes):
     return _all_types_and_complex_and_universal + _validate_dtypes(*dtypes)
+
+_floating_and_complex_types_and_universal = _floating_and_complex_types + _universal_types
+def floating_and_complex_types_and_universal_and(*dtypes):
+    return _floating_and_complex_types_and_universal + _validate_dtypes(*dtypes)
 
 def get_all_dtypes_and_universal(include_half=True,
                                  include_bfloat16=True,

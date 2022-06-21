@@ -167,7 +167,11 @@ public:
   constexpr C10_HOST_DEVICE CFloatWithSubnormals() : Base() {}
   C10_HOST_DEVICE CFloatWithSubnormals(float value) : Base()
   {
-    convert_ieee754<float>(value);
+    // FIXME Remove this once this case is fixed in universal
+    if (std::isinf(value))
+      setinf(value < 0);
+    else
+      convert_ieee754<float>(value);
   }
 
   constexpr C10_HOST_DEVICE CFloatWithSubnormals(Base value) : Base(value) {}

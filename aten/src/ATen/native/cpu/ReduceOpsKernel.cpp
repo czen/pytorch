@@ -73,7 +73,7 @@ static void cumsum_cpu_kernel(const Tensor& result, const Tensor& self, int64_t 
   auto wrap_dim = maybe_wrap_dim(dim, self.dim());
   int64_t self_dim_size = ensure_nonempty_size(self, wrap_dim);
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX(self.scalar_type(), "cumsum_out_cpu", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL(self.scalar_type(), "cumsum_out_cpu", [&] {
     cpu_cum_base_kernel<scalar_t>(result, self, wrap_dim, [&] (
       scalar_t* result_data, auto result_dim_stride,
       const scalar_t* self_data, auto self_dim_stride, scalar_t init_val) {
@@ -92,7 +92,7 @@ static void cumprod_cpu_kernel(const Tensor& result, const Tensor& self, int64_t
   auto wrap_dim = maybe_wrap_dim(dim, self.dim());
   int64_t self_dim_size = ensure_nonempty_size(self, wrap_dim);
 
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX(self.scalar_type(), "cumprod_out_cpu", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL(self.scalar_type(), "cumprod_out_cpu", [&] {
     cpu_cum_base_kernel<scalar_t>(result, self, wrap_dim, [&] (
       scalar_t* result_data, auto result_dim_stride,
       const scalar_t* self_data, auto self_dim_stride, scalar_t init_val) {
@@ -140,7 +140,7 @@ static void logcumsumexp_cpu_kernel(Tensor& result, const Tensor& self, int64_t 
 }
 
 static void mean_kernel_impl(TensorIterator& iter) {
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX(iter.dtype(), "mean_cpu", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL(iter.dtype(), "mean_cpu", [&] {
     scalar_t factor = scalar_t(iter.num_output_elements()) / scalar_t(iter.numel());
     binary_kernel_reduce(
       iter,
@@ -178,7 +178,7 @@ static void prod_kernel_impl(TensorIterator& iter) {
         // NOLINTNEXTLINE(bugprone-argument-comment)
         /*identity=*/1);
   } else {
-    AT_DISPATCH_ALL_TYPES_AND_COMPLEX(iter.dtype(), "prod_cpu", [&] {
+    AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL(iter.dtype(), "prod_cpu", [&] {
       binary_kernel_reduce_vec(
           iter,
           [=](scalar_t a, scalar_t b)

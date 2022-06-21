@@ -1092,7 +1092,7 @@ Tensor trace_cpu(const Tensor& self) {
   // is set to true
   ScalarType dtype = get_dtype_from_self(self, c10::nullopt, true);
   result = at::empty({}, self.options().dtype(dtype));
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX(self.scalar_type(), "trace", [&] {
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_UNIVERSAL(self.scalar_type(), "trace", [&] {
     using accscalar_t = at::acc_type<scalar_t, false>;
     accscalar_t sum = 0;
     const auto* t_data = self.data_ptr<scalar_t>();
@@ -1522,7 +1522,8 @@ static double std_var_all_cpu(const Tensor& self, int64_t correction, bool take_
       .build();
 
   auto reduction = [&](int64_t begin, int64_t end, double thread_sum) {
-    AT_DISPATCH_FLOATING_TYPES_AND_UNIVERSAL(iter.common_dtype(), "std_var_all_cpu", [&] {
+    // Universal types are handled in std_var_kernel_impl in src/ATen/native/cpu/ReduceOpsKernel.cpp
+    AT_DISPATCH_FLOATING_TYPES(iter.common_dtype(), "std_var_all_cpu", [&] {
       iter.serial_for_each([&] (char** data, const int64_t* strides, int64_t size0, int64_t size1) {
         const double local_mean = mean;
         const int64_t inner_stride = strides[0];
@@ -1617,7 +1618,8 @@ static Tensor& std_var_out(
     return result;
   } else if (
       result.numel() == 1 && iter.device_type() == kCPU &&
-      iter.common_dtype() != kBFloat16 && iter.common_dtype() != kHalf) {
+      iter.common_dtype() != kBFloat16 && iter.common_dtype() != kHalf &&
+      !isUniversalType(iter.common_dtype())) {
     // NOTE: CPU performance significantly regressed when attempting to port to
     // ATen,
     //   so all-reduce has a custom implementation.

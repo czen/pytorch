@@ -20,8 +20,9 @@ from torch.testing._internal.common_device_type import (
     onlyCUDA, dtypesIfCUDA, precisionOverride, skipCUDAIfRocm, dtypesIfCPU)
 from torch.testing import make_tensor
 from torch.testing._internal.common_dtype import (
-    universal_types, all_types_and_complex_and_universal_and, get_all_int_dtypes,
-    get_all_complex_dtypes, get_all_fp_dtypes
+    all_types_and_complex_and_universal_and, get_all_int_dtypes,
+    get_all_complex_dtypes, get_all_fp_dtypes,
+    native_equivalent, universal_types
 )
 
 if TEST_SCIPY:
@@ -314,7 +315,9 @@ class TestUnaryUfuncs(TestCase):
 
         for t in tensors:
             torch_kwargs, numpy_kwargs = op.sample_kwargs(t.device, dtype, t)
-            if dtype is torch.bfloat16 or dtype in universal_types():
+            if dtype in universal_types():
+                a = t.cpu().to(native_equivalent[dtype]).numpy()
+            elif dtype is torch.bfloat16:
                 a = t.cpu().to(torch.float32).numpy()
             else:
                 a = t.cpu().numpy()
@@ -597,10 +600,10 @@ class TestUnaryUfuncs(TestCase):
     def test_frexp(self, device, dtype):
         input = make_tensor((50, 50), device, dtype)
         mantissa, exponent = torch.frexp(input)
-        np_mantissa, np_exponent = np.frexp(input.cpu().to(torch.float32).numpy())
+        np_mantissa, np_exponent = np.frexp(input.to(native_equivalent[dtype]).cpu().numpy())
 
-        self.assertEqual(mantissa.to(torch.float32), np_mantissa)
-        self.assertEqual(exponent.to(torch.float32), np_exponent)
+        self.assertEqual(mantissa.to(native_equivalent[dtype]), np_mantissa)
+        self.assertEqual(exponent.to(native_equivalent[dtype]), np_exponent)
 
         # torch.frexp returns exponent in int32 to be compatible with np.frexp
         self.assertTrue(exponent.dtype == torch.int32)
@@ -1069,7 +1072,10 @@ class TestUnaryUfuncs(TestCase):
         half_prec = dtype in [torch.bfloat16, torch.float16]
         for input0, input1 in inputs:
             actual = torch_fcn(input0, input1)
-            if half_prec or dtype in universal_types():
+            if dtype in universal_types():
+                input0 = input0.to(native_equivalent[dtype])
+                input1 = input1.to(native_equivalent[dtype])
+            elif half_prec:
                 input0 = input0.to(torch.float)
                 input1 = input1.to(torch.float)
             expected = scipy_fcn(input0.cpu().numpy(), input1.cpu().numpy())
@@ -1161,7 +1167,9 @@ class TestUnaryUfuncs(TestCase):
         # Test by comparing to scipy
         dtype = t.dtype
         actual = torch.i0(t)
-        if dtype is torch.bfloat16 or dtype in universal_types():
+        if dtype in universal_types():
+            t = t.to(native_equivalent[dtype])
+        elif dtype is torch.bfloat16:
             t = t.to(torch.float32)
         expected = scipy.special.i0(t.cpu().numpy())
         # Casting down for dtype float16 is required since scipy upcasts to float32
@@ -1217,7 +1225,9 @@ class TestUnaryUfuncs(TestCase):
         def check_equal(t, torch_fn, scipy_fn):
             # Test by comparing to scipy
             actual = torch_fn(t)
-            if dtype is torch.bfloat16 or dtype in universal_types():
+            if dtype in universal_types():
+                t = t.to(native_equivalent[dtype])
+            elif dtype is torch.bfloat16:
                 t = t.to(torch.float32)
             expected = scipy_fn(t.cpu().numpy())
 
@@ -1259,8 +1269,8 @@ class TestUnaryUfuncs(TestCase):
     def test_special_ndtr_vs_scipy(self, device, dtype):
         def check_equal(t):
             # Test by comparing to scipy
-            actual = torch.special.ndtr(t.to(torch.float32))
-            expected = scipy.special.ndtr(t.to(torch.float32).cpu().numpy())
+            actual = torch.special.ndtr(t.to(native_equivalent[dtype]))
+            expected = scipy.special.ndtr(t.to(native_equivalent[dtype]).cpu().numpy())
             self.assertEqual(actual, expected)
 
         range = (-10, 10)
@@ -1415,7 +1425,7 @@ class TestUnaryUfuncs(TestCase):
                 self.compare_with_numpy(torch.exp, np.exp, nan_real_inf_imag_in)
 
 
-instantiate_device_type_tests(TestUnaryUfuncs, globals(), except_for=('cuda', 'meta'))
+instantiate_device_type_tests(TestUnaryUfuncs, globals(), only_for='cpu')
 
 if __name__ == '__main__':
     run_tests()

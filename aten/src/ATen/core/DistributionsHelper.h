@@ -48,7 +48,8 @@ struct uniform_int_from_to_distribution {
       std::is_same<T, int64_t>::value ||
       std::is_same<T, double>::value ||
       std::is_same<T, float>::value ||
-      std::is_same<T, at::BFloat16>::value) && range_ >= 1ULL << 32)
+      std::is_same<T, at::BFloat16>::value ||
+      is_universal_floating_point<T>::value) && range_ >= 1ULL << 32)
     {
       return transformation::uniform_int_from_to<T>(generator->random64(), range_, base_);
     } else {

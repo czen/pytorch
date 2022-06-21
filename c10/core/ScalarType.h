@@ -324,6 +324,10 @@ static inline bool isUniversalType(ScalarType t) {
   return t == ScalarType::CFloatWithSubnormals;
 }
 
+static inline bool isUniversalFloatingPointType(ScalarType t) {
+  return t == ScalarType::CFloatWithSubnormals;
+}
+
 static inline ScalarType toQIntType(ScalarType t) {
   switch (t) {
     case ScalarType::Byte:

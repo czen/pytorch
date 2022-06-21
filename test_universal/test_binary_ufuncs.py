@@ -25,7 +25,8 @@ from torch.testing import make_tensor
 from torch.testing._internal.common_dtype import (
     integral_types_and, get_all_dtypes, get_all_int_dtypes,
     get_all_complex_dtypes, get_all_fp_dtypes, universal_types,
-    get_all_fp_dtypes_and_universal, get_all_dtypes_and_universal
+    get_all_fp_dtypes_and_universal, get_all_dtypes_and_universal,
+    native_equivalent
 )
 from torch.testing._internal.common_methods_invocations import (
     binary_ufuncs, _NOTHING)
@@ -277,7 +278,10 @@ class TestBinaryUfuncs(TestCase):
                 self.assertEqualHelper(actual, expected, msg, dtype=dtype, equal_nan=equal_nan, exact_dtype=exact_dtype)
 
         for l, r in tensor_pairs:
-            if dtype is torch.bfloat16 or dtype in universal_types():
+            if dtype in universal_types():
+                l_numpy = l.cpu().to(native_equivalent[dtype]).numpy()
+                r_numpy = r.cpu().to(native_equivalent[dtype]).numpy()
+            elif dtype is torch.bfloat16:
                 l_numpy = l.cpu().to(torch.float32).numpy()
                 r_numpy = r.cpu().to(torch.float32).numpy()
             else:
@@ -371,7 +375,7 @@ class TestBinaryUfuncs(TestCase):
                               noncontiguous=noncontiguous, **op.rhs_make_tensor_kwargs)
 
             actual = op(lhs, rhs)
-            expected = op.ref(lhs.cpu().to(torch.float32).numpy(), rhs.cpu().to(torch.float32).numpy())
+            expected = op.ref(lhs.to(native_equivalent[dtype]).cpu().numpy(), rhs.to(native_equivalent[dtype]).cpu().numpy())
 
             self.assertEqual(actual, expected, exact_dtype=False)
 
@@ -1305,7 +1309,7 @@ class TestBinaryUfuncs(TestCase):
         def to_np(value):
             if isinstance(value, torch.Tensor):
                 if value.dtype in universal_types():
-                    value = value.to(torch.float32)
+                    value = value.to(native_equivalent[value.dtype])
                 return value.cpu().numpy()
             return value
 
@@ -2113,12 +2117,16 @@ class TestBinaryUfuncs(TestCase):
         def _test_copysign_numpy(a, b):
             torch_result = torch.copysign(a, b)
 
-            if a.dtype == torch.bfloat16 or a.dtype in universal_types():
+            if a.dtype in universal_types():
+                np_a = a.to(native_equivalent[a.dtype]).cpu().numpy()
+            elif a.dtype == torch.bfloat16:
                 np_a = a.to(torch.float).cpu().numpy()
             else:
                 np_a = a.cpu().numpy()
 
-            if b.dtype == torch.bfloat16 or b.dtype in universal_types():
+            if b.dtype in universal_types():
+                np_b = b.to(native_equivalent[b.dtype]).cpu().numpy()
+            elif b.dtype == torch.bfloat16:
                 np_b = b.to(torch.float).cpu().numpy()
             else:
                 np_b = b.cpu().numpy()
@@ -2359,8 +2367,8 @@ class TestBinaryUfuncs(TestCase):
         def _helper(x, mod, fns_list):
             for fn, inplace_fn, ref_fn in fns_list:
                 if dtype in universal_types():
-                    x = x.to(torch.float32) if torch.is_tensor(x) else x
-                    mod = mod.to(torch.float32) if torch.is_tensor(mod) else mod
+                    x = x.to(native_equivalent[dtype]) if torch.is_tensor(x) else x
+                    mod = mod.to(native_equivalent[dtype]) if torch.is_tensor(mod) else mod
                 np_x = x.cpu().numpy() if torch.is_tensor(x) else x
                 np_mod = mod.cpu().numpy() if torch.is_tensor(mod) else mod
                 exp = ref_fn(np_x, np_mod)
@@ -2668,7 +2676,7 @@ class TestBinaryUfuncs(TestCase):
         self.assertEqual(x / s, x / y)
         self.assertEqual(s / x, y / x)
 
-    @dtypes(*tuple(itertools.combinations_with_replacement(get_all_dtypes(), 2)))
+    @dtypes(*tuple(itertools.combinations_with_replacement(get_all_dtypes_and_universal(), 2)))
     def test_comparison_ops_type_promotion_and_broadcasting(self, device, dtypes):
         # issue #42660
         # testing all combinations of broadcasting and type promotion
@@ -2676,8 +2684,19 @@ class TestBinaryUfuncs(TestCase):
         def compare_with_numpy_bin_op(torch_fn, np_fn, x, y, out=None):
             # working around the fact that numpy doesn't support bfloat16
             # by letting numpy treat them as float32's
-            x_np = x if x.dtype != torch.bfloat16 else x.to(torch.float32)
-            y_np = y.cpu().numpy() if y.dtype != torch.bfloat16 else y.to(torch.float32).cpu().numpy()
+            if x.dtype in universal_types():
+                x_np = x.to(native_equivalent[x.dtype])
+            elif x.dtype == torch.bfloat16:
+                x_np = x.to(torch.float32)
+            else:
+                x_np = x
+
+            if y.dtype in universal_types():
+                y_np = y.to(native_equivalent[y.dtype]).cpu().numpy()
+            elif y.dtype == torch.bfloat16:
+                y_np = y.to(torch.float32).cpu().numpy()
+            else:
+                y_np = y.cpu().numpy()
             self.compare_with_numpy(lambda inp: torch_fn(inp, y, out=out) if out else torch_fn(inp, y),
                                     lambda inp: np_fn(inp, y_np, out=out) if out else np_fn(inp, y_np),
                                     x_np)
@@ -3455,8 +3474,11 @@ class TestBinaryUfuncs(TestCase):
                           get_all_dtypes_and_universal(include_bool=False))))
     def test_float_power(self, device, dtypes):
         def to_np(value):
-            if isinstance(value, torch.Tensor) and value.dtype == torch.bfloat16 or value.dtype in universal_types():
-                return value.to(torch.float).cpu().numpy()
+            if isinstance(value, torch.Tensor):
+                if value.dtype in universal_types():
+                    return value.to(native_equivalent[value.dtype]).cpu().numpy()
+                elif value.dtype == torch.bfloat16:
+                    return value.to(torch.float).cpu().numpy()
             return value.cpu().numpy() if isinstance(value, torch.Tensor) else value
 
         base_dtype = dtypes[0]
@@ -3645,8 +3667,8 @@ class TestBinaryUfuncs(TestCase):
     @dtypes(*universal_types())
     def test_xlogy_xlog1py_universal(self, device, dtype):
         def _compare_helper(x, y, torch_fn, reference_fn):
-            x_np = x if isinstance(x, float) else x.cpu().to(torch.float).numpy()
-            y_np = y if isinstance(y, float) else y.cpu().to(torch.float).numpy()
+            x_np = x if isinstance(x, float) else x.to(native_equivalent[dtype]).cpu().numpy()
+            y_np = y if isinstance(y, float) else y.to(native_equivalent[dtype]).cpu().numpy()
             expected = torch.from_numpy(reference_fn(x_np, y_np))
             actual = torch_fn(x, y)
             self.assertEqual(expected, actual, exact_dtype=False)
@@ -3856,7 +3878,7 @@ def generate_not_implemented_tests(cls):
 
 
 generate_not_implemented_tests(TestBinaryUfuncs)
-instantiate_device_type_tests(TestBinaryUfuncs, globals(), except_for=('cuda', 'meta'))
+instantiate_device_type_tests(TestBinaryUfuncs, globals(), only_for='cpu')
 
 if __name__ == '__main__':
     run_tests()
