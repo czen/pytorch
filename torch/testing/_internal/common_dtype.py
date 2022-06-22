@@ -39,7 +39,13 @@ universal_fp_limit = {
 
 _universal_types = _dispatch_dtypes((torch.cfloatwithsubnormals,))
 def universal_types():
+    """Returns all Universal types"""
     return _universal_types
+
+_universal_types_double_precision = _dispatch_dtypes()
+def universal_types_double_precision():
+    """Returns all floating point Universal types with double precision"""
+    return _universal_types_double_precision
 
 _all_types_and_complex_and_universal = _all_types_and_complex + _universal_types
 def all_types_and_complex_and_universal():

@@ -496,6 +496,12 @@ struct is_universal_floating_point :
     std::is_same<T, CFloatWithSubnormals>::value> {
 };
 
+// Checks whether T is one of the new double precision floating point types
+template <typename T>
+struct is_universal_double_precision :
+  std::integral_constant<bool, false> {
+};
+
 // In case we want to add complex or integral types later
 template <typename T>
 struct is_universal_type :

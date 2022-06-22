@@ -12207,6 +12207,8 @@ op_db: List[OpInfo] = [
                        # Reference: https://github.com/pytorch/pytorch/issues/41245
                        DecorateInfo(unittest.skip("Skipped!"), 'TestUnaryUfuncs', 'test_reference_numerics_extremal',
                                     dtypes=[torch.bfloat16, torch.float16, torch.float32, torch.float64]),
+                       DecorateInfo(unittest.skip("Skipped!"), 'TestUnaryUfuncs', 'test_reference_numerics_extremal',
+                                    dtypes=universal_types()),
                    )),
     UnaryUfuncInfo('sgn',
                    ref=reference_sgn,
@@ -12237,6 +12239,8 @@ op_db: List[OpInfo] = [
                                     dtypes=complex_types()),
                        DecorateInfo(unittest.skip("Skipped! sparse backward not supported"),
                                     'TestSparseUnaryUfuncs', 'test_sparse_fn_grad'),
+                       DecorateInfo(unittest.skip("Skipped!"), 'TestUnaryUfuncs', 'test_reference_numerics_extremal',
+                                    dtypes=universal_types()),
                    )),
     OpInfo('split',
            dtypes=all_types_and_complex_and(torch.bfloat16, torch.half, torch.bool),

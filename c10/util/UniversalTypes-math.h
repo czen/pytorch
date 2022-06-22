@@ -100,6 +100,9 @@ inline c10::CFloatWithSubnormals pow(c10::CFloatWithSubnormals a, c10::CFloatWit
 inline c10::CFloatWithSubnormals fmod(c10::CFloatWithSubnormals a, c10::CFloatWithSubnormals b) {
   return sw::universal::fmod(a, b);
 }
+inline c10::CFloatWithSubnormals fabs(c10::CFloatWithSubnormals a) {
+  return sw::universal::fabs(a);
+}
 
 C10_HOST_DEVICE inline c10::CFloatWithSubnormals nextafter(
     c10::CFloatWithSubnormals from,
