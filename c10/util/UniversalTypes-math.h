@@ -27,6 +27,12 @@ inline c10::CFloatWithSubnormals erfc(c10::CFloatWithSubnormals a) {
   return sw::universal::erfc(a);
 }
 inline c10::CFloatWithSubnormals exp(c10::CFloatWithSubnormals a) {
+  if (sw::universal::isinf(a)) {
+    if (a < 0)
+      return 0;
+    else
+      return a;
+  }
   return sw::universal::exp(a);
 }
 inline c10::CFloatWithSubnormals expm1(c10::CFloatWithSubnormals a) {

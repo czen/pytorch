@@ -70,7 +70,7 @@ else()
   target_compile_definitions(c10 PRIVATE SUPPORTS_BACKTRACE=0)
 endif()
 
-find_package(UNIVERSAL CONFIG REQUIRED)
+find_package(UNIVERSAL 3.57.1 CONFIG REQUIRED)
 target_link_libraries(c10 PRIVATE ${UNIVERSAL_LIBRARIES})
 
 if(USE_NUMA)

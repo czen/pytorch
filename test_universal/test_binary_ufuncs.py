@@ -290,10 +290,6 @@ class TestBinaryUfuncs(TestCase):
 
             actual = op(l, r)
             expected = op.ref(l_numpy, r_numpy)
-            print('l:', l)
-            print('r:', r)
-            print('actual:', actual)
-            print('expected:', expected)
 
             # Crafts a custom error message for smaller, printable tensors
             if l.numel() < 10 and r.numel() < 10:

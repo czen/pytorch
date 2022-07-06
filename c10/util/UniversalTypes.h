@@ -2,11 +2,7 @@
 
 #pragma push_macro("setbit")
 #undef setbit
-#define half sw_universal_half
-#define bfloat16 sw_universal_bfloat16
 #include <universal/number/cfloat/cfloat.hpp>
-#undef half
-#undef bfloat16
 #pragma pop_macro("setbit")
 
 #include <c10/util/BFloat16.h>
@@ -119,11 +115,7 @@ inline C10_HOST_DEVICE cfloat<nbits, es, bt, hasSubnormals, hasSupernormals, isS
 FORALL_SUPPORTED_TYPES_IN_OPERATORS(OP)
 #undef OP
 
-// cfloat constructor
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>::cfloat() noexcept;
-
-// blockbinary constructor and methods
-extern template C10_HOST_DEVICE blockbinary<8, uint32_t, BinaryNumberType::Signed>::blockbinary() noexcept;
+// blockbinary methods
 extern template C10_HOST_DEVICE bool blockbinary<8, uint32_t, BinaryNumberType::Signed>::isallones() const noexcept;
 extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::clear() noexcept;
 extern template C10_HOST_DEVICE void blockbinary<8, uint32_t, BinaryNumberType::Signed>::setbits(uint64_t value) noexcept;
@@ -149,7 +141,7 @@ extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>
 extern template C10_HOST_DEVICE bool cfloat<32, 8, uint32_t, true, false, false>::sign() const noexcept;
 
 // Instantiate cfloat methods and make them __host__ __device__
-extern template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<float>(float rhs) noexcept;
+template C10_HOST_DEVICE cfloat<32, 8, uint32_t, true, false, false>& cfloat<32, 8, uint32_t, true, false, false>::convert_ieee754<float>(float rhs) noexcept;
 
 #pragma diag_default 20040
 
@@ -167,11 +159,7 @@ public:
   constexpr C10_HOST_DEVICE CFloatWithSubnormals() : Base() {}
   C10_HOST_DEVICE CFloatWithSubnormals(float value) : Base()
   {
-    // FIXME Remove this once this case is fixed in universal
-    if (std::isinf(value))
-      setinf(value < 0);
-    else
-      convert_ieee754<float>(value);
+    convert_ieee754<float>(value);
   }
 
   constexpr C10_HOST_DEVICE CFloatWithSubnormals(Base value) : Base(value) {}
@@ -183,7 +171,8 @@ public:
     return from_bits_t();
   }
 
-  constexpr C10_HOST_DEVICE CFloatWithSubnormals(uint32_t bits, from_bits_t)
+  constexpr C10_HOST_DEVICE CFloatWithSubnormals(uint32_t bits, from_bits_t) :
+    Base()
   {
     setblock(0, bits);
   }
@@ -533,10 +522,10 @@ public:
   static constexpr c10::CFloatWithSubnormals lowest() { // return most negative value
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::lowest());
   }
-  static constexpr c10::CFloatWithSubnormals epsilon() { // return smallest effective increment from 1.0
+  static CONSTEXPRESSION c10::CFloatWithSubnormals epsilon() { // return smallest effective increment from 1.0
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::epsilon());
   }
-  static constexpr c10::CFloatWithSubnormals round_error() { // return largest rounding error
+  static CONSTEXPRESSION c10::CFloatWithSubnormals round_error() { // return largest rounding error
     return c10::CFloatWithSubnormals(numeric_limits<c10::CFloatWithSubnormals::Base>::round_error());
   }
   static constexpr c10::CFloatWithSubnormals denorm_min() {  // return minimum denormalized value

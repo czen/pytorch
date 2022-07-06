@@ -12,7 +12,7 @@ import unittest
 from torch._six import inf, nan
 from torch.testing._internal.common_utils import (
     TestCase, run_tests, torch_to_numpy_dtype_dict, numpy_to_torch_dtype_dict,
-    suppress_warnings, TEST_SCIPY, slowTest, skipIfNoSciPy, IS_WINDOWS, gradcheck)
+    suppress_warnings, TEST_SCIPY, skipIfNoSciPy, IS_WINDOWS, gradcheck)
 from torch.testing._internal.common_methods_invocations import (
     unary_ufuncs, _NOTHING)
 from torch.testing._internal.common_device_type import (
@@ -321,7 +321,6 @@ class TestUnaryUfuncs(TestCase):
                 a = t.cpu().to(torch.float32).numpy()
             else:
                 a = t.cpu().numpy()
-
             actual = op(t, **torch_kwargs)
             expected = op.ref(a, **numpy_kwargs)
 
