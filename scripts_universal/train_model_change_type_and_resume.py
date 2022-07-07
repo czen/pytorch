@@ -39,7 +39,7 @@ def optimizer_to(optimizer, target):
                         subparam._grad.data = subparam._grad.data.to(target)
 
 dtype_name_to_dtype = {
-    'cfloatwithsubnormals': torch.float32
+    'cfloatwithsubnormals': torch.cfloatwithsubnormals
 }
 
 def main():
@@ -89,6 +89,7 @@ def main():
     batch_size = args.batch_size
     if batch_size <= 0:
         logging.error('--batch-size has to be >= 1')
+        return
 
     snapshot = torch.load(args.snapshot)
 
@@ -105,7 +106,7 @@ def main():
         output_snapshot_name.stem + '_resumed' + output_snapshot_name.suffix
     )
 
-    epoch = snapshot['epoch']
+    epoch = snapshot['epoch'] + 1
 
     if not args.random:
         # Make the result reproducible
@@ -143,17 +144,17 @@ def main():
         worker_init_fn=seed_worker
     )
 
-    testset = torchvision.datasets.CIFAR10(
+    valset = torchvision.datasets.CIFAR10(
         root='data/CIFAR10', train=False, download=True, transform=transform
     )
-    testloader = torch.utils.data.DataLoader(
-        testset, batch_size=batch_size, shuffle=False, num_workers=2,
+    valloader = torch.utils.data.DataLoader(
+        valset, batch_size=batch_size, shuffle=False, num_workers=2,
         generator=new_generator(),
         worker_init_fn=seed_worker
     )
 
     # Create the model
-    net = model(num_classes=10).to(torch.float64)
+    net = model(num_classes=10).to(torch.float32)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(
         net.parameters(),
@@ -172,7 +173,7 @@ def main():
 
     running_loss = 0
 
-    logging.info(f'Training {model_name} with {dtype} (steps per epoch: {len(trainloader)})')
+    logging.info(f'Training {model_name} model with {dtype} (steps per epoch: {len(trainloader)})')
     train_start_time = time()
     train_loss = 0.0
     running_loss = 0.0
@@ -188,7 +189,7 @@ def main():
         running_loss += loss.item()
         if i % 100 == 99:
             logging.info(
-                f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 100:.3f}'
+                f'[{epoch}, {i + 1:5d}] loss: {running_loss / 100:.3f}'
             )
             running_loss = 0.0
     train_end_time = time()
@@ -196,34 +197,38 @@ def main():
     train_loss /= len(trainloader.sampler)
     logging.info(f'Done. Loss: {train_loss}, time: {train_time}')
 
+    # Validate the net
+    # Calculate accuracy, MAP and MAR
+    accuracy = torchmetrics.Accuracy()
+    precision = torchmetrics.Precision(num_classes=10, average='macro')
+    recall = torchmetrics.Recall(num_classes=10, average='macro')
+    logging.info(f'Validating {model_name} model with {dtype} (steps: {len(valloader)})')
+    net = net.eval()
+    val_start_time = time()
+    with torch.no_grad():
+        for data in valloader:
+            inputs, labels = data
+            outputs = net(inputs)
+            _, predicted = torch.max(outputs.data, 1)
+            accuracy(labels, predicted)
+            precision(labels, predicted)
+            recall(labels, predicted)
+    val_end_time = time()
+    val_time = timedelta(seconds=val_end_time - val_start_time)
+
     # Save the model
     torch.save({
+        'epoch': epoch,
+        'accuracy': accuracy.compute().item(),
+        'precision': precision.compute().item(),
+        'recall': recall.compute().item(),
         'model_name': model_name,
         'model_state_dict': net.state_dict(),
         'optimizer_state_dict': optimizer.state_dict()
     }, str(output_snapshot_name))
 
-    # Test the net
-    # Calculate accuracy, MAP and MAR
-    accuracy = torchmetrics.Accuracy()
-    precision = torchmetrics.Precision(num_classes=10, average='macro')
-    recall = torchmetrics.Recall(num_classes=10, average='macro')
-    logging.info(f'Testing {model_name} with {dtype} (steps: {len(testloader)})')
-    net = net.eval()
-    test_start_time = time()
-    with torch.no_grad():
-        for data in testloader:
-            images, labels = data
-            outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-            accuracy(labels, predicted)
-            precision(labels, predicted)
-            recall(labels, predicted)
-    test_end_time = time()
-    test_time = timedelta(seconds=test_end_time - test_start_time)
-
     logging.info(
-        f'Done. Time: {test_time}, accuracy: {accuracy.compute().item()}%, '
+        f'Done. Time: {val_time}, accuracy: {accuracy.compute().item()}%, '
         f'macro average precision: {precision.compute().item()}, '
         f'macro average recall: {recall.compute().item()}'
     )
