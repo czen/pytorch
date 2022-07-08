@@ -1,18 +1,16 @@
 import torchvision
 from torchvision import transforms
 
-from .simple_dqn import SimpleDQN
 from .simple_net import SimpleNet
 
 model_name_to_model = {
     'mobilenetv3': torchvision.models.mobilenet_v3_small,
     'convnext': torchvision.models.convnext_base,
-    'simple': SimpleNet,
-    'simple_dqn': SimpleDQN
+    'simple': SimpleNet
 }
 
 def model_transforms(model_name, dtype):
-    if model_name in {'simple', 'simple_dqn'}:
+    if model_name == 'simple':
         return transforms.Compose([
             transforms.ToTensor(),
             transforms.ConvertImageDtype(dtype),

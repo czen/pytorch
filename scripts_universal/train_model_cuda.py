@@ -170,7 +170,6 @@ def main():
         log_dir=f'data/train_model_cuda/tensorboard_{model_name}'
     )
 
-    # Train for only one epoch since training on CPU is very slow
     logging.info(f'Training {model_name} model with {dtype} (steps per epoch: {len(trainloader)})')
     while True:
         if epochs is not None:
