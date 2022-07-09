@@ -22,7 +22,7 @@ namespace at {
 
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
-inline C10_HOST_DEVICE bool _isnan(T val) {
+inline C10_HOST_DEVICE bool _isnan(T /*val*/) {
   return false;
 }
 
@@ -78,7 +78,7 @@ AT_FORALL_UNIVERSAL_TYPES(OP)
 
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
-inline C10_HOST_DEVICE bool _isinf(T val) {
+inline C10_HOST_DEVICE bool _isinf(T /*val*/) {
   return false;
 }
 

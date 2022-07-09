@@ -450,6 +450,7 @@ An enum-like class for built-in communication hooks: ``ALLREDUCE`` and ``FP16_CO
           py::arg("output_device"),
           py::arg("broadcast_buffers"),
           py::arg("has_sync_bn"),
+          py::arg("static_graph"),
           py::call_guard<py::gil_scoped_release>())
       .def(
           "set_runtime_stats_and_log",
@@ -654,11 +655,13 @@ Example::
           .def(
               "get",
               [](::c10d::Store& store, const std::string& key) -> py::bytes {
-                auto value = store.get(key);
+                auto value = [&]() {
+                  py::gil_scoped_release guard;
+                  return store.get(key);
+                }();
                 return py::bytes(
                     reinterpret_cast<char*>(value.data()), value.size());
               },
-              py::call_guard<py::gil_scoped_release>(),
               R"(
 Retrieves the value associated with the given ``key`` in the store. If ``key`` is not
 present in the store, the function will wait for ``timeout``, which is defined
@@ -892,7 +895,7 @@ the server to establish a connection.
 Arguments:
     host_name (str): The hostname or IP Address the server store should run on.
     port (int): The port on which the server store should listen for incoming requests.
-    world_size (int, optional): The total number of store users (number of clients + 1 for the server). Default is -1 (a negative value indicates a non-fixed number of store users).
+    world_size (int, optional): The total number of store users (number of clients + 1 for the server). Default is None (None indicates a non-fixed number of store users).
     is_master (bool, optional): True when initializing the server store and False for client stores. Default is False.
     timeout (timedelta, optional): Timeout used by the store during initialization and for methods such as :meth:`~torch.distributed.store.get` and :meth:`~torch.distributed.store.wait`. Default is timedelta(seconds=300)
     wait_for_worker (bool, optional): Whether to wait for all the workers to connect with the server store. This is only applicable when world_size is a fixed value. Default is True.
@@ -911,14 +914,14 @@ Example::
       .def(
           py::init([](const std::string& host,
                       uint16_t port,
-                      int worldSize,
+                      c10::optional<int> worldSize,
                       bool isServer,
                       std::chrono::milliseconds timeout,
                       bool waitWorkers,
                       bool multiTenant) {
             c10::optional<std::size_t> numWorkers = c10::nullopt;
-            if (worldSize > -1) {
-              numWorkers = static_cast<std::size_t>(worldSize);
+            if (worldSize.has_value() && worldSize.value() > -1) {
+              numWorkers = static_cast<std::size_t>(worldSize.value());
             }
 
             ::c10d::TCPStoreOptions opts{
@@ -928,7 +931,7 @@ Example::
           }),
           py::arg("host_name"),
           py::arg("port"),
-          py::arg("world_size") = -1,
+          py::arg("world_size") = py::none(),
           // using noconvert() requires this argument to be True or False
           // prevents accidental implicit conversion to bool
           py::arg("is_master").noconvert() = false,
@@ -1428,7 +1431,9 @@ options :class:`~torch.distributed.ProcessGroupNCCL.Options`).
               py::arg("timeout") = kProcessGroupDefaultTimeout,
               py::call_guard<py::gil_scoped_release>())
           .def_property_readonly(
-              "options", &::c10d::ProcessGroupNCCL::getOptions);
+              "options", &::c10d::ProcessGroupNCCL::getOptions)
+          .def_property_readonly(
+              "is_ucc_available", &::c10d::ProcessGroupNCCL::isUCCAvailable);
 
   intrusive_ptr_class_<::c10d::ProcessGroupNCCL::Options>(
       processGroupNCCL,
