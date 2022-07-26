@@ -56,6 +56,7 @@ complexFloatT = BaseCppType("c10", "complex<float>")
 complexDoubleT = BaseCppType("c10", "complex<double>")
 boolT = BaseCppType("", "bool")
 bfloat16T = BaseCppType("at", "BFloat16")
+CFloatWithSubnormals = BaseCppType("at", "CFloatWithSubnormals")
 voidT = BaseCppType("", "void")
 stringT = BaseCppType("c10", "string_view")
 generatorT = BaseCppType("at", "Generator")
@@ -102,6 +103,7 @@ ScalarTypeToCppMapping: Dict[ScalarType, BaseCppType] = {
     ScalarType.ComplexDouble: complexDoubleT,
     ScalarType.Bool: boolT,
     ScalarType.BFloat16: bfloat16T,
+    ScalarType.CFloatWithSubnormals: CFloatWithSubnormals
 }
 
 BaseTypeToCppMapping: Dict[BaseTy, BaseCppType] = {

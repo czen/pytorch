@@ -215,6 +215,7 @@ class ScalarType(Enum):
     ComplexDouble = auto()
     Bool = auto()
     BFloat16 = auto()
+    CFloatWithSubnormals = auto()
 
     def __str__(self) -> str:
         return self.name
@@ -260,6 +261,7 @@ DTYPE_CLASSES["AllAndComplex"] = DTYPE_CLASSES["All"] | DTYPE_CLASSES["Complex"]
 DTYPE_CLASSES["FloatingAndComplex"] = (
     DTYPE_CLASSES["Floating"] | DTYPE_CLASSES["Complex"]
 )
+DTYPE_CLASSES["Universal"] = {ScalarType.CFloatWithSubnormals}
 
 
 # Represents the valid entries for ufunc_inner_loop in native_functions.yaml.
