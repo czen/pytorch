@@ -242,7 +242,7 @@ class TestShapeOps(TestCase):
     @dtypesIfCUDA(*universal_types())
     def test_trace(self, device, dtype):
         def test(shape):
-            tensor = make_tensor(shape, device, dtype, low=-9, high=9)
+            tensor = make_tensor(shape, dtype=dtype, device=device, low=-9, high=9)
             expected_dtype = tensor.sum().dtype
             if dtype in universal_types():
                 expected_dtype = native_equivalent[expected_dtype]

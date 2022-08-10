@@ -366,11 +366,6 @@ class TestUnaryUfuncs(TestCase):
     @ops(reference_filtered_ops,
          dtypes=universal_types())
     def test_reference_numerics_extremal(self, device, dtype, op):
-        handles_extremals = (op.handles_complex_extremals if
-                             dtype in (torch.cfloat, torch.cdouble) else op.handles_extremals)
-        if not handles_extremals:
-            raise self.skipTest("This op does not handle extremal values")
-
         tensors = generate_numeric_tensors_extremal(device, dtype,
                                                     domain=op.domain)
 
@@ -406,7 +401,7 @@ class TestUnaryUfuncs(TestCase):
     def test_non_contig(self, device, dtype, op):
         shapes = [(5, 7), (1024,)]
         for shape in shapes:
-            contig = make_tensor(shape, device, dtype,
+            contig = make_tensor(shape, device=device, dtype=dtype,
                                  low=op.domain[0], high=op.domain[1])
             non_contig = torch.empty(shape + (2,), device=device, dtype=dtype)[..., 0]
             non_contig.copy_(contig)
@@ -419,7 +414,7 @@ class TestUnaryUfuncs(TestCase):
 
     @ops(unary_ufuncs, dtypes=universal_types())
     def test_non_contig_index(self, device, dtype, op):
-        contig = make_tensor((2, 2, 1, 2), device, dtype,
+        contig = make_tensor((2, 2, 1, 2), device=device, dtype=dtype,
                              low=op.domain[0], high=op.domain[1])
         non_contig = contig[:, 1, ...]
         contig = non_contig.contiguous()
@@ -434,7 +429,7 @@ class TestUnaryUfuncs(TestCase):
     def test_non_contig_expand(self, device, dtype, op):
         shapes = [(1, 3), (1, 7), (5, 7)]
         for shape in shapes:
-            contig = make_tensor(shape, device, dtype,
+            contig = make_tensor(shape, device=device, dtype=dtype,
                                  low=op.domain[0], high=op.domain[1])
             non_contig = contig.clone().expand(3, -1, -1)
 
@@ -450,7 +445,7 @@ class TestUnaryUfuncs(TestCase):
 
     @ops(unary_ufuncs, dtypes=universal_types())
     def test_contig_size1(self, device, dtype, op):
-        contig = make_tensor((5, 100), device, dtype,
+        contig = make_tensor((5, 100), device=device, dtype=dtype,
                              low=op.domain[0], high=op.domain[1])
         contig = contig[:1, :50]
         contig2 = torch.empty(contig.size(), device=device, dtype=dtype)
@@ -464,7 +459,7 @@ class TestUnaryUfuncs(TestCase):
 
     @ops(unary_ufuncs, dtypes=universal_types())
     def test_contig_size1_large_dim(self, device, dtype, op):
-        contig = make_tensor((5, 2, 3, 1, 4, 5, 3, 2, 1, 2, 3, 4), device, dtype,
+        contig = make_tensor((5, 2, 3, 1, 4, 5, 3, 2, 1, 2, 3, 4), device=device, dtype=dtype,
                              low=op.domain[0], high=op.domain[1])
         contig = contig[:1, :, :, :, :, :, :, :, :, :, :, :]
         contig2 = torch.empty(contig.size(), device=device, dtype=dtype)
@@ -597,7 +592,7 @@ class TestUnaryUfuncs(TestCase):
     @skipCUDAIfRocm
     @dtypes(*universal_types())
     def test_frexp(self, device, dtype):
-        input = make_tensor((50, 50), device, dtype)
+        input = make_tensor((50, 50), device=device, dtype=dtype)
         mantissa, exponent = torch.frexp(input)
         np_mantissa, np_exponent = np.frexp(input.to(native_equivalent[dtype]).cpu().numpy())
 
@@ -614,12 +609,12 @@ class TestUnaryUfuncs(TestCase):
             get_all_complex_dtypes() + \
             [torch.bool]
         for dtype in invalid_input_dtypes:
-            input = make_tensor((50, 50), device, dtype)
+            input = make_tensor((50, 50), device=device, dtype=dtype)
             with self.assertRaisesRegex(RuntimeError, r"torch\.frexp\(\) only supports floating-point dtypes"):
                 torch.frexp(input)
 
         for dtype in get_all_fp_dtypes(include_half=True, include_bfloat16=False):
-            input = make_tensor((50, 50), device, dtype)
+            input = make_tensor((50, 50), device=device, dtype=dtype)
 
             dtypes = list(all_types_and_complex_and_universal_and(torch.bool, torch.half, torch.bfloat16))
             dtypes.remove(dtype)
